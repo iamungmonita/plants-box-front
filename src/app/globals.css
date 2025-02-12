@@ -1,21 +1,58 @@
+@import url("https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Calistoga&family=Pacifico&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Yesteryear&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #14705e;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --primary: #45624e;
+    --secondary: #6d8777;
+    --green-light: #c0cfb2;
+    --light: #e4e6df;
+    --dark: #273525;
   }
 }
-
+html,
 body {
-  color: var(--foreground);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "red hat display", serif;
+  position: relative;
+  min-height: 100%; /* Ensure the page takes up the full viewport height */
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
 }
+
+.main_text {
+  font-family: "red hat display", serif;
+  font-weight: bold;
+  font-size: xx-large;
+  color: var(--primary);
+}
+
+h1,
+h2 {
+  font-family: "red hat display", serif;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+header,
+footer,
+body {
+  font-family: "red hat display";
+  color: var(--secondary);
+}
+
+section {
+  width: 100%;
+  height: auto;
+  margin-bottom: 16px;
+} /*# sourceMappingURL=globals.css.map */

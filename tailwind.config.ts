@@ -11,6 +11,14 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        primary: "var(--primary-color)", // Custom root color
+        secondary: "var(--secondary-color)",
+        light_green: "var(--green-light)",
+        light: "var(--light)",
+        dark: "var(--dark)",
+      },
+      fontFamily: {
+        sans: ["Red Hat Display", "sans-serif"],
       },
     },
   },
