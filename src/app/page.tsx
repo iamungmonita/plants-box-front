@@ -30,10 +30,10 @@ import Map from "@/components/Map";
 import CardCarousel from "@/components/CardCarousel";
 import { Button } from "@mui/material";
 import { TbArrowRightCircle } from "react-icons/tb";
-import { ProductReturn } from "@/schema/products";
+import { ProductReturn, ProductReturnList } from "@/schema/products";
 
 const Page = () => {
-  const [products, setProducts] = useState<ProductReturn[]>([]);
+  const [products, setProducts] = useState<ProductReturnList[]>([]);
 
   useEffect(() => {
     fetch("http://localhost:4002/product/retrieve", {

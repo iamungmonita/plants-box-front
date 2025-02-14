@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { CloseSharp } from "@mui/icons-material";
 import Link from "next/link";
+import { updateProductStockById } from "@/services/products";
+import Button from "@mui/material/Button";
 
 export interface ShoppingCartProduct {
   _id: string;
@@ -89,17 +91,12 @@ const ShoppingCart = () => {
   };
 
   const handleCheckout = async (id: string, qty: number) => {
-    await fetch(`http://localhost:4002/product/update/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ stock: qty }),
-    })
-      .then((result) => result.json())
-      .then((result) => console.log(result.product))
-      .catch((err) => console.log(err));
+    try {
+      const response = await updateProductStockById(id, { stock: qty });
+      console.log("Stock updated successfully:", response);
+    } catch (error) {
+      console.error("Error updating stock:", error);
+    }
   };
 
   return (
@@ -124,9 +121,9 @@ const ShoppingCart = () => {
         )}
       </div>
       {total}
-      <Link href="/order" type="button">
+      <Button onClick={settleCheckout} type="button">
         Check Out
-      </Link>
+      </Button>
     </div>
   );
 };

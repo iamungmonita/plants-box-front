@@ -9,6 +9,7 @@ import { Button } from "@mui/material";
 import { Product, ProductSchema } from "@/schema/products";
 import AutocompleteForm from "@/components/Autocomplete";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { useParams } from "next/navigation";
 import {
   SortableContext,
   useSortable,
@@ -16,7 +17,12 @@ import {
 } from "@dnd-kit/sortable";
 import { arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { getProductById } from "@/services/products";
+import {
+  AddNewProduct,
+  getProductById,
+  updateProductDetailsById,
+} from "@/services/products";
+import { options } from "@/constants/AutoComplete";
 
 const SortableImage = ({
   id,
@@ -66,6 +72,7 @@ const Page: React.FC = () => {
   const { handleSubmit, setValue } = methods;
   const [fileList, setFileList] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const { register } = methods;
 
   const onSubmit = async (data: Product) => {
@@ -81,45 +88,31 @@ const Page: React.FC = () => {
 
     const filesBase64 = await Promise.all(filePromises);
     const productData = { ...data, pictures: filesBase64 };
-    fetch("http://localhost:4002/upload", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(productData),
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("Upload result:", result);
-        alert("successfully created.");
-        setValue("name", "");
-        setValue("type", "");
-        setValue("price", "");
-        setValue("description", "");
-        setValue("size", "");
-        setValue("temperature", "");
-        setValue("instruction", "");
-        setValue("habit", "");
-        setValue("stock", 0);
-        setValue("pictures", []);
-        setFileList([]);
-        setPreviewUrls([]);
-      })
-      .catch((error) => {
-        console.error("Error uploading:", error);
-      });
+    try {
+      const response = createId
+        ? await updateProductDetailsById(createId, productData)
+        : await AddNewProduct(productData);
+
+      console.log("Upload result:", response);
+      alert("Successfully created.");
+
+      setValue("name", "");
+      setValue("type", "");
+      setValue("price", "");
+      setValue("description", "");
+      setValue("size", "");
+      setValue("temperature", "");
+      setValue("instruction", "");
+      setValue("habit", "");
+      setValue("stock", 0);
+      setValue("pictures", []);
+      setFileList([]);
+      setPreviewUrls([]);
+    } catch (error) {
+      console.error("Error uploading:", error);
+    }
   };
 
-  //   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //     if (e.target.files) {
-  //       const files = Array.from(e.target.files);
-  //       console.log("Files selected:", files);
-  //
-  //       setFileList((prevFiles) => [...prevFiles, ...files]);
-  //     }
-  //   };
-
-  // ✅ Handle File Upload
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const files = Array.from(event.target.files);
@@ -130,22 +123,46 @@ const Page: React.FC = () => {
       ]);
     }
   };
+  const searchParam = useParams();
+  const createId = searchParam.id as string;
+  useEffect(() => {
+    if (!createId) return;
 
-  //   const handleDragEnd = (event: DragEndEvent) => {
-  //     const { active, over } = event;
-  //     if (!over) return;
-  //
-  //     const activeIndex = fileList.findIndex(
-  //       (file) => file.lastModified === active.id
-  //     );
-  //     const overIndex = fileList.findIndex(
-  //       (file) => file.lastModified === over.id
-  //     );
-  //
-  //     if (activeIndex !== overIndex) {
-  //       setFileList((files) => arrayMove(files, activeIndex, overIndex));
-  //     }
-  //   };
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const productData = await getProductById(createId);
+        const product = productData.product;
+        console.log(product);
+        setValue("name", product.name);
+        const selectedOption = options.find((opt) => opt === product.type);
+        if (selectedOption) {
+          setValue("type", selectedOption);
+        }
+        setValue("price", product.price);
+        setValue("description", product.description);
+        setValue("size", product.size);
+        setValue("temperature", product.temperature);
+        setValue("instruction", product.instruction);
+        setValue("habit", product.habit);
+        setValue("stock", product.stock);
+        setFileList(fileList);
+        console.log(fileList);
+        if (product.pictures) {
+          setPreviewUrls(
+            product.pictures.map((pic) => `http://localhost:4002${pic}`)
+          );
+        }
+      } catch (err) {
+        console.error("Error fetching product:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [createId]);
+
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
     if (active.id !== over.id) {
@@ -168,13 +185,6 @@ const Page: React.FC = () => {
     }
   };
 
-  const options = ["Interior", "Exterior"];
-
-  // Use lastModified to ensure a unique identifier for each file
-  // const sortableItems = fileList.map((file) => ({
-  //   id: file.lastModified.toString(), // Use file.lastModified for uniqueness
-  //   file,
-  // }));
   const removeImage = (index: number) => {
     // Revoke the object URL to avoid memory leaks
     URL.revokeObjectURL(previewUrls[index]);
@@ -255,7 +265,7 @@ const Page: React.FC = () => {
             type="submit"
             sx={{ backgroundColor: "var(--medium-light)" }}
           >
-            Add Plant
+            {createId ? "Update Plant" : "Add Plant"}
           </Button>
         </Form>
       </div>

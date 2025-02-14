@@ -23,7 +23,7 @@ export default function RootLayout({
         <main className="flex-1 flex items-center justify-center">
           <AuthProvider>{children}</AuthProvider>
         </main>
-        <Footer />;
+        <Footer />
       </body>
     </html>
   );

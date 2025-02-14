@@ -7,8 +7,9 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import { ProductReturn } from "@/schema/products";
+import { ProductReturn, ProductReturnList } from "@/schema/products";
 import { useRouter } from "next/navigation";
+import { Product } from "@/schema/order";
 
 interface Column {
   id:
@@ -86,7 +87,7 @@ function createData(
 export default function StickyHeadTable({
   products,
 }: {
-  products: ProductReturn[];
+  products: ProductReturnList[];
 }) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(7);
@@ -136,7 +137,7 @@ export default function StickyHeadTable({
           <TableBody>
             {products
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => {
+              .map((row: Product) => {
                 return (
                   <TableRow
                     hover

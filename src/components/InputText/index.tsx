@@ -1,53 +1,46 @@
 import React from "react";
-import { useFormContext } from "react-hook-form";
-import TextField, { TextFieldVariants } from "@mui/material/TextField";
+import { TextField } from "@mui/material";
+import { Controller, useFormContext } from "react-hook-form";
 
-export interface InputFieldProps {
+interface InputFieldProps {
   name: string;
-  placeholder?: string;
   type: string;
-  className?: string;
-  label?: string;
+  label: string;
   multiline?: boolean;
-  maxRows?: number;
   minRows?: number;
-  variant?: TextFieldVariants | undefined;
+  placeholder?: string;
 }
-const InputField = (props: InputFieldProps) => {
-  const {
-    name,
-    placeholder,
-    type,
-    multiline,
-    label,
-    maxRows,
-    minRows,
-    variant = "outlined",
-  } = props;
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext();
+
+const InputField: React.FC<InputFieldProps> = ({
+  name,
+  type,
+  label,
+  multiline = false,
+  minRows = 1,
+  placeholder,
+}) => {
+  const { control } = useFormContext();
+
   return (
-    <div className="grid grid-cols-1">
-      <TextField
-        sx={{
-          "& .MuiInputBase-input": { fontFamily: "var(--text)" }, // Input text
-          "& .MuiInputLabel-root": { fontFamily: "var(--text)" }, // Label text
-          "& .MuiFormHelperText-root": { fontFamily: "var(--text)" },
-        }}
-        variant={variant}
-        label={label}
-        {...register(name)}
-        type={type}
-        placeholder={placeholder}
-        helperText={errors[name]?.message?.toString()}
-        error={!!errors[name]}
-        multiline={multiline}
-        maxRows={maxRows}
-        minRows={minRows}
-      />
-    </div>
+    <Controller
+      name={name}
+      control={control}
+      render={({ field, fieldState }) => (
+        <TextField
+          {...field}
+          type={type}
+          label={label}
+          fullWidth
+          placeholder={placeholder}
+          multiline={multiline}
+          minRows={minRows}
+          variant="outlined"
+          error={!!fieldState.error}
+          helperText={fieldState.error?.message}
+          InputLabelProps={{ shrink: true }}
+        />
+      )}
+    />
   );
 };
 

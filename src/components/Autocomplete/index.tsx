@@ -16,15 +16,13 @@ const AutocompleteForm = ({ options, name, label }: AutocompleteTypeProps) => {
     formState: { errors },
   } = useFormContext();
 
-  const [inputValue, setInputValue] = useState(getValues(name) || "");
+  const formValue = watch(name); // Watch for changes in form state
 
-  // Watch for external changes in the form
-  const formValue = watch(name);
+  // Sync local state with form value on mount & when value changes externally
+  const [inputValue, setInputValue] = useState<string>(formValue || "");
 
   useEffect(() => {
-    if (formValue === "") {
-      setInputValue("");
-    }
+    setInputValue(formValue || ""); // Update state when external form changes
   }, [formValue]);
 
   return (
@@ -36,7 +34,7 @@ const AutocompleteForm = ({ options, name, label }: AutocompleteTypeProps) => {
         "& .MuiAutocomplete-option": { fontFamily: "var(--text)" },
       }}
       options={options}
-      value={inputValue}
+      value={options.includes(inputValue) ? inputValue : null} // Ensure valid option
       onChange={(_, newValue) => {
         setInputValue(newValue || "");
         setValue(name, newValue || ""); // Update React Hook Form

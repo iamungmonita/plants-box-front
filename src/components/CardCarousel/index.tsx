@@ -11,12 +11,12 @@ import Typography from "@mui/material/Typography";
 import { Button } from "@mui/material";
 import { ShoppingBasket } from "@mui/icons-material";
 import { TbShoppingBagPlus } from "react-icons/tb";
-import { ProductReturn } from "@/schema/products";
+import { ProductReturn, ProductReturnList } from "@/schema/products";
 
 interface CardCarouselProps {
   nextRef?: React.RefObject<HTMLButtonElement>;
   prevRef?: React.RefObject<HTMLButtonElement>;
-  cards: ProductReturn[];
+  cards: ProductReturnList[];
 }
 
 export default function CardCarousel({

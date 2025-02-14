@@ -13,8 +13,33 @@ export interface Product extends FieldValues {
   habit: string; // Growth pattern, size, etc.
   stock: number; // Number of plants available in stock
 }
+export interface ProductAddPicture extends FieldValues {
+  description: string;
+  name: string;
+  pictures: string[]; // Array of image URLs
+  price: string; // Assuming price is a string; you can change it to a number if needed
+  type: string;
+  size: string; // e.g., "Small", "Medium", "Large"
+  temperature: string; // e.g., "60-75°F", "18-25°C"
+  instruction: string; // Detailed care instructions
+  habit: string; // Growth pattern, size, etc.
+  stock: number; // Number of plants available in stock
+}
 
-export interface ProductReturn extends Product {
+export interface ProductReturn {
+  description: string;
+  name: string;
+  pictures: File[]; // Array of image URLs
+  price: string; // Assuming price is a string; you can change it to a number if needed
+  type: string;
+  size: string; // e.g., "Small", "Medium", "Large"
+  temperature: string; // e.g., "60-75°F", "18-25°C"
+  instruction: string; // Detailed care instructions
+  habit: string; // Growth pattern, size, etc.
+  stock: number; // Number of plants available in stock
+}
+
+export interface ProductReturnList extends ProductReturn {
   __v: number;
   _id: string;
   createdAt: string;
