@@ -28,24 +28,35 @@ import {
 } from "@mui/icons-material";
 import Map from "@/components/Map";
 import CardCarousel from "@/components/CardCarousel";
-import { Button } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+} from "@mui/material";
 import { TbArrowRightCircle } from "react-icons/tb";
 import { ProductReturn, ProductReturnList } from "@/schema/products";
+import { getAllProducts } from "@/services/products";
 
 const Page = () => {
   const [products, setProducts] = useState<ProductReturnList[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:4002/product/retrieve", {
-      method: "GET",
-      credentials: "include",
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        setProducts(result.products);
-        console.log(result.products);
-      })
-      .catch((err) => console.log(err));
+    const fetchProduct = async () => {
+      try {
+        const response = await getAllProducts();
+        if (response && response) {
+          setProducts(response); // Set state if products exist
+        } else {
+          console.error("No products found in response");
+          setProducts([]); // Ensure state is set even if response is incorrect
+        }
+      } catch (error) {
+        console.error("Error uploading:", error);
+      }
+    };
+    fetchProduct();
   }, []);
   const prevRef = React.useRef<HTMLButtonElement>(
     null as unknown as HTMLButtonElement
@@ -68,36 +79,9 @@ const Page = () => {
         </div>
       </section>
 
-      {/* <aside className="w-full relative max-lg:h-auto col-span-1 border max-md:col-span-5 ">
-        <div className=" shadow-md backdrop-blur-md h-screen max-lg:h-auto p-4">
-          <h1 className="text-xl text-center text-green-800">
-            Our Best Sellers
-          </h1>
-          <div className=" flex items-start p-2 border-b justify-start gap-4 ">
-            <h1 className="mr-4">1.</h1>
-            <div className="flex gap-4">
-              <Image src="/assets/plant.jpg" alt="" width={50} height={50} />
-              <div className="text-start">
-                <p className=" text-gray-500">Daisy</p>
-                <p className="text-green-800 ">$20.00</p>
-              </div>
-            </div>
-          </div>
-          <div className=" flex items-start p-2 border-b justify-start gap-4 ">
-            <h1 className="mr-4">2.</h1>
-            <div className="flex gap-4">
-              <Image src="/assets/plant.jpg" alt="" width={50} height={50} />
-              <div className="text-start">
-                <p className=" text-gray-500">Daisy</p>
-                <p className="text-green-800 ">$20.00</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </aside> */}
       <section className="col-span-5 px-4">
         <div className="flex justify-between w-full items-center">
-          <h2 className="text-2xl py-4">Our popular products</h2>
+          <h2 className="text-2xl">Our popular products</h2>
           <div className="z-10 flex gap-2">
             <button
               ref={prevRef}
@@ -113,24 +97,23 @@ const Page = () => {
             </button>
           </div>
         </div>
-        <div className="overflow-x-auto whitespace-nowrap relative mt-4">
+        <div className="overflow-x-auto whitespace-nowrap relative ">
           <CardCarousel nextRef={nextRef} prevRef={prevRef} cards={products} />
         </div>
       </section>
       <section className="max-md:px-4 col-span-5 max-md:col-span-5 max-xl:p-4">
         <div className="flex justify-between w-full items-center">
-          <h2 className="text-2xl py-4">Browse our Collections</h2>
+          <h2 className="text-2xl">Browse our Collections</h2>
           <Link
             href="/products"
-            className="hover:cursor-pointer py-4 flex items-center gap-4"
+            className="hover:cursor-pointer py-2 flex items-center gap-4"
           >
             View all <FiArrowRightCircle />
           </Link>
         </div>
         <div className="h-[50vh] w-full relative max-xl:h-[100vh]">
-          {/* <div className="w-full bg-slate-100 h-[30vh] rounded-3xl absolute bottom-0 left-0 max-xl:hidden"></div> */}
           <div className="grid grid-cols-4 w-full max-xl:grid-cols-2 absolute justify-between top-[-20] gap-4">
-            <div className="flex group relative flex-col items-center justify-start w-full ">
+            {/* <div className="flex group relative flex-col items-center justify-start w-full ">
               <Image
                 src="/assets/sample2.png"
                 alt=""
@@ -181,19 +164,10 @@ const Page = () => {
                 <h2 className="text-2xl font-bold">Decorations</h2>
               </div>
               <div className="w-full bg-slate-100 h-[30vh] rounded-3xl absolute bottom-0 left-0"></div>
-            </div>
+            </div> */}
+            <div className="border min-w-[300px]"></div>
           </div>
         </div>
-        {/* <Marquee speed={30} gradient={false}>
-          <div className="overflow-x-auto whitespace-nowrap">
-            <div className="grid grid-cols-4 gap-4 py-4 ml-4">
-              <MediaCard />
-              <MediaCard />
-              <MediaCard />
-              <MediaCard />
-            </div>
-          </div>
-        </Marquee> */}
       </section>
       <section className="col-span-5 px-4 mb-32">
         <h2 className="text-2xl col-span-5 mb-4">Find Us</h2>

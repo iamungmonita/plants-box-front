@@ -5,18 +5,14 @@
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
 import { useAuthContext } from "@/context/AuthContext";
-import Link from "next/link";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { LogInSchema } from "@/schema/auth";
 import { Button } from "@mui/material";
-
-export interface IAuthLogIn {
-  email: string;
-  password: string;
-}
+import { IAuthLogIn } from "@/models/auth";
+import { SignIn } from "@/services/authentication";
 
 const Page = () => {
   const { signIn, onRefresh } = useAuthContext();
@@ -25,25 +21,18 @@ const Page = () => {
   const router = useRouter();
 
   const onSubmitForm = async (data: IAuthLogIn) => {
-    const response = await fetch("http://localhost:4002/auth/signin", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+    const response = await SignIn(data);
 
-    const result = await response.json();
-
-    if (response.ok) {
+    if ("admin" in response) {
       signIn();
       onRefresh();
       router.push("/admin/dashboard");
-    } else if (result.name && result.message) {
-      setError(result.name, { type: "manual", message: result.message });
     } else {
-      console.log(result.message);
+      setError(response.name as "email" | "password", {
+        type: "manual",
+        message: response.message,
+      });
+      console.log(response.message);
     }
   };
 

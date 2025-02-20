@@ -1,3 +1,4 @@
+import { ShoppingCartProduct } from "@/components/ShoppingCart";
 import { FieldValues } from "react-hook-form";
 import * as yup from "yup";
 
@@ -54,8 +55,14 @@ export interface Order {
   _id: string;
 }
 
-export interface filteredOrders {
+export interface Response {
+  _v: number;
   _id: string;
   createdAt: string;
-  orders: Order[];
+  updatedAt: string;
+}
+
+export interface PurchasedOrderList extends Response {
+  orders: ShoppingCartProduct[];
+  purchasedId: string;
 }

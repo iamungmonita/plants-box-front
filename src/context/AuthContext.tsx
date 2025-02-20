@@ -1,5 +1,8 @@
 "use client";
 
+import API_URL from "@/lib/api";
+import { Profile } from "@/models/auth";
+import { getAdminProfile, SignOut } from "@/services/authentication";
 import { getAccessToken } from "@/utils/Cookie";
 import { useRouter } from "next/navigation";
 import React, {
@@ -17,6 +20,7 @@ export interface AuthContextType {
   signOut: () => void;
   onRefresh: () => void;
   profile: Profile | null;
+  message: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,28 +33,49 @@ export const useAuthContext = () => {
   return context;
 };
 
-export interface Profile {
-  createdAt: string;
-  email: string;
-  password: string;
-  updatedAt: string;
-  username: string;
-  __v: number;
-  _id: string;
-}
-
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefresh, setIsRefresh] = useState<boolean>(false);
+
+  const fetchProfile = async (abortController: AbortController) => {
+    try {
+      const response = await getAdminProfile(abortController);
+      if ("admin" in response) {
+        setIsAuthenticated(true);
+        setProfile(response.admin);
+      } else if (response.name && response.message) {
+        setProfile(null);
+        setMessage(response.message);
+      } else {
+        console.log(response.message);
+      }
+    } catch (error: unknown) {
+      // Type assertion to ensure it's an instance of Error
+      if (error instanceof Error) {
+        if (error.name !== "AbortError") {
+          // Handle non-abort errors here
+          console.error("Error fetching profile:", error.message);
+        } else {
+          // Handle abort error separately
+          console.log("Request was aborted.");
+        }
+      } else {
+        console.error("Unknown error:", error);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const accessToken = getAccessToken();
     if (accessToken) {
       const abortController = new AbortController();
-      getAdminProfile(abortController);
+      fetchProfile(abortController);
       return () => abortController.abort();
     }
     setIsLoading(false);
@@ -63,36 +88,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsAuthenticated(true);
   };
 
-  const signOut = () => {
-    fetch("http://localhost:4002/auth/signout", {
-      method: "POST",
-      credentials: "include",
-    }).then(() => {
-      setIsAuthenticated(false);
-    });
-  };
-
-  const getAdminProfile = async (abortController: AbortController) => {
+  const signOut = async () => {
     try {
-      const response = await fetch("http://localhost:4002/auth/profile", {
-        method: "GET",
-        credentials: "include",
-        signal: abortController.signal,
-      });
-
-      if (!response.ok) {
-        setIsAuthenticated(false);
-        setProfile(null);
-        throw new Error(response.statusText);
-      } else {
-        const result = await response.json();
-        setIsAuthenticated(true);
-        setProfile(result.admin);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
+      await SignOut();
+      setIsAuthenticated(false);
+      setProfile(null);
+      setMessage(null);
+    } catch (err) {
+      console.log("Error signing out", err);
     }
   };
 
@@ -106,7 +109,15 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, signIn, signUp, signOut, onRefresh, profile }}
+      value={{
+        isAuthenticated,
+        signIn,
+        signUp,
+        signOut,
+        onRefresh,
+        profile,
+        message,
+      }}
     >
       {children}
     </AuthContext.Provider>

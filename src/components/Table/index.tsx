@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -7,93 +7,34 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import { ProductReturn, ProductReturnList } from "@/schema/products";
-import { useRouter } from "next/navigation";
-import { Product } from "@/schema/order";
 
-interface Column {
-  id:
-    | "image"
-    | "name"
-    | "type"
-    | "price"
-    | "size"
-    | "stock"
-    | "createdAt"
-    | "updatedAt";
+interface Column<T> {
+  id: keyof T;
   label: string;
   minWidth?: number;
-  align?: "right";
-  format?: (value: number) => string;
+  align?: "right" | "left" | "center";
+  format?: (value: number) => number | string;
+  formatString?: (value: string) => string;
+  render?: (value: any, row: T) => React.ReactNode;
 }
 
-const columns: readonly Column[] = [
-  { id: "image", label: "Image", minWidth: 100 },
-  { id: "name", label: "Name", minWidth: 170 },
-  { id: "type", label: "Type", minWidth: 100 },
-  {
-    id: "price",
-    label: "Price",
-    minWidth: 170,
-    align: "right",
-    format: (value: number) => value.toFixed(2),
-  },
-  {
-    id: "size",
-    label: "Size",
-    minWidth: 170,
-  },
-  {
-    id: "stock",
-    label: "Stock",
-    minWidth: 170,
-  },
-  {
-    id: "createdAt",
-    label: "Created At",
-    minWidth: 170,
-  },
-  {
-    id: "updatedAt",
-    label: "Updated At",
-    minWidth: 170,
-  },
-];
-
-interface Data {
-  image: File[];
-  name: string;
-  type: string;
-  price: string;
-  size: string;
-  stock: number;
-  createdAt: string;
-  updatedAt: string;
+interface ReusableTableProps<T> {
+  columns: Column<T>[];
+  data: T[];
+  onRowClick?: (row: T) => void;
+  rowsPerPageOptions?: number[];
 }
 
-function createData(
-  name: string,
-  type: string,
-  price: string,
-  createdAt: string,
-  updatedAt: string,
-  size: string,
-  stock: number,
-  image: File[]
-): Data {
-  return { name, stock, price, size, type, createdAt, updatedAt, image };
-}
-
-export default function StickyHeadTable({
-  products,
-}: {
-  products: ProductReturnList[];
-}) {
+const ReusableTable = <T extends { [key: string]: any }>({
+  columns,
+  data,
+  onRowClick,
+  rowsPerPageOptions = [5, 10, 25],
+}: ReusableTableProps<T>) => {
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(7);
-  const router = useRouter();
+  const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
 
@@ -104,25 +45,17 @@ export default function StickyHeadTable({
     setPage(0);
   };
 
-  const redirectPage = (id: string) => {
-    router.push(`/admin/products/${id}`);
-  };
-
   return (
     <Paper
-      sx={{
-        width: "100%",
-        overflow: "hidden",
-        fontFamily: "var(--text)",
-      }}
+      sx={{ width: "100%", overflow: "hidden", fontFamily: "var(--text)" }}
     >
       <TableContainer sx={{ maxHeight: 700 }}>
-        <Table stickyHeader aria-label="sticky table">
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
               {columns.map((column) => (
                 <TableCell
-                  key={column.id}
+                  key={String(column.id)}
                   align={column.align}
                   style={{
                     minWidth: column.minWidth,
@@ -135,64 +68,51 @@ export default function StickyHeadTable({
             </TableRow>
           </TableHead>
           <TableBody>
-            {products
+            {data
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row: Product) => {
-                return (
-                  <TableRow
-                    hover
-                    className="hover:cursor-pointer"
-                    role="checkbox"
-                    tabIndex={-1}
-                    key={row._id}
-                  >
-                    {columns.map((column) => {
-                      const value = row[column.id];
-                      return (
-                        <TableCell
-                          key={column.id}
-                          align={column.align}
-                          style={{ fontFamily: "var(--text)" }}
-                          onClick={() => redirectPage(row._id)}
-                        >
-                          {column.id === "image" ? (
-                            row.pictures?.[0] ? (
-                              <img
-                                src={`http://localhost:4002${row.pictures[0]}`} // If it's a URL string, use it directly
-                                alt="Product"
-                                style={{
-                                  width: 50,
-                                  height: 50,
-                                  objectFit: "cover",
-                                }}
-                              />
-                            ) : (
-                              <span>No Image</span>
-                            )
-                          ) : column.format && typeof value === "number" ? (
-                            column.format(value)
-                          ) : (
-                            value
-                          )}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
+              .map((row) => (
+                <TableRow
+                  key={row._id}
+                  hover
+                  className="hover:cursor-pointer"
+                  tabIndex={-1}
+                  onClick={() => onRowClick && onRowClick(row)}
+                >
+                  {columns.map((column) => {
+                    const value = row[column.id];
+                    return (
+                      <TableCell
+                        key={String(column.id)}
+                        align={column.align}
+                        style={{ fontFamily: "var(--text)" }}
+                      >
+                        {column.render
+                          ? column.render(value, row)
+                          : column.format
+                          ? column.format(value)
+                          : column.formatString
+                          ? column.formatString(value)
+                          : value
+                          ? value
+                          : value !== 0
+                          ? "N/A"
+                          : 0}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
         sx={{
-          "& .MuiTablePagination-input	": { fontFamily: "var(--text)" },
-          "& .MuiTablePagination-selectIcon": { fontFamily: "var(--text)" },
-          "& .MuiTablePagination-selectLabel	": { fontFamily: "var(--text)" },
-          "& .MuiTablePagination-displayedRows	": { fontFamily: "var(--text)" },
+          "& .MuiTablePagination-input, & .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
+            { fontFamily: "var(--text)" },
         }}
-        rowsPerPageOptions={[5, 10, 100]}
+        rowsPerPageOptions={rowsPerPageOptions}
         component="div"
-        count={products.length}
+        count={data.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
@@ -200,4 +120,6 @@ export default function StickyHeadTable({
       />
     </Paper>
   );
-}
+};
+
+export default ReusableTable;

@@ -3,7 +3,9 @@
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
 import { useAuthContext } from "@/context/AuthContext";
+import API_URL from "@/lib/api";
 import { RegisterSchema } from "@/schema/auth";
+import { SignUp } from "@/services/authentication";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button } from "@mui/material";
 import Link from "next/link";
@@ -18,31 +20,30 @@ export interface IAuthRegister {
 }
 
 const Page = () => {
+  const router = useRouter();
+  const { signUp, onRefresh } = useAuthContext();
+
   const methods = useForm<IAuthRegister>({
     resolver: yupResolver(RegisterSchema),
   });
+
   const { setError } = methods;
-  const router = useRouter();
-  const { signUp } = useAuthContext();
+
   const onSubmitForm = async (data: IAuthRegister) => {
-    const response = await fetch("http://localhost:4002/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-    const result = await response.json();
-    if (response.ok) {
+    const response = await SignUp(data);
+    if ("admin" in response) {
       signUp();
+      onRefresh();
       router.push("/admin/dashboard");
-    } else if (result.name && result.message) {
-      setError(result.name, { type: "manual", message: result.message });
     } else {
-      console.error(result.message);
+      setError(response.name as "email" | "password", {
+        type: "manual",
+        message: response.message,
+      });
+      console.log(response.message);
     }
   };
+
   return (
     <div className="flex justify-center items-center min-h-screen w-full">
       <div className="max-w-[400px] w-full">

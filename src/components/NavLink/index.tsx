@@ -4,6 +4,7 @@ import { OverridableComponent } from "@mui/material/OverridableComponent";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { BiSolidLeaf } from "react-icons/bi";
 
 export interface NavLink {
   id: number;
@@ -17,6 +18,7 @@ const NavLink = (props: NavLink) => {
   const { name, path, id, icon: Icon, className } = props;
   const router = usePathname();
   const [isMatched, setIsMatched] = useState<boolean>(false);
+
   useEffect(() => {
     if (path === "/" && router === "/") {
       setIsMatched(true); // Exact match for homepage
@@ -26,20 +28,26 @@ const NavLink = (props: NavLink) => {
   }, [router, path]); // Effect runs whenever the router or path changes
 
   return (
-    <Link href={`${path}`} key={id} className="relative">
+    <Link
+      href={`${path}`}
+      key={id}
+      className="relative flex gap-1 items-center"
+    >
       <p
-        className={`capitalize hover:font-semibold hover:text-green-800 text-center font-normal`}
+        className={`capitalize hover:font-semibold  ${
+          isMatched && "text-green-800"
+        } hover:text-green-800 text-center font-normal `}
       >
         {name && name}
-        {Icon && <Icon className={`${className}  text-2xl w-full`} />}
+        {Icon && <Icon className={`${className} text-3xl w-full`} />}
       </p>
-      <div
-        className={`max-md:hidden ${
-          isMatched
-            ? "absolute -bottom-1 w-full h-[2px] bg-[#14705e] duration-300 transition-all "
-            : ""
-        }`}
-      ></div>
+      {isMatched && (
+        <div
+          className={`max-md:hidden ${"text-green-800 font-bold duration-300 transition-all "}`}
+        >
+          <BiSolidLeaf />
+        </div>
+      )}
     </Link>
   );
 };

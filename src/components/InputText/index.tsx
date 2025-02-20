@@ -1,6 +1,7 @@
 import React from "react";
 import { TextField } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
+import { register } from "module";
 
 interface InputFieldProps {
   name: string;
@@ -27,6 +28,11 @@ const InputField: React.FC<InputFieldProps> = ({
       control={control}
       render={({ field, fieldState }) => (
         <TextField
+          sx={{
+            "& .MuiInputBase-input": { fontFamily: "var(--text)" },
+            "& .MuiInputLabel-root": { fontFamily: "var(--text)" },
+            "& .MuiFormHelperText-root": { fontFamily: "var(--text)" },
+          }}
           {...field}
           type={type}
           label={label}

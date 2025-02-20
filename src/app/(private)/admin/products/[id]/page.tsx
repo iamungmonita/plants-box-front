@@ -1,145 +1,173 @@
 "use client";
-import { filteredOrders, Order } from "@/schema/order";
-import { Product, ProductReturnList } from "@/schema/products";
-import { getProductById, getOrderById } from "@/services/products";
-import { MdEditDocument } from "react-icons/md";
+import { PurchasedOrderList } from "@/schema/order";
+import { ProductReturnList } from "@/schema/products";
+import { getProductById } from "@/services/products";
+import { MdClose, MdEditDocument } from "react-icons/md";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { formattedTimeStamp } from "@/helpers/format-time";
 import BasicModal from "@/components/Modal";
 import dynamic from "next/dynamic";
-
-const CreatePage = dynamic(
-  () => import("@/app/(private)/admin/products/create/page")
-);
-
+import API_URL from "@/lib/api";
+import { getPurchasedOrderByProductId } from "@/services/order";
+import ReusableTable from "@/components/Table";
+import { useForm } from "react-hook-form";
+import { Column } from "@/constants/TableHead/Product";
+import { Button, TextField } from "@mui/material";
+import Head from "next/head"; // Use next/head for title
+import { useTitleContext } from "@/context/TitleContext";
+import { CreateForm } from "../create/Form";
 const Page = () => {
-  const params = useParams(); // Fetch params dynamically
-  const [id, setId] = useState<string | null>(null);
+  const [title, setTitle] = useState("");
+  const params = useParams();
   const [product, setProduct] = useState<ProductReturnList | null>(null);
-  const [purchasedOrder, setPurchasedOrder] = useState<filteredOrders[]>([]); // Flattened orders
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [purchasedOrders, setPurchasedOrders] = useState<PurchasedOrderList[]>(
+    []
+  );
   const [toggle, setToggle] = useState(false);
+  const [print, setPrint] = useState(false);
+  const methods = useForm();
+  const [id, setId] = useState("");
 
   useEffect(() => {
     if (!params?.id) return; // Ensure params are available
-    setId(params.id as string); // Extract `id` safely
+    setId(params.id as string); // Extract id safely
   }, [params]);
 
+  const columns: Column<PurchasedOrderList>[] = [
+    {
+      id: "purchasedId",
+      label: "Purchased ID",
+      minWidth: 100,
+    },
+    {
+      id: "createdAt",
+      label: "Purchased At",
+      minWidth: 170,
+      formatString: (value: string) =>
+        formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
+    },
+    {
+      id: "orders",
+      label: "Qty",
+      minWidth: 100,
+      render: (_: any, row: PurchasedOrderList) => {
+        const matchingId = row.orders.find((order) => order._id === id);
+        return matchingId ? (
+          <p key={matchingId._id}>{matchingId.quantity}</p>
+        ) : (
+          <p>No match</p>
+        );
+      },
+    },
+  ];
+
+  const purchasedId = methods.watch("purchasedId");
   useEffect(() => {
-    if (!id) return; // Fetch only when `id` is available
+    if (!id) return;
     const fetchProduct = async () => {
       try {
-        setLoading(true);
-        const productData = await getProductById(id);
-        const orderData = await getOrderById(id);
+        const [productData, orders] = await Promise.all([
+          getProductById(id),
+          getPurchasedOrderByProductId(id, purchasedId || ""),
+        ]);
         setProduct(productData);
-        const filteredOrders = orderData.orderIds
-          .map((order) => ({
-            _id: order._id,
-            createdAt: order.createdAt,
-            orders: order.orders.filter((o) => o.id === id), // Filter orders
-          }))
-          .filter((order) => order.orders.length > 0); // Remove entries with no matching orders
-
-        setPurchasedOrder(filteredOrders);
+        setPurchasedOrders(orders);
       } catch (err) {
-        setError("Failed to fetch product details.");
-        console.error(err);
-      } finally {
-        setLoading(false);
+        console.error("Failed to fetch product details:", err);
       }
     };
-
     fetchProduct();
-  }, [id]);
+  }, [id, purchasedId]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!product) return <div>No product found.</div>;
+  useEffect(() => {
+    if (product) {
+      setTitle((document.title = product.name ?? "Create Next Page"));
+    }
+  }, [product]);
+  if (!product) return <div>Loading product...</div>;
 
   return (
     <div>
       <div className="grid grid-cols-2 p-4 gap-4 max-xl:grid-cols-1">
         <div className="shadow p-4 space-y-4">
           <div className="flex items-center justify-between w-full">
-            <div>
-              <h2 className="font-extrabold text-2xl">{product.name}</h2>
-              <h1>Product ID: {id}</h1>
-            </div>
-
-            <MdEditDocument
-              className="text-2xl"
-              onClick={() => setToggle(true)}
-            />
-            <BasicModal
-              open={toggle}
-              onClose={() => setToggle(false)}
-              content={<CreatePage />}
-            />
+            <h2 className="text-2xl">{title}</h2>
+            <Button
+              onClick={() => setToggle(!toggle)}
+              variant="outlined"
+              sx={{
+                backgroundColor: "var(--medium-light)",
+                color: "white",
+                padding: 1,
+                border: "none",
+              }}
+            >
+              {!toggle ? (
+                <MdEditDocument className="text-2xl" />
+              ) : (
+                <MdClose className="text-2xl" />
+              )}
+            </Button>
           </div>
           <div>
-            <p>Description: {product.description}</p>
-            <p>Price: ${product.price}</p>
-            <p>Stock: {product.stock}</p>
-            <p>Instruction: {product.instruction}</p>
-            <p>Size: {product.size}</p>
-          </div>
-          <div>
-            <p>Created At: {product.createdAt}</p>
-            <p>Updated At: {product.updatedAt}</p>
-          </div>
-          <div className="grid grid-cols-5 gap-2 p-2">
-            {product.pictures?.map((img) => (
-              <Image
-                key={`http://localhost:4002${img}`}
-                src={`http://localhost:4002${img}`}
-                alt="Product Image"
-                width={100}
-                height={100}
-              />
-            ))}
-          </div>
-        </div>
-        <div className="shadow p-4">
-          {purchasedOrder.length > 0 ? (
-            <div className="space-y-4">
-              {purchasedOrder.map((order) => (
-                <div
-                  key={order._id}
-                  className="bg-slate-100 p-4 rounded-md max-2xl:grid  max-2xl:grid-cols-1 flex items-center justify-between"
-                >
-                  <div>
-                    <span className="flex gap-4">
-                      <h2>Purchase Order ID:</h2>
-                      {order._id}
-                    </span>
-                    <span className="flex gap-4">
-                      <h2>Purchased Time:</h2>
-                      {formattedTimeStamp(order.createdAt)}
-                    </span>
-                  </div>
-
-                  {order.orders.map((item) => (
-                    <div key={item._id} className="">
-                      <span className="flex gap-4">
-                        <h2>Amount:</h2>${item.price * item.quantity}
-                      </span>
-                      <span className="flex gap-4">
-                        <h2>Qty:</h2> {item.quantity}
-                      </span>
+            {toggle ? (
+              <div>
+                <CreateForm createId={product._id} />
+              </div>
+            ) : (
+              <div>
+                <div>
+                  <p>Description: {product.description}</p>
+                  <p>Price: ${Number(product.price).toFixed(2)}</p>
+                  <p>Stock: {product.stock}</p>
+                  <p>Instruction: {product.instruction}</p>
+                  <p>Size: {product.size}</p>
+                </div>
+                <div>
+                  <p>Created At: {product.createdAt}</p>
+                  <p>Updated At: {product.updatedAt}</p>
+                </div>
+                <div className="grid grid-cols-5">
+                  {product.pictures?.map((img, index) => (
+                    <div key={index} className="relative w-24 h-24 cursor-grab">
+                      <Image
+                        src={`${API_URL}${img}`}
+                        alt="Product Image"
+                        width={100}
+                        height={100}
+                        className="w-full h-full object-cover rounded shadow-md"
+                      />
                     </div>
                   ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="space-y-4">
+          <TextField
+            className="w-1/2"
+            {...methods.register("purchasedId")}
+            type="text"
+            label="Search Purchased ID"
+            placeholder="PO-00001"
+          />
+
+          {purchasedOrders.length > 0 ? (
+            <ReusableTable columns={columns} data={purchasedOrders} />
           ) : (
-            "No orders have been recorded for this product."
+            <div>No orders have been recorded for this product.</div>
           )}
         </div>
       </div>
+
+      <BasicModal
+        open={print}
+        onClose={() => setPrint(false)}
+        content={<div>Print Content</div>}
+      />
     </div>
   );
 };

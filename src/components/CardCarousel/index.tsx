@@ -4,14 +4,10 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation, Pagination } from "swiper/modules";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Typography from "@mui/material/Typography";
-import { Button } from "@mui/material";
-import { ShoppingBasket } from "@mui/icons-material";
-import { TbShoppingBagPlus } from "react-icons/tb";
-import { ProductReturn, ProductReturnList } from "@/schema/products";
+import { ProductReturnList } from "@/schema/products";
+import { addToCart, updateCartItems } from "@/helpers/addToCart";
+import AlertPopUp from "../AlertPopUp";
+import ProductCard from "../Card";
 
 interface CardCarouselProps {
   nextRef?: React.RefObject<HTMLButtonElement>;
@@ -25,6 +21,8 @@ export default function CardCarousel({
   cards,
 }: CardCarouselProps) {
   const [swiperInstance, setSwiperInstance] = React.useState<any>(null);
+  const [snackbarMessage, setSnackbarMessage] = React.useState<string>("");
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (swiperInstance) {
@@ -35,72 +33,47 @@ export default function CardCarousel({
     }
   }, [swiperInstance]);
 
+  React.useEffect(() => {
+    updateCartItems();
+    const handleCartUpdate = () => {
+      updateCartItems();
+    };
+    window.addEventListener("cartUpdated", handleCartUpdate);
+    return () => {
+      window.removeEventListener("cartUpdated", handleCartUpdate);
+    };
+  }, []);
+
+  const handleAddToCart = (id: string) => {
+    updateCartItems();
+    addToCart(id, "plants", setSnackbarMessage);
+    setSnackbarOpen(true);
+  };
+
   return (
     <div className="relative">
       {/* Swiper Component */}
+      <AlertPopUp
+        open={snackbarOpen}
+        message={snackbarMessage}
+        onClose={() => setSnackbarOpen(false)}
+      />
       <Swiper
         modules={[Navigation, Pagination]}
         spaceBetween={20}
         slidesPerView={1.5}
         loop={true} // Enable infinite looping
         breakpoints={{
-          640: { slidesPerView: 2 },
-          1024: { slidesPerView: 3 },
+          500: { slidesPerView: 2 },
+          800: { slidesPerView: 3 },
+          1100: { slidesPerView: 4 },
         }}
         onSwiper={(swiper) => setSwiperInstance(swiper)}
         style={{ paddingBottom: "30px" }}
       >
         {cards.map((card) => (
           <SwiperSlide key={card._id}>
-            <Card
-              sx={{
-                minWidth: 300,
-                padding: 2,
-                boxShadow: "none",
-                "&:hover": {
-                  transform: "scale(1.1)", // This will scale the card up by 5% when hovered
-                  transition: "transform 0.5s ease-in-out",
-                  // Smooth transition for scaling effect
-                },
-              }}
-            >
-              <div className="group p-2 relative transition-transform duration-500  ease-in-out">
-                {/* Add 'group' class to the wrapper */}
-                <CardMedia
-                  sx={{ minHeight: 250 }}
-                  image={`http://localhost:4002${card.pictures[0]}`}
-                  title={card.name}
-                />
-                <div className=" group-hover:bg-slate-100 flex items-center justify-between">
-                  <CardContent>
-                    <Typography
-                      gutterBottom
-                      variant="h5"
-                      sx={{ fontFamily: "red hat display", fontWeight: 600 }}
-                    >
-                      {card.name}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: "text.primary",
-                        fontFamily: "red hat display",
-                      }}
-                    >
-                      {card.price}
-                    </Typography>
-                  </CardContent>
-                  <div
-                    onClick={() =>
-                      alert(`added ${card.name} to the shopping cart.`)
-                    }
-                    className="opacity-0 hover:cursor-pointer group-hover:opacity-100 pr-10 transition-opacity duration-500 ease-in-out"
-                  >
-                    <TbShoppingBagPlus className="text-3xl max-md:text-2xl text-green-800" />
-                  </div>
-                </div>
-              </div>
-            </Card>
+            <ProductCard product={card} />
           </SwiperSlide>
         ))}
       </Swiper>

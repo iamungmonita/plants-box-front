@@ -2,27 +2,28 @@ import { FieldValues } from "react-hook-form";
 import * as yup from "yup";
 
 export interface Product extends FieldValues {
-  description: string;
+  description?: string;
   name: string;
   pictures: File[]; // Array of image URLs
   price: string; // Assuming price is a string; you can change it to a number if needed
   type: string;
+  category: string;
   size: string; // e.g., "Small", "Medium", "Large"
   temperature: string; // e.g., "60-75°F", "18-25°C"
-  instruction: string; // Detailed care instructions
-  habit: string; // Growth pattern, size, etc.
+  instruction?: string; // Detailed care instructions
+  habit?: string; // Growth pattern, size, etc.
   stock: number; // Number of plants available in stock
 }
 export interface ProductAddPicture extends FieldValues {
-  description: string;
+  description?: string;
   name: string;
   pictures: string[]; // Array of image URLs
   price: string; // Assuming price is a string; you can change it to a number if needed
   type: string;
   size: string; // e.g., "Small", "Medium", "Large"
   temperature: string; // e.g., "60-75°F", "18-25°C"
-  instruction: string; // Detailed care instructions
-  habit: string; // Growth pattern, size, etc.
+  instruction?: string; // Detailed care instructions
+  habit?: string; // Growth pattern, size, etc.
   stock: number; // Number of plants available in stock
 }
 
@@ -32,6 +33,7 @@ export interface ProductReturn {
   pictures: File[]; // Array of image URLs
   price: string; // Assuming price is a string; you can change it to a number if needed
   type: string;
+  category: string;
   size: string; // e.g., "Small", "Medium", "Large"
   temperature: string; // e.g., "60-75°F", "18-25°C"
   instruction: string; // Detailed care instructions
@@ -49,8 +51,9 @@ export interface ProductReturnList extends ProductReturn {
 export const ProductSchema = yup.object().shape({
   name: yup.string().required("The plant name is required"),
   type: yup.string().required("Type is required"),
+  category: yup.string().required("Category is required"),
   price: yup.string().required("Price is required"),
-  description: yup.string().required("Description is required"),
+  description: yup.string().optional(),
   pictures: yup
     .mixed<File[]>() // This expects an array of File objects
     .required("At least one picture is required")
@@ -76,7 +79,7 @@ export const ProductSchema = yup.object().shape({
     }),
   size: yup.string().required("size is required"),
   temperature: yup.string().required("temperature range is required"),
-  instruction: yup.string().required("care instruction range is required"),
-  habit: yup.string().required("growing habit is required"),
+  instruction: yup.string().optional(),
+  habit: yup.string().optional(),
   stock: yup.number().required("stock is required"),
 });

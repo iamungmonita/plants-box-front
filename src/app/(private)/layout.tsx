@@ -1,6 +1,7 @@
 "use client";
 import ProfileSidebar from "@/components/ProfileSideBar";
 import { useAuthContext } from "@/context/AuthContext";
+import { TitleProvider, useTitleContext } from "@/context/TitleContext";
 import { Menu } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -11,6 +12,7 @@ export interface RootLayoutProps {
 const PrivateLayout = ({ children }: Readonly<RootLayoutProps>) => {
   const { isAuthenticated } = useAuthContext();
   const [toggle, setToggle] = useState<boolean>(false);
+  const [titlePage, setTitlePage] = useState<string>("");
   const router = useRouter();
 
   useEffect(() => {
@@ -35,6 +37,7 @@ const PrivateLayout = ({ children }: Readonly<RootLayoutProps>) => {
       router.push("/auth/sign-in");
     }
   }, []);
+
   return (
     <>
       {isAuthenticated && (
@@ -52,7 +55,7 @@ const PrivateLayout = ({ children }: Readonly<RootLayoutProps>) => {
                     className="max-md:block w-7 h-7 cursor-pointer dark:invert"
                   />
                 </div>
-                <div>{children}</div>
+                {children}
               </div>
             </main>
             {toggle && (
