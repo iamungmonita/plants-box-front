@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Checkbox, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Checkbox,
+  TextField,
+  Typography,
+} from "@mui/material";
 import {
   handleDecrement,
   removeItem,
@@ -20,6 +27,10 @@ export interface IShippingForm extends FieldValues {
 const ReviewOrder = ({ handleNext }: { handleNext: () => void }) => {
   const [items, setItems] = useState<ShoppingCartProduct[]>([]);
   const [amount, setAmount] = useState<number>(0);
+  const [deliveryMethod, setDeliveryMethod] = useState("delivery");
+  const handleSelect = (method: string) => {
+    setDeliveryMethod(method);
+  };
   useEffect(() => {
     const { items, total } = updateCartItems();
     setItems(items);
@@ -34,113 +45,95 @@ const ReviewOrder = ({ handleNext }: { handleNext: () => void }) => {
       window.removeEventListener("cartUpdated", handleCartUpdate);
     };
   }, []);
-  const [isDelivery, setIsDelivery] = useState(true);
 
-  const handleChange = () => {
-    setIsDelivery((prev) => !prev);
-  };
   const methods = useForm<IShippingForm>();
   const onSubmitForm = (data: IShippingForm) => {
     console.log(data);
     handleNext();
   };
   return (
-    <div className="grid grid-cols-3 items-start w-full justify-between p-4">
-      <h2 className="text-lg col-span-3 mb-4 font-semibold">Order Summary</h2>
-
-      <div className="px-4 space-y-4 col-span-1 overflow-y-auto max-h-[70%]">
-        <>
-          {items.length > 0 &&
-            items.map((item) => (
-              <CartCard
-                key={item._id}
-                item={item}
-                onDecrement={handleDecrement}
-                onRemove={removeItem}
-              />
-            ))}
-        </>
+    <div className="grid grid-cols-3 items-start w-full h-full justify-between p-4">
+      <div className="flex-grow max-h-[50vh] overflow-y-scroll space-y-4 pr-2">
+        {items.length > 0 &&
+          items.map((item) => (
+            <CartCard
+              key={item._id}
+              item={item}
+              onDecrement={handleDecrement}
+              onRemove={removeItem}
+            />
+          ))}
       </div>
-      <div className="p-4 space-y-4 col-span-2">
-        <h2 className="text-xl font-semibold">
-          You have {items.length} items.
-        </h2>
-        {/* <div>
-          <h2 className="text-xl font-semibold space-x-4">
-            <span className="text-sm text-gray-500 font-base w-22">
-              Subtotal:
-            </span>
-            <span>${amount.toFixed(2)}</span>
-          </h2>
-          <p className="font-semibold space-x-4">
-            <span className="text-sm text-gray-500 font-base min-w-20">
-              VAT:
-            </span>
-            <span>${(amount * 0.1).toFixed(2)}</span>
+      <div className="px-4 space-y-4 col-span-2">
+        <h2 className="text-lg col-span-2 grid-cols-3 grid font-semibold">
+          <p className="col-span-1">
+            <p>
+              <span className="text-sm text-gray-500 font-base mr-2">
+                Items:
+              </span>
+              <span>{items.length}</span>
+            </p>
+            <p>
+              <span className="text-sm text-gray-500 font-base mr-2">
+                Subtotal:
+              </span>
+              <span>${amount.toFixed(2)}</span>
+            </p>
           </p>
-        </div> */}
+        </h2>
         <p>Do you prefer delivery or pick-up? </p>
         <div className="space-x-4">
-          <Button
-            variant={isDelivery ? "contained" : "outlined"}
-            sx={{
-              backgroundColor: isDelivery
-                ? "var(--medium-light)"
-                : "transparent",
-              borderColor: "var(--medium-light)",
-              color: isDelivery ? "white" : "var(--medium-light)",
-            }}
-            startIcon={<LocalShipping />}
-            onClick={handleChange}
-            className="flex-1 capitalize"
+          <ButtonGroup
+            className="col-span-2 grid grid-cols-3"
+            variant="outlined"
+            aria-label="delivery-service"
           >
-            Delivery
-          </Button>
-          <Button
-            variant={!isDelivery ? "contained" : "outlined"}
-            sx={{
-              borderColor: "var(--medium-light)",
-              backgroundColor: !isDelivery
-                ? "var(--medium-light)"
-                : "transparent ",
-              color: !isDelivery ? "white" : "var(--medium-light)",
-            }}
-            startIcon={<Store />}
-            onClick={handleChange}
-            className="flex-1 capitalize"
-          >
-            Pickup
-          </Button>
+            {[
+              {
+                value: "delivery",
+                label: "Delivery",
+                icon: <LocalShipping />,
+              },
+              { value: "pick-up", label: "Pick-Up", icon: <Store /> },
+            ].map((item) => (
+              <Button
+                key={item.value}
+                onClick={() => handleSelect(item.value)}
+                variant={
+                  deliveryMethod === item.value ? "contained" : "outlined"
+                }
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  borderRadius: "8px",
+                  padding: "10px 16px",
+                  borderColor:
+                    deliveryMethod === item.value ? "primary.main" : "#ccc",
+                  backgroundColor:
+                    deliveryMethod === item.value ? "primary.main" : "white",
+                  color: deliveryMethod === item.value ? "white" : "black",
+                  "&:hover": {
+                    backgroundColor:
+                      deliveryMethod === item.value
+                        ? "primary.dark"
+                        : "#f5f5f5",
+                  },
+                }}
+              >
+                {item.icon}
+                {item.label}
+              </Button>
+            ))}
+          </ButtonGroup>
         </div>
 
         <h2 className="text-2xl font-bold">
-          {isDelivery ? "Shipping Information" : "Pick-up Information"}
+          {deliveryMethod === "delivery"
+            ? "Delivery Information"
+            : "Pick-Up Information"}
         </h2>
 
-        {/* <table className="min-w-full border border-gray-300 shadow-md rounded-lg overflow-hidden">
-          <thead className="bg-gray-100 text-gray-700 text-sm">
-            <tr>
-              <th className="px-4 py-2 text-left">No.</th>
-              <th className="px-4 py-2 text-left">Product</th>
-              <th className="px-4 py-2 text-left">Price</th>
-              <th className="px-4 py-2 text-left">Qty</th>
-              <th className="px-4 py-2 text-left">Amount</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 text-gray-600">
-            {items.map((row, index) => (
-              <tr key={row._id} className="hover:bg-gray-50 transition">
-                <td className="px-4 py-3">{index + 1}</td>
-                <td className="px-4 py-3">{row.name}</td>
-                <td className="px-4 py-3">${row.price.toFixed(2)}</td>
-                <td className="px-4 py-3">{row.quantity}</td>
-                <td className="px-4 py-3">
-                  ${(row.price * row.quantity).toFixed(2)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table> */}
         <Form
           methods={methods}
           onSubmit={methods.handleSubmit(onSubmitForm)}
@@ -158,7 +151,7 @@ const ReviewOrder = ({ handleNext }: { handleNext: () => void }) => {
             label=""
             placeholder="Phone Number"
           />
-          {isDelivery ? (
+          {deliveryMethod === "delivery" ? (
             <div className="col-span-2">
               <InputField
                 name="address"

@@ -19,7 +19,23 @@ const CartCard = <T extends ShoppingCartProduct>({
 }: CartCardProps<T>) => {
   return (
     <div className="border shadow-md w-full rounded-lg py-2 px-4">
-      <div className="flex items-center gap-4">
+      <div className="flex justify-between w-full items-center">
+        <h2 className="flex gap-2 w-40">
+          <span>{item.quantity}x</span> {item.name}
+        </h2>
+        <p className=" text-gray-500">${item.price.toFixed(2)}</p>
+        <h2 className="justify-end ">
+          ${(item.price * item.quantity).toFixed(2)}
+        </h2>
+        <button
+          className="text-gray-400 hover:text-red-500"
+          onClick={() => onRemove(item._id)}
+        >
+          <GoTrash className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* <div className="flex items-center gap-4">
         <div className="relative w-[150px] h-[100px]">
           <Image
             title={item.name}
@@ -31,9 +47,10 @@ const CartCard = <T extends ShoppingCartProduct>({
           />
         </div>
         <div className="w-full">
-          <h2 className="text-lg font-semibold">{item.name}</h2>
           <div className="flex justify-between w-full">
             <div>
+              <h2 className="text-lg font-semibold">{item.name}</h2>
+
               <p className="text-sm">{item.size}</p>
               <p className="text-sm text-gray-500">${item.price.toFixed(2)}</p>
             </div>
@@ -77,7 +94,7 @@ const CartCard = <T extends ShoppingCartProduct>({
         >
           <GoTrash className="w-5 h-5" />
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

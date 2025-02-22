@@ -65,4 +65,12 @@ export interface Response {
 export interface PurchasedOrderList extends Response {
   orders: ShoppingCartProduct[];
   purchasedId: string;
+  amount: string;
+  paymentMethod: string;
+  createdBy: string;
+  discount: number;
+  discountedAmount: number;
+  calculatedDiscount: number;
+  vatAmount: number;
+  totalAmount: number;
 }

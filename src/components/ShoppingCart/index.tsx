@@ -24,7 +24,7 @@ export interface ShoppingCartProduct {
   size: string;
 }
 
-const ShoppingCart = ({ onClose }: { onClose: () => void }) => {
+const ShoppingCart = ({ onClose }: { onClose?: () => void }) => {
   const [items, setItems] = useState<ShoppingCartProduct[]>([]);
   const [total, setTotal] = useState(0);
 
@@ -41,9 +41,9 @@ const ShoppingCart = ({ onClose }: { onClose: () => void }) => {
     };
   }, []);
 
-  const handleSettlement = (event: React.MouseEvent<HTMLButtonElement>) => {
-    settlement(items);
-  };
+  // const handleSettlement = (event: React.MouseEvent<HTMLButtonElement>) => {
+  //   settlement(items);
+  // };
 
   return (
     <div className="w-full h-full flex flex-col">

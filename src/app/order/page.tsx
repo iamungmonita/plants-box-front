@@ -51,7 +51,7 @@ const page = () => {
   return (
     <div>
       <div>
-        {/* <ReceiptPrinter /> */}
+        <ReceiptPrinter />
         {/* <h2>base64</h2>
         <input type="file" name="" id="" onChange={handleFileChange} /> */}
       </div>

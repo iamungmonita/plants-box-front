@@ -8,7 +8,7 @@ import { formattedTimeStamp } from "@/helpers/format-time";
 import API_URL from "@/lib/api";
 import { ProductReturn, ProductReturnList } from "@/schema/products";
 import { getAllProducts } from "@/services/products";
-import { TextField } from "@mui/material";
+import { ButtonGroup, TextField } from "@mui/material";
 import Button from "@mui/material/Button/Button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,6 +22,7 @@ const page = () => {
   const methods = useForm();
   const { watch } = methods;
   const product = watch("product");
+  const category = watch("category");
   const type = watch("type");
   useEffect(() => {
     const fetchProduct = async () => {
@@ -29,6 +30,7 @@ const page = () => {
         const response = await getAllProducts({
           name: product,
           type: type,
+          category: category,
         });
         setProducts(response);
       } catch (error) {
@@ -36,9 +38,19 @@ const page = () => {
       }
     };
     fetchProduct();
-  }, [product, type]);
+  }, [product, type, category]);
   const router = useRouter();
-
+  const { handleSubmit, getValues, register, setValue } = useForm();
+  const [delivery, setDelivery] = useState<string>("credit"); // Default to "credit"
+  // Watch the delivery method from the form
+  // Handle selecting a delivery method
+  const deliveryMethod = watch("deliveryMethod");
+  console.log(deliveryMethod);
+  const handlePrintAndOpenDrawer = () => {
+    console.log("Simulating drawer opening...");
+    alert("🔔 Drawer would open now!");
+    window.print(); // Simulate print function
+  };
   return (
     <div className="flex flex-col min-h-screen justify-start gap-4">
       <div className="flex items-center justify-between gap-4">

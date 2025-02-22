@@ -16,22 +16,30 @@ import { styled } from "@mui/material/styles";
 import Badge, { badgeClasses } from "@mui/material/Badge";
 import Button from "@mui/material/Button";
 import { clearLocalStorage, updateCartItems } from "@/helpers/addToCart";
-import { GrClose } from "react-icons/gr";
+import { useRouter } from "next/navigation";
+
 export interface ISearchBar {
   search: string;
 }
 const Header = () => {
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [toggleSearchBar, setToggleSearchBar] = useState(false);
   const [toggleShoppingCart, setToggleShoppingCart] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const methods = useForm<ISearchBar>();
-  const { watch, register } = methods;
-  const [itemNo, setItemNo] = useState<number>(0);
+  const [items, setItems] = useState<ShoppingCartProduct[]>([]);
   const [amount, setAmount] = useState<number>(0);
   const cartRef = useRef<HTMLDivElement>(null); // Ref for the cart container
+  const methods = useForm<ISearchBar>();
+  const { watch, register } = methods;
 
-  const search = watch("search");
+  const routes = ["/admin", "/auth"];
+  const pathname = usePathname();
+  if (routes.some((route) => pathname.startsWith(route))) {
+    return null;
+  }
+
+  // const search = watch("search");
 
   const CartBadge = styled(Badge)`
     & .${badgeClasses.badge} {
@@ -40,25 +48,6 @@ const Header = () => {
       background-color: green;
     }
   `;
-
-  useEffect(() => {
-    const { items, total } = updateCartItems(); // Call on mount
-    setItemNo(items.length);
-    setAmount(total);
-
-    // Listen for cart updates
-    const handleCartUpdate = () => {
-      const { items, total } = updateCartItems();
-      setItemNo(items.length);
-      setAmount(total);
-    };
-
-    window.addEventListener("cartUpdated", handleCartUpdate);
-
-    return () => {
-      window.removeEventListener("cartUpdated", handleCartUpdate);
-    };
-  }, []);
 
   function IconButtonWithBadge({ onClick }: { onClick: () => void }) {
     return (
@@ -69,17 +58,30 @@ const Header = () => {
         }}
       >
         <PiShoppingCartSimple className="text-2xl" />
-        <CartBadge badgeContent={itemNo} color="primary" overlap="circular" />
+        <CartBadge
+          badgeContent={items.length}
+          color="primary"
+          overlap="circular"
+        />
       </IconButton>
     );
   }
 
-  // hidden routes
-  const routes = ["/admin", "/auth"];
-  const pathname = usePathname();
-  if (routes.some((route) => pathname.startsWith(route))) {
-    return null;
-  }
+  useEffect(() => {
+    const { items, total } = updateCartItems(); // Call on mount
+    setItems(items);
+    setAmount(total);
+    const handleCartUpdate = () => {
+      const { items, total } = updateCartItems();
+      setItems(items);
+      setAmount(total);
+    };
+
+    window.addEventListener("cartUpdated", handleCartUpdate);
+    return () => {
+      window.removeEventListener("cartUpdated", handleCartUpdate);
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,7 +97,6 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    // Hide Menu on mount and when screen width is > 768px
     const handleResize = () => {
       if (window.innerWidth >= 768) {
         setShowMenu(false); // Hide menu on larger screens
@@ -105,14 +106,10 @@ const Header = () => {
     };
 
     window.addEventListener("resize", handleResize);
-    handleResize(); // Trigger resize handler on mount
-
+    handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleClose = () => {
-    setToggleShoppingCart(false);
-  };
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (cartRef.current && !cartRef.current.contains(event.target as Node)) {
@@ -125,6 +122,22 @@ const Header = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [toggleShoppingCart]);
+
+  //Button Functions
+  const handleShopping = () => {
+    setToggleShoppingCart(false);
+    router.push("/products");
+  };
+
+  const onHandleCheckout = () => {
+    setToggleShoppingCart(false);
+    router.push("/checkout");
+  };
+
+  const handleRemoveAll = () => {
+    clearLocalStorage();
+  };
+
   return (
     <>
       <header
@@ -216,7 +229,7 @@ const Header = () => {
 
         {/* Shopping Cart Items Section */}
         <div className="flex flex-col w-full flex-grow overflow-y-auto items-start">
-          <ShoppingCart onClose={handleClose} />
+          <ShoppingCart onClose={() => setToggleShoppingCart(false)} />
         </div>
 
         {/* Checkout & Buttons Section */}
@@ -227,8 +240,8 @@ const Header = () => {
             </h2>
 
             <Button
-              disabled={itemNo <= 0}
-              onClick={() => setToggleShoppingCart(false)}
+              disabled={items.length <= 0}
+              onClick={onHandleCheckout}
               className="w-full"
               variant="outlined"
               sx={{
@@ -239,13 +252,13 @@ const Header = () => {
               }}
               type="button"
             >
-              <Link href={"/checkout"}> Check Out</Link>
+              Check Out
             </Button>
 
             <div className="w-full grid grid-cols-2 gap-4">
               <Button
                 className="col-span-1"
-                onClick={() => clearLocalStorage()}
+                onClick={handleRemoveAll}
                 variant="outlined"
                 sx={{
                   backgroundColor: "gray",
@@ -255,13 +268,14 @@ const Header = () => {
                   border: "none",
                 }}
                 type="button"
-                disabled={itemNo <= 0}
+                disabled={items.length <= 0}
               >
                 Remove All
               </Button>
+
               <Button
                 variant="outlined"
-                onClick={() => setToggleShoppingCart(false)}
+                onClick={handleShopping}
                 sx={{
                   borderColor: "var(--secondary)",
                   color: "var(--secondary)",
@@ -270,9 +284,7 @@ const Header = () => {
                 }}
                 type="button"
               >
-                <Link href="/products" className="col-span-1">
-                  {itemNo <= 0 ? "Go Shopping" : "Shop More"} <ArrowRight />
-                </Link>
+                {items.length <= 0 ? "Go Shopping" : "Shop More"} <ArrowRight />
               </Button>
             </div>
           </div>

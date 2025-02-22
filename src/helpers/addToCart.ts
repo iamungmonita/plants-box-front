@@ -128,14 +128,34 @@ export const handleDecrement = (id: string, currentQty: number) => {
   }
 };
 
-export const handleOrder = async (order: ShoppingCartProduct[]) => {
+export const handleOrder = async (
+  orders: ShoppingCartProduct[],
+  amount: number,
+  paymentMethod: string,
+  profile: string | undefined,
+  discount: number,
+  discountedAmount: number,
+  calculatedDiscount: number,
+  vatAmount: number,
+  totalAmount: number
+) => {
   await fetch(`${API_URL}/order/create`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
-    body: JSON.stringify(order),
+    body: JSON.stringify({
+      orders,
+      amount,
+      paymentMethod,
+      profile,
+      discount,
+      discountedAmount,
+      calculatedDiscount,
+      vatAmount,
+      totalAmount,
+    }),
   })
     .then((result) => result.json())
     .then((a) => console.log(a.saveOrder))
@@ -153,14 +173,34 @@ export const handleQuantityChange = (id: string, quantity: number) => {
   return { items: updatedItems };
 };
 
-export const settlement = async (items: ShoppingCartProduct[]) => {
+export const settlement = async (
+  items: ShoppingCartProduct[],
+  amount: number,
+  paymentMethod: string,
+  profile: string | undefined,
+  discount: number,
+  discountedAmount: number,
+  calculatedDiscount: number,
+  vatAmount: number,
+  totalAmount: number
+) => {
   try {
     await Promise.all(
       items.map(({ _id, stock, quantity }) =>
         handleCheckout(_id, stock - quantity)
       )
     );
-    handleOrder(items);
+    handleOrder(
+      items,
+      amount,
+      paymentMethod,
+      profile,
+      discount,
+      discountedAmount,
+      calculatedDiscount,
+      vatAmount,
+      totalAmount
+    );
     return {
       items: clearLocalStorage().items,
       total: clearLocalStorage().total,

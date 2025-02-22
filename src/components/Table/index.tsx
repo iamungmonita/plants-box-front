@@ -29,7 +29,7 @@ const ReusableTable = <T extends { [key: string]: any }>({
   columns,
   data,
   onRowClick,
-  rowsPerPageOptions = [5, 10, 25],
+  rowsPerPageOptions = [10, 25, 50],
 }: ReusableTableProps<T>) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);

@@ -156,7 +156,13 @@ const Page = () => {
           />
 
           {purchasedOrders.length > 0 ? (
-            <ReusableTable columns={columns} data={purchasedOrders} />
+            <ReusableTable
+              columns={columns}
+              data={purchasedOrders}
+              onRowClick={() =>
+                console.log(purchasedOrders.map((order) => order))
+              }
+            />
           ) : (
             <div>No orders have been recorded for this product.</div>
           )}

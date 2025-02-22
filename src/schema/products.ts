@@ -9,7 +9,7 @@ export interface Product extends FieldValues {
   type: string;
   category: string;
   size: string; // e.g., "Small", "Medium", "Large"
-  temperature: string; // e.g., "60-75°F", "18-25°C"
+  temperature?: string; // e.g., "60-75°F", "18-25°C"
   instruction?: string; // Detailed care instructions
   habit?: string; // Growth pattern, size, etc.
   stock: number; // Number of plants available in stock
@@ -21,23 +21,23 @@ export interface ProductAddPicture extends FieldValues {
   price: string; // Assuming price is a string; you can change it to a number if needed
   type: string;
   size: string; // e.g., "Small", "Medium", "Large"
-  temperature: string; // e.g., "60-75°F", "18-25°C"
+  temperature?: string; // e.g., "60-75°F", "18-25°C"
   instruction?: string; // Detailed care instructions
   habit?: string; // Growth pattern, size, etc.
   stock: number; // Number of plants available in stock
 }
 
 export interface ProductReturn {
-  description: string;
+  description?: string;
   name: string;
   pictures: File[]; // Array of image URLs
   price: string; // Assuming price is a string; you can change it to a number if needed
   type: string;
   category: string;
   size: string; // e.g., "Small", "Medium", "Large"
-  temperature: string; // e.g., "60-75°F", "18-25°C"
-  instruction: string; // Detailed care instructions
-  habit: string; // Growth pattern, size, etc.
+  temperature?: string; // e.g., "60-75°F", "18-25°C"
+  instruction?: string; // Detailed care instructions
+  habit?: string; // Growth pattern, size, etc.
   stock: number; // Number of plants available in stock
 }
 
@@ -78,7 +78,7 @@ export const ProductSchema = yup.object().shape({
       return true; // All files are below the size limit
     }),
   size: yup.string().required("size is required"),
-  temperature: yup.string().required("temperature range is required"),
+  temperature: yup.string(),
   instruction: yup.string().optional(),
   habit: yup.string().optional(),
   stock: yup.number().required("stock is required"),
