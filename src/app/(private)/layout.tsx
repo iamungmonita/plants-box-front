@@ -15,7 +15,7 @@ import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Form from "@/components/Form";
 import { PiPrinterFill } from "react-icons/pi";
-import { useForm } from "react-hook-form";
+import { useForm, useFormContext } from "react-hook-form";
 export interface RootLayoutProps {
   children: React.ReactNode;
 }
@@ -33,6 +33,7 @@ const PrivateLayout = ({ children }: Readonly<RootLayoutProps>) => {
   const [calculatedDiscount, setCalculateDiscount] = useState<number>(0);
   const [vatAmount, setVatAmount] = useState<number>(0);
   const [totalAmount, setTotalAmount] = useState<number>(0);
+  const { onRefresh } = useAuthContext();
   useEffect(() => {
     const { items, total } = updateCartItems();
     setItems(items);

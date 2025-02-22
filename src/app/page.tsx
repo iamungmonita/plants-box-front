@@ -42,6 +42,15 @@ import { getAllProducts } from "@/services/products";
 const Page = () => {
   const [products, setProducts] = useState<ProductReturnList[]>([]);
 
+  const generateToken = () => {
+    return [...Array(32)]
+      .map(() => Math.floor(Math.random() * 16).toString(16))
+      .join("");
+  };
+
+  const token = generateToken();
+
+  console.log("Generated Token:", token);
   useEffect(() => {
     const fetchProduct = async () => {
       try {

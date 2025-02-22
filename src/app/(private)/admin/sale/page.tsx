@@ -35,6 +35,8 @@ const Page = () => {
     setId(params.id as string); // Extract id safely
   }, [params]);
 
+  const purchasedId = methods.watch("purchasedId");
+
   const columns: Column<PurchasedOrderList>[] = [
     {
       id: "purchasedId",
@@ -43,45 +45,19 @@ const Page = () => {
     },
     {
       id: "orders",
-      label: "Qty",
+      label: "Sold Items",
       minWidth: 100,
       render: (_: any, row: PurchasedOrderList) => {
         return row.orders.length || "N/A";
       },
     },
-    {
-      id: "amount",
-      label: "Amount",
-      minWidth: 100,
-      format: (value: number) =>
-        value !== undefined && value !== null
-          ? `$${value.toFixed(2)}`
-          : "$0.00",
-    },
+
     {
       id: "discount",
       label: "Discount",
       minWidth: 100,
       format: (value: number) =>
         value !== undefined && value !== null ? `${value}%` : "0%",
-    },
-    {
-      id: "calculatedDiscount",
-      label: "Discounted Amount",
-      minWidth: 100,
-      format: (value: number) =>
-        value !== undefined && value !== null
-          ? `$${value.toFixed(2)}`
-          : "$0.00",
-    },
-    {
-      id: "vatAmount",
-      label: "VAT",
-      minWidth: 100,
-      format: (value: number) =>
-        value !== undefined && value !== null
-          ? `$${value.toFixed(2)}`
-          : "$0.00",
     },
     {
       id: "totalAmount",
@@ -104,20 +80,24 @@ const Page = () => {
       formatString: (value: string) =>
         formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
     },
+    {
+      id: "createdBy",
+      label: "Seller",
+      minWidth: 170,
+    },
   ];
 
-  const purchasedId = methods.watch("purchasedId");
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const orders = await getOrder();
+        const orders = await getOrder({ purchasedId });
         setPurchasedOrders(orders);
       } catch (err) {
         console.error("Failed to fetch product details:", err);
       }
     };
     fetchProduct();
-  }, []);
+  }, [purchasedId]);
 
   return (
     <div>

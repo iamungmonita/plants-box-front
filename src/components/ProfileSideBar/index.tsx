@@ -44,7 +44,7 @@ function ProfileSidebar() {
         {/* Logo Section */}
         <div className="h-[140px] py-4 px-6 flex items-center max-md:hidden -mt-2 -ml-2 w-[calc(100%+1.125rem)] mb-4">
           <Image
-            src="/plant.jpg"
+            src="/assets/plant.jpg"
             alt="/assets/logo/logo-text"
             className="dark:invert"
             width={100}

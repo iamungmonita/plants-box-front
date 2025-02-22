@@ -16,7 +16,7 @@ export function SignIn(form: IAuthLogIn): Promise<SignInResponse> {
   return POST<SignInResponse, IAuthLogIn>(url, form);
 }
 export function SignUp(form: IAuthRegister): Promise<SignInResponse> {
-  const url = `${API_URL}/auth/register`;
+  const url = `${API_URL}/auth/sign-up`;
   return POST<SignInResponse, IAuthRegister>(url, form);
 }
 export function SignOut(): Promise<void> {

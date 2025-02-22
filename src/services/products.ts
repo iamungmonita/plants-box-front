@@ -7,6 +7,7 @@ export interface queryParam {
   name?: string;
   category?: string;
   type?: string;
+  purchasedId?: string;
 }
 
 export function getAllProducts(
@@ -14,7 +15,6 @@ export function getAllProducts(
 ): Promise<ProductReturnList[]> {
   const queryString = query.stringify(params);
   const url = `${API_URL}/product/retrieve?${queryString}`;
-  console.log(url);
   return GET<ProductReturnList[], {}>(url, {});
 }
 

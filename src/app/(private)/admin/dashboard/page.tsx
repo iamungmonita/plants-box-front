@@ -17,7 +17,7 @@ const page = () => {
     signOut();
     router.push("/auth/sign-in");
   };
-
+  console.log(profile);
   return (
     <div>
       {isAuthenticated && (

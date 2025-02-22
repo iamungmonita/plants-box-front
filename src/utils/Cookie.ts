@@ -10,5 +10,5 @@ const getCookie = (name: string): string | null => {
 };
 
 export const getAccessToken = (): string | null => {
-  return getCookie("auth_token");
+  return getCookie("f1ee97b19e11145c6fba1be1f8204e00");
 };

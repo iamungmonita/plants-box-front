@@ -5,9 +5,10 @@ import AdminCard from "@/components/Card/Admin";
 import CardCarousel from "@/components/CardCarousel";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
+import { ShoppingCartProduct } from "@/components/ShoppingCart";
 import StickyHeadTable from "@/components/Table";
 import { categories, types } from "@/constants/AutoComplete";
-import { addToCart } from "@/helpers/addToCart";
+import { addToCart, settlement, updateCartItems } from "@/helpers/addToCart";
 import API_URL from "@/lib/api";
 import { Product, ProductReturn, ProductReturnList } from "@/schema/products";
 import { getAllProducts, getProductById } from "@/services/products";
@@ -32,9 +33,13 @@ const page = () => {
   const [products, setProducts] = useState<ProductReturnList[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [category, setCategory] = useState("");
+  const [items, setItems] = useState<ShoppingCartProduct[]>([]);
   const methods = useForm();
   const name = methods.watch("name");
-
+  useEffect(() => {
+    const { items } = updateCartItems();
+    setItems(items);
+  }, []);
   useEffect(() => {
     const fetchProduct = async () => {
       try {

@@ -7,17 +7,15 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { formattedTimeStamp } from "@/helpers/format-time";
-import BasicModal from "@/components/Modal";
-import dynamic from "next/dynamic";
+
 import API_URL from "@/lib/api";
 import { getPurchasedOrderByProductId } from "@/services/order";
 import ReusableTable from "@/components/Table";
 import { useForm } from "react-hook-form";
 import { Column } from "@/constants/TableHead/Product";
 import { Button, TextField } from "@mui/material";
-import Head from "next/head"; // Use next/head for title
-import { useTitleContext } from "@/context/TitleContext";
 import { CreateForm } from "../create/Form";
+
 const Page = () => {
   const [title, setTitle] = useState("");
   const params = useParams();
@@ -25,8 +23,6 @@ const Page = () => {
   const [purchasedOrders, setPurchasedOrders] = useState<PurchasedOrderList[]>(
     []
   );
-  const [toggle, setToggle] = useState(false);
-  const [print, setPrint] = useState(false);
   const methods = useForm();
   const [id, setId] = useState("");
 
@@ -41,16 +37,10 @@ const Page = () => {
       label: "Purchased ID",
       minWidth: 100,
     },
-    {
-      id: "createdAt",
-      label: "Purchased At",
-      minWidth: 170,
-      formatString: (value: string) =>
-        formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
-    },
+
     {
       id: "orders",
-      label: "Qty",
+      label: "Sold Qty",
       minWidth: 100,
       render: (_: any, row: PurchasedOrderList) => {
         const matchingId = row.orders.find((order) => order._id === id);
@@ -60,6 +50,13 @@ const Page = () => {
           <p>No match</p>
         );
       },
+    },
+    {
+      id: "createdAt",
+      label: "Purchased At",
+      minWidth: 170,
+      formatString: (value: string) =>
+        formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
     },
   ];
 
@@ -94,57 +91,8 @@ const Page = () => {
         <div className="shadow p-4 space-y-4">
           <div className="flex items-center justify-between w-full">
             <h2 className="text-2xl">{title}</h2>
-            <Button
-              onClick={() => setToggle(!toggle)}
-              variant="outlined"
-              sx={{
-                backgroundColor: "var(--medium-light)",
-                color: "white",
-                padding: 1,
-                border: "none",
-              }}
-            >
-              {!toggle ? (
-                <MdEditDocument className="text-2xl" />
-              ) : (
-                <MdClose className="text-2xl" />
-              )}
-            </Button>
           </div>
-          <div>
-            {toggle ? (
-              <div>
-                <CreateForm createId={product._id} />
-              </div>
-            ) : (
-              <div>
-                <div>
-                  <p>Description: {product.description}</p>
-                  <p>Price: ${Number(product.price).toFixed(2)}</p>
-                  <p>Stock: {product.stock}</p>
-                  <p>Instruction: {product.instruction}</p>
-                  <p>Size: {product.size}</p>
-                </div>
-                <div>
-                  <p>Created At: {product.createdAt}</p>
-                  <p>Updated At: {product.updatedAt}</p>
-                </div>
-                <div className="grid grid-cols-5">
-                  {product.pictures?.map((img, index) => (
-                    <div key={index} className="relative w-24 h-24 cursor-grab">
-                      <Image
-                        src={`${API_URL}${img}`}
-                        alt="Product Image"
-                        width={100}
-                        height={100}
-                        className="w-full h-full object-cover rounded shadow-md"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          <CreateForm createId={product._id} />
         </div>
         <div className="space-y-4">
           <TextField
@@ -168,12 +116,6 @@ const Page = () => {
           )}
         </div>
       </div>
-
-      <BasicModal
-        open={print}
-        onClose={() => setPrint(false)}
-        content={<div>Print Content</div>}
-      />
     </div>
   );
 };

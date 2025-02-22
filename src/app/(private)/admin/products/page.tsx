@@ -73,6 +73,11 @@ const page = () => {
         className="grid grid-cols-3 gap-4 w-1/2 max-md:w-full max-md:grid-cols-1"
       >
         <TextField
+          sx={{
+            "& .MuiInputBase-input": { fontFamily: "var(--text)" },
+            "& .MuiInputLabel-root": { fontFamily: "var(--text)" },
+            "& .MuiFormHelperText-root": { fontFamily: "var(--text)" },
+          }}
           label="Product"
           {...methods.register("product")}
           {...methods.watch("product")}
@@ -82,7 +87,7 @@ const page = () => {
         <AutocompleteForm
           label="Category"
           name="category"
-          options={categories}
+          options={categories.slice(1)}
         />
         <AutocompleteForm label="Type" name="type" options={types} />
       </Form>
