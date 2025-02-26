@@ -1,15 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import Button from "@mui/material/Button";
-import Image from "next/image";
-import { GoTrash } from "react-icons/go";
-import { useForm } from "react-hook-form";
+
 import {
-  addToCart,
-  clearLocalStorage,
   handleDecrement,
-  handleQuantityChange,
   removeItem,
-  settlement,
   updateCartItems,
 } from "@/helpers/addToCart";
 import CartCard from "../CartCard";
@@ -19,9 +12,7 @@ export interface ShoppingCartProduct {
   price: number;
   stock: number;
   quantity: number;
-  picture: string[];
   name: string;
-  size: string;
 }
 
 const ShoppingCart = ({ onClose }: { onClose?: () => void }) => {
@@ -40,10 +31,6 @@ const ShoppingCart = ({ onClose }: { onClose?: () => void }) => {
       window.removeEventListener("cartUpdated", handleCartUpdate);
     };
   }, []);
-
-  // const handleSettlement = (event: React.MouseEvent<HTMLButtonElement>) => {
-  //   settlement(items);
-  // };
 
   return (
     <div className="w-full h-full flex flex-col">

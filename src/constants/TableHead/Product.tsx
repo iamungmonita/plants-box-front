@@ -18,9 +18,9 @@ export const columns: Column<ProductReturnList>[] = [
     label: "Image",
     minWidth: 100,
     render: (_: any, row: ProductReturnList) =>
-      row.pictures?.[0] ? (
+      row.pictures ? (
         <img
-          src={`${API_URL}${row.pictures[0]}`}
+          src={`${API_URL}${row.pictures}`}
           alt="Product"
           style={{ width: 50, height: 50, objectFit: "cover" }}
         />

@@ -1,7 +1,6 @@
 import React from "react";
 import { TextField } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
-import { register } from "module";
 
 interface InputFieldProps {
   name: string;
@@ -10,6 +9,7 @@ interface InputFieldProps {
   multiline?: boolean;
   minRows?: number;
   placeholder?: string;
+  onBlur?: () => void; // Make sure the onBlur is optional here
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -19,6 +19,8 @@ const InputField: React.FC<InputFieldProps> = ({
   multiline = false,
   minRows = 1,
   placeholder,
+
+  onBlur, // Accept onBlur directly as a prop here
 }) => {
   const { control } = useFormContext();
 
@@ -44,6 +46,11 @@ const InputField: React.FC<InputFieldProps> = ({
           error={!!fieldState.error}
           helperText={fieldState.error?.message}
           InputLabelProps={{ shrink: true }}
+          inputProps={{ min: 0 }}
+          onBlur={(e) => {
+            field.onBlur(); // Trigger the field's blur event
+            if (onBlur) onBlur(); // Call the passed in onBlur function
+          }}
         />
       )}
     />

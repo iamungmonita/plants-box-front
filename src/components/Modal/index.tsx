@@ -9,9 +9,9 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "100%", // Width adjusted as before
+  width: "50%", // Width adjusted as before
   maxWidth: "100vw", // Max width to ensure it's not too wide
-  height: "100%", // Set height to 50% of the screen height
+  height: "90%", // Set height to 50% of the screen height
   maxHeight: "100vh", // Limit the max height
   bgcolor: "background.paper",
   border: "2px solid #000",
@@ -45,10 +45,12 @@ export default function BasicModal({
         }}
       >
         <Box sx={style}>
-          <Button className="float-right" onClick={onClose}>
+          {/* <Button className="fixed top-0 right-0" onClick={onClose}>
             <CloseSharp />
-          </Button>
-          {content}
+          </Button> */}
+          <div className="flex justify-center items-center w-full h-full">
+            {content}
+          </div>
         </Box>
       </Modal>
     </div>

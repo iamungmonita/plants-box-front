@@ -56,7 +56,7 @@ const OrderPanel = ({ onClose }: { onClose?: () => void }) => {
   return (
     <div className="w-full">
       {/* Scrollable Items Container */}
-      <div className="flex-grow max-h-[50vh] scroll-container space-y-4 py-4">
+      <div className="flex-grow max-h-[40vh] scroll-container space-y-2 py-2">
         {/* <table className="w-full text-left text-gray-700 flex-grow max-h-[40vh] overflow-y-scroll space-y-4 pr-2">
           <thead>
             <tr className="border-b w-full">

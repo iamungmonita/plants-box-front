@@ -8,9 +8,7 @@ type CartItem = {
   price: string;
   stock: number;
   quantity: number;
-  picture: string[];
   name: string;
-  size: string;
 };
 
 export const addToCart = async <
@@ -18,7 +16,7 @@ export const addToCart = async <
     _id: string;
     price: number;
     stock: number;
-    pictures: string[];
+    pictures: string;
     name: string;
     size: string;
   }
@@ -29,8 +27,8 @@ export const addToCart = async <
 ) => {
   try {
     const productData = await getProductById(id);
-    const { _id, price, stock, pictures, name, size } = productData;
-    const imagePaths = pictures.map((path) => `${API_URL}${path}`);
+    const { _id, price, stock, pictures, name } = productData;
+    const imagePaths = `${API_URL}${pictures}`;
 
     // Get existing items from localStorage
     const storedItems: CartItem[] = JSON.parse(
@@ -60,9 +58,7 @@ export const addToCart = async <
         price,
         stock,
         quantity: 1,
-        picture: imagePaths,
         name,
-        size,
       });
       setSnackbarMessage?.(`${name} has been added to cart`);
     }
@@ -110,7 +106,7 @@ export const removeItem = (id: string) => {
 
 export const handleCheckout = async (id: string, qty: number) => {
   try {
-    const response = await updateProductStockById(id, { stock: qty });
+    const response = await updateProductStockById(id, { qty: qty });
     console.log("Stock updated successfully:", response);
   } catch (error) {
     console.error("Error updating stock:", error);
@@ -186,9 +182,7 @@ export const settlement = async (
 ) => {
   try {
     await Promise.all(
-      items.map(({ _id, stock, quantity }) =>
-        handleCheckout(_id, stock - quantity)
-      )
+      items.map(({ _id, quantity }) => handleCheckout(_id, quantity))
     );
     handleOrder(
       items,
@@ -201,6 +195,7 @@ export const settlement = async (
       vatAmount,
       totalAmount
     );
+
     return {
       items: clearLocalStorage().items,
       total: clearLocalStorage().total,

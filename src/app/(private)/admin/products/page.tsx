@@ -21,16 +21,16 @@ const page = () => {
   const [products, setProducts] = useState<ProductReturnList[]>([]);
   const methods = useForm();
   const { watch } = methods;
-  const product = watch("product");
+  const name = watch("name");
   const category = watch("category");
   const type = watch("type");
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await getAllProducts({
-          name: product,
-          type: type,
-          category: category,
+          name,
+          type,
+          category,
         });
         setProducts(response);
       } catch (error) {
@@ -38,7 +38,7 @@ const page = () => {
       }
     };
     fetchProduct();
-  }, [product, type, category]);
+  }, [name, type, category]);
   const router = useRouter();
   const { handleSubmit, getValues, register, setValue } = useForm();
   const [delivery, setDelivery] = useState<string>("credit"); // Default to "credit"
@@ -79,8 +79,7 @@ const page = () => {
             "& .MuiFormHelperText-root": { fontFamily: "var(--text)" },
           }}
           label="Product"
-          {...methods.register("product")}
-          {...methods.watch("product")}
+          {...methods.register("name")}
           type="text"
           placeholder="Ex: Daisy"
         />

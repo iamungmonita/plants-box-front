@@ -17,6 +17,8 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   signIn: () => void;
   signUp: () => void;
+  isAuthorized: (roles: string[]) => boolean; // Check if user has the required role
+
   signOut: () => void;
   onRefresh: () => void;
   profile: Profile | null;
@@ -41,6 +43,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefresh, setIsRefresh] = useState<boolean>(false);
 
+  const isAuthorized = (roles: string[]) => {
+    if (profile && profile.role) {
+      return roles.includes(profile.role); // Check if the user's role matches any required roles
+    }
+    return false; // Default to false if profile is not loaded
+  };
+
   const fetchProfile = async (abortController: AbortController) => {
     try {
       const response = await getAdminProfile(abortController);
@@ -49,6 +58,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setProfile(response.admin);
       } else if (response.name && response.message) {
         setProfile(null);
+        setIsAuthenticated(false);
         setMessage(response.message);
       } else {
         console.log(response.message);
@@ -111,6 +121,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider
       value={{
         isAuthenticated,
+        isAuthorized,
         signIn,
         signUp,
         signOut,

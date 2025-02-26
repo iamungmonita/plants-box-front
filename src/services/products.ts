@@ -2,12 +2,14 @@ import { ProductAddPicture, ProductReturnList } from "@/schema/products";
 import API_URL from "@/lib/api";
 import { GET, POST, PUT } from ".";
 import query from "query-string";
+
 // GET
 export interface queryParam {
   name?: string;
   category?: string;
   type?: string;
   purchasedId?: string;
+  barcode?: string;
 }
 
 export function getAllProducts(
@@ -37,7 +39,7 @@ export function updateProductStockById(
   params: any
 ): Promise<ProductReturnList> {
   const url = `${API_URL}/product/update/` + id;
-  return PUT<ProductReturnList, typeof params>(url, params);
+  return POST<ProductReturnList, typeof params>(url, params);
 }
 
 export function updateProductDetailsById(

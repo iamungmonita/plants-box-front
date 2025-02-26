@@ -3,7 +3,9 @@ export interface Profile {
   email: string;
   password: string;
   updatedAt: string;
-  username: string;
+  lastname: string;
+  firstname: string;
+  role: string;
   __v: number;
   _id: string;
 }

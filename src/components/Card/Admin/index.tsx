@@ -49,71 +49,67 @@ const AdminCard = ({ product }: { product: ProductReturnList }) => {
   };
 
   return (
-    <>
-      <Card
-        className={`shadow-lg cursor-pointer relative min-w-[180px] h-[320px]
+    <Card
+      key={product._id}
+      className={`shadow-lg cursor-pointer relative min-w-[180px] h-[320px]
        flex flex-col hover:bg-slate-100 border duration-500 ease-in-out transition-all `}
-      >
-        <div className="relative w-full h-[60%]">
-          <Image
-            width={500}
-            height={500}
-            src={`${API_URL}${product.pictures[0]}`}
-            alt={product.name}
-            title={product.name}
-            className="w-full h-full object-cover rounded-t p-2"
-          />
-        </div>
+    >
+      <div className="relative w-full h-[60%]">
+        <Image
+          width={500}
+          height={500}
+          src={`${API_URL}${product.pictures}`}
+          alt={product.name}
+          title={product.name}
+          className="w-full h-full object-cover rounded-t p-2"
+        />
+      </div>
 
-        <div className="p-4 flex flex-col justify-between h-[40%]">
-          <h2 className="text-xl max-md:text-lg font-semibold">
-            {product.name}
-          </h2>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="md:text-lg">
-                ${parseInt(product.price.toString()).toFixed(2)}
+      <div className="p-4 flex flex-col justify-between h-[40%]">
+        <h2 className="text-xl max-md:text-lg font-semibold">{product.name}</h2>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="md:text-lg">
+              ${parseInt(product.price.toString()).toFixed(2)}
+            </p>
+            {product.stock === 0 ? (
+              <p className="text-sm text-red-500">Out of Stock</p>
+            ) : (
+              <p className="text-sm flex gap-2">
+                Stock: <span>{product.stock}</span>
               </p>
-              {product.stock === 0 ? (
-                <p className="text-sm text-red-500">Out of Stock</p>
-              ) : (
-                <p className="text-sm flex gap-2">
-                  Stock: <span>{product.stock}</span>
-                </p>
-              )}
-            </div>
-            {product.stock > 0 && (
-              <div className="flex items-center gap-2 justify-end w-full">
-                <button
-                  onClick={() =>
-                    handleDecrement(
-                      product._id,
-                      items[
-                        items.findIndex((index) => index._id === product._id)
-                      ]?.quantity
-                    )
-                  }
-                  className="text-xl px-2.5 border rounded"
-                >
-                  -
-                </button>
-                <span>
-                  {items[items.findIndex((index) => index._id === product._id)]
-                    ?.quantity ?? 0}
-                </span>
-                <button
-                  disabled={product.stock <= 0}
-                  onClick={() => handleAddToCart(product._id)}
-                  className="text-xl px-2.5 border rounded"
-                >
-                  +
-                </button>
-              </div>
             )}
           </div>
+          {product.stock > 0 && (
+            <div className="flex items-center gap-2 justify-end w-full">
+              <button
+                onClick={() =>
+                  handleDecrement(
+                    product._id,
+                    items[items.findIndex((index) => index._id === product._id)]
+                      ?.quantity
+                  )
+                }
+                className="text-xl px-2.5 border rounded"
+              >
+                -
+              </button>
+              <span>
+                {items[items.findIndex((index) => index._id === product._id)]
+                  ?.quantity ?? 0}
+              </span>
+              <button
+                disabled={product.stock <= 0}
+                onClick={() => handleAddToCart(product._id)}
+                className="text-xl px-2.5 border rounded"
+              >
+                +
+              </button>
+            </div>
+          )}
         </div>
-      </Card>
-    </>
+      </div>
+    </Card>
   );
 };
 

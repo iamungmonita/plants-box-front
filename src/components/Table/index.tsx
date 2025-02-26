@@ -68,40 +68,47 @@ const ReusableTable = <T extends { [key: string]: any }>({
             </TableRow>
           </TableHead>
           <TableBody>
-            {data
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => (
-                <TableRow
-                  key={row._id}
-                  hover
-                  className="hover:cursor-pointer"
-                  tabIndex={-1}
-                  onClick={() => onRowClick && onRowClick(row)}
-                >
-                  {columns.map((column) => {
-                    const value = row[column.id];
-                    return (
-                      <TableCell
-                        key={String(column.id)}
-                        align={column.align}
-                        style={{ fontFamily: "var(--text)" }}
-                      >
-                        {column.render
-                          ? column.render(value, row)
-                          : column.format
-                          ? column.format(value)
-                          : column.formatString
-                          ? column.formatString(value)
-                          : value
-                          ? value
-                          : value !== 0
-                          ? "N/A"
-                          : 0}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))}
+            {data && data.length > 0 ? (
+              data
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row: T) => (
+                  <TableRow
+                    key={String(row._id)}
+                    hover
+                    className="hover:cursor-pointer"
+                    onClick={() => onRowClick && onRowClick(row)}
+                  >
+                    {columns.map((column) => {
+                      const value = row[column.id];
+                      return (
+                        <TableCell
+                          key={String(column.id)}
+                          align={column.align}
+                          style={{ fontFamily: "var(--text)" }}
+                        >
+                          {column.render
+                            ? column.render(value, row)
+                            : column.format
+                            ? column.format(value)
+                            : column.formatString
+                            ? column.formatString(value)
+                            : value
+                            ? value
+                            : value !== 0
+                            ? "N/A"
+                            : 0}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} align="center">
+                  No data available for this filter.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
