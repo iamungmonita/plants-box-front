@@ -69,8 +69,6 @@ export interface PurchasedOrderList extends Response {
   paymentMethod: string;
   createdBy: string;
   discount: number;
-  discountedAmount: number;
   calculatedDiscount: number;
-  vatAmount: number;
   totalAmount: number;
 }

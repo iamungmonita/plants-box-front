@@ -30,6 +30,11 @@ const AutocompleteForm = ({ options, name, label }: AutocompleteTypeProps) => {
           onChange={(_, newValue) => field.onChange(newValue || "")} // Update React Hook Form value
           renderInput={(params) => (
             <TextField
+              sx={{
+                "& .MuiInputBase-input": { fontFamily: "var(--text)" },
+                "& .MuiInputLabel-root": { fontFamily: "var(--text)" },
+                "& .MuiFormHelperText-root": { fontFamily: "var(--text)" },
+              }}
               {...params}
               label={label}
               error={!!errors[name]}

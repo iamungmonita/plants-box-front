@@ -11,19 +11,22 @@ import Image from "next/image";
 import { sidebar } from "@/constants/sidebar";
 import { Button } from "@mui/material";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
+import CustomButton from "../Button";
+import BasicModal from "../Modal";
+import ExchangeRate from "../Modals/ExchangeRate";
 
 function ProfileSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const [isCollapse, setIsCollapse] = useState(false);
   const [openDropdowns, setOpenDropdowns] = useState<Set<string>>(new Set()); // Track multiple open dropdowns
-
+  const [toggleModal, setToggleModal] = useState<boolean>(false);
   const { signOut, profile } = useAuthContext();
 
   const collapsibleCtx = classNames({
     "max-w-20 ": isCollapse,
     [Style["is-collapse"]]: isCollapse,
-    "min-w-[250px] max-md:max-w-full h-full": !isCollapse,
+    "max-w-[250px] max-md:max-w-full h-full": !isCollapse,
   });
 
   function onLogoutOut() {
@@ -52,6 +55,12 @@ function ProfileSidebar() {
         Style["sidebar-wrapper"]
       )}
     >
+      <BasicModal
+        content={<ExchangeRate onCloseModal={() => setToggleModal(false)} />}
+        open={toggleModal}
+        onClose={() => setToggleModal(false)}
+      />
+
       <div className={`${Style["sidebar-content"]} flex flex-col h-full`}>
         {/* Logo Section */}
         <div className="h-[140px] py-4 px-6 flex items-center max-md:hidden -mt-2 -ml-2 w-[calc(100%+1.125rem)] mb-4">
@@ -83,58 +92,75 @@ function ProfileSidebar() {
           ))}
           <div
             className={`${Style.dropdown} ${
-              openDropdowns.has("system") ? Style.open : ""
+              openDropdowns.has("settings") ? Style.open : ""
             }`}
           >
             <button
               type="button"
-              onClick={() => toggleDropdown("system")}
+              onClick={() => toggleDropdown("log")}
               className="flex items-center justify-between w-full px-4 py-3  text-base text-gray-900 transition duration-300 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
             >
-              system
+              Log
               <MdOutlineKeyboardArrowRight
                 className={`${
-                  openDropdowns.has("system") ? "rotate-90" : "-rotate-60"
+                  openDropdowns.has("log") ? "rotate-90" : "-rotate-60"
                 } dark:invert transition-transform`}
               />
-              {/* <Image
-                src="/assets/icons/arrow-right.svg"
-                width="12"
-                height="12"
-                alt=""
-                className={`${
-                  openDropdowns.has("system") ? "-rotate-90" : "rotate-90"
-                } dark:invert transition-transform`}
-              /> */}
             </button>
-            {openDropdowns.has("system") && (
+            {openDropdowns.has("log") && (
               <ul>
                 <li className="!pl-6">
-                  <Link href="/admin/system/users">Users</Link>
+                  <Link href="/admin/log/initial-balance">
+                    Initial Balance Count
+                  </Link>
                 </li>
                 <li className="!pl-6">
-                  <Link href="/admin/system/roles">Roles</Link>
+                  <Link href="/admin/log/daily-log">In-Out Log</Link>
+                </li>
+              </ul>
+            )}
+          </div>
+          <div
+            className={`${Style.dropdown} ${
+              openDropdowns.has("settings") ? Style.open : ""
+            }`}
+          >
+            <button
+              type="button"
+              onClick={() => toggleDropdown("settings")}
+              className="flex items-center justify-between w-full px-4 py-3  text-base text-gray-900 transition duration-300 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+            >
+              Settings
+              <MdOutlineKeyboardArrowRight
+                className={`${
+                  openDropdowns.has("settings") ? "rotate-90" : "-rotate-60"
+                } dark:invert transition-transform`}
+              />
+            </button>
+            {openDropdowns.has("settings") && (
+              <ul>
+                <li className="!pl-6">
+                  <Link href="/admin/settings/users">Users</Link>
+                </li>
+                <li className="!pl-6">
+                  <Link href="/admin/settings/roles">Roles</Link>
                 </li>
               </ul>
             )}
           </div>
         </ul>
 
-        {/* Logout Button (Pushed to Bottom) */}
-        <div className="mb-10">
-          <Button
-            variant="text"
-            sx={{
-              fontFamily: "var(--text)",
-              backgroundColor: "gray",
-              color: "white",
-              padding: 1.5,
-              width: "100%",
-            }}
-            onClick={() => onLogoutOut()}
-          >
-            Log Out
-          </Button>
+        <div className="mb-10 space-y-4">
+          <CustomButton
+            onHandleButton={() => setToggleModal(true)}
+            text="Set Exchange Rate"
+            theme="general"
+          />
+          <CustomButton
+            onHandleButton={onLogoutOut}
+            text="Log Out"
+            theme="dark"
+          />
         </div>
       </div>
     </aside>

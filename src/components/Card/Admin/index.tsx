@@ -61,7 +61,7 @@ const AdminCard = ({ product }: { product: ProductReturnList }) => {
           src={`${API_URL}${product.pictures}`}
           alt={product.name}
           title={product.name}
-          className="w-full h-full object-cover rounded-t p-2"
+          className="w-full h-full object-cover shadow rounded-t p-2"
         />
       </div>
 

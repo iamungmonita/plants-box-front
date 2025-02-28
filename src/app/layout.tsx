@@ -1,7 +1,6 @@
 import { Nanum_Gothic } from "next/font/google";
 import "./globals.scss";
 import AuthProvider from "@/context/AuthContext";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ShoppingCart from "@/components/ShoppingCart";
 
@@ -19,7 +18,6 @@ export default function RootLayout({
     <html lang="en">
       {/* This ensures the class is applied */}
       <body className="flex flex-col min-h-screen">
-        <Header />
         <main className="flex-1 flex items-center justify-center">
           <AuthProvider>{children}</AuthProvider>
         </main>

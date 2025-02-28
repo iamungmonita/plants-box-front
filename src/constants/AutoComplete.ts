@@ -1,6 +1,5 @@
-export const types = ["Interior", "Exterior"];
 export const categories = [
-  "All Products",
+  // "All Products",
   "Plants",
   "Pot",
   "Accessories",

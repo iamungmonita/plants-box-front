@@ -1,0 +1,57 @@
+import React, { useState } from "react";
+import { Button, ButtonGroup } from "@mui/material";
+
+// Define a type for the ToggleButton props
+interface ToggleButtonProps {
+  options: { value: string; label: string; icon?: React.ReactNode }[]; // The options now include an icon
+  selectedValue: string; // The currently selected value
+  onSelect: (value: string) => void; // Callback function to handle value selection
+}
+
+const ToggleButton: React.FC<ToggleButtonProps> = ({
+  options,
+  selectedValue,
+  onSelect,
+}) => {
+  return (
+    <ButtonGroup
+      className="w-full"
+      variant="outlined"
+      aria-label="payment method"
+    >
+      {options.map((item) => (
+        <Button
+          className="w-full"
+          key={item.value}
+          onClick={() => onSelect(item.value)} // Pass selected value to the parent via the callback
+          variant={selectedValue === item.value ? "contained" : "outlined"}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            borderRadius: "4px",
+            padding: 1,
+            borderColor:
+              selectedValue === item.value ? "var(--medium-light)" : "#ccc",
+            backgroundColor:
+              selectedValue === item.value ? "var(--medium-light)" : "white",
+            color: selectedValue === item.value ? "white" : "black",
+            "&:hover": {
+              backgroundColor:
+                selectedValue === item.value
+                  ? "var(--medium-light)"
+                  : "#f5f5f5",
+            },
+          }}
+        >
+          <span className="flex items-center gap-2">
+            {item.icon && <span>{item.icon}</span>}
+            <span style={{ fontFamily: "var(--text)" }}>{item.label}</span>
+          </span>
+        </Button>
+      ))}
+    </ButtonGroup>
+  );
+};
+
+export default ToggleButton;

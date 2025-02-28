@@ -11,7 +11,7 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: "50%", // Width adjusted as before
   maxWidth: "100vw", // Max width to ensure it's not too wide
-  height: "90%", // Set height to 50% of the screen height
+  height: "auto", // Set height to 50% of the screen height
   maxHeight: "100vh", // Limit the max height
   bgcolor: "background.paper",
   border: "2px solid #000",
@@ -26,7 +26,7 @@ export default function BasicModal({
   onClose,
 }: {
   open: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   content: React.ReactNode;
 }) {
   const handleBackdropClick = (event: React.MouseEvent) => {
@@ -45,9 +45,11 @@ export default function BasicModal({
         }}
       >
         <Box sx={style}>
-          {/* <Button className="fixed top-0 right-0" onClick={onClose}>
-            <CloseSharp />
-          </Button> */}
+          {onClose && (
+            <Button className="fixed top-0 right-0" onClick={onClose}>
+              <CloseSharp />
+            </Button>
+          )}
           <div className="flex justify-center items-center w-full h-full">
             {content}
           </div>

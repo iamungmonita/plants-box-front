@@ -3,5 +3,4 @@ export const sidebar = [
   { name: "Make an Order", path: "/admin/order" },
   { name: "Products", path: "/admin/products" },
   { name: "Sale Records", path: "/admin/sale" },
-  { name: "Daily Log", path: "/admin/log" },
 ];

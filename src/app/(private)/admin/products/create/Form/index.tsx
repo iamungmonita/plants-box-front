@@ -13,8 +13,10 @@ import {
   getProductById,
   updateProductDetailsById,
 } from "@/services/products";
-import { categories, types } from "@/constants/AutoComplete";
+import { categories } from "@/constants/AutoComplete";
 import API_URL from "@/lib/api";
+import Checkbox from "@/components/Checkbox";
+import { useAuthContext } from "@/context/AuthContext";
 
 export const CreateForm = ({ createId }: { createId: string }) => {
   const methods = useForm<Product>({
@@ -25,7 +27,7 @@ export const CreateForm = ({ createId }: { createId: string }) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const { register } = methods;
-
+  const { isAuthorized } = useAuthContext();
   const convertFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -51,14 +53,8 @@ export const CreateForm = ({ createId }: { createId: string }) => {
 
       if (!createId) {
         setValue("name", "");
-        setValue("type", "");
         setValue("category", "");
         setValue("price", "");
-        setValue("description", "");
-        setValue("size", "");
-        setValue("temperature", "");
-        setValue("instruction", "");
-        setValue("habit", "");
         setValue("barcode", "");
         setValue("stock", 0);
         setValue("pictures", null as any);
@@ -120,6 +116,7 @@ export const CreateForm = ({ createId }: { createId: string }) => {
         setValue("price", product.price);
         setValue("stock", product.stock);
         setValue("barcode", product.barcode);
+        setValue("isActive", product.isActive);
         setValue("pictures", product.pictures as unknown as string);
         if (product.pictures) {
           setPreviewUrl(`${API_URL}${product.pictures as unknown as string}`);
@@ -133,6 +130,9 @@ export const CreateForm = ({ createId }: { createId: string }) => {
 
     fetchProduct();
   }, [createId]);
+  if (!isAuthorized(["owner"])) {
+    return <div>You do not have permission to view this page.</div>;
+  }
 
   return (
     <Form
@@ -145,15 +145,8 @@ export const CreateForm = ({ createId }: { createId: string }) => {
       <AutocompleteForm label="Category" name="category" options={categories} />
       <InputField name="stock" type="number" label="Stock" />
       <InputField name="price" type="text" label="Price" />
-      <label htmlFor="isActive" className="flex items-center">
-        <input
-          type="checkbox"
-          className="h-5 w-5"
-          id="isActive"
-          {...register("isActive")}
-        />
-        <p className=" ml-4"> Is Active</p>
-      </label>
+      <Checkbox name="isActive" />
+
       <div className="col-span-2 w-full space-y-4">
         <div
           className="border-2 border-dashed p-4 flex justify-center items-center"
@@ -201,3 +194,6 @@ export const CreateForm = ({ createId }: { createId: string }) => {
     </Form>
   );
 };
+function isAuthorized(arg0: string[]) {
+  throw new Error("Function not implemented.");
+}

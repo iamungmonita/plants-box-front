@@ -30,12 +30,27 @@ export interface ILogResponse<T> extends Response {
   name?: string;
   errors?: any;
 }
-export function DailyLog({ userId }: { userId: string }): Promise<boolean> {
-  const url = `${API_URL}/log/dailylog`;
-  return POST<boolean, { userId: string }>(url, { userId });
+export interface IUserLog {
+  userId: string;
+  username: string;
+  role: string;
 }
-export function InitialCount(form: ILog): Promise<ILogResponse<LogData>> {
-  const url = `${API_URL}/log/count`;
+export interface IUserLogResponse extends Response {
+  userId: string;
+  username: string;
+  role: string;
+}
+
+export function Log(user: IUserLog): Promise<boolean> {
+  const url = `${API_URL}/log`;
+  return POST<boolean, IUserLog>(url, user);
+}
+export function getAllLogs(): Promise<IUserLogResponse[]> {
+  const url = `${API_URL}/log/retrieve-logs`;
+  return GET<IUserLogResponse[]>(url);
+}
+export function InitialLog(form: ILog): Promise<ILogResponse<LogData>> {
+  const url = `${API_URL}/log/initial-log`;
   return POST<ILogResponse<LogData>, ILog>(url, form);
 }
 export function RetrieveCount(): Promise<LogData[]> {

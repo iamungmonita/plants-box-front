@@ -1,13 +1,12 @@
-export interface Profile {
-  createdAt: string;
+import { Response } from "@/schema/order";
+
+export interface Profile extends Response {
   email: string;
   password: string;
-  updatedAt: string;
+  phonenumber: string;
   lastname: string;
   firstname: string;
   role: string;
-  __v: number;
-  _id: string;
 }
 
 export interface IAuthLogIn {
@@ -15,15 +14,15 @@ export interface IAuthLogIn {
   password: string;
 }
 
-export interface IAuthLogInSuccessResponse {
-  message: string;
-  admin: Profile;
-}
-export interface IAuthLogInErrorResponse {
-  message: string;
-  name?: string;
-}
-
-export type SignInResponse =
-  | IAuthLogInSuccessResponse
-  | IAuthLogInErrorResponse;
+// export interface IAuthLogInSuccessResponse {
+//   message: string;
+//   data: Profile;
+// }
+// export interface IAuthLogInErrorResponse {
+//   message: string;
+//   name?: string;
+// }
+//
+// export type SignInResponse =
+//   | IAuthLogInSuccessResponse
+//   | IAuthLogInErrorResponse;

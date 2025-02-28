@@ -1,5 +1,6 @@
 "use client";
 
+import { IAuthRegister } from "@/app/(private)/admin/settings/users/create/page";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
 import { useAuthContext } from "@/context/AuthContext";
@@ -13,12 +14,6 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 
-export interface IAuthRegister {
-  username: string;
-  email: string;
-  password: string;
-}
-
 const Page = () => {
   const router = useRouter();
   const { signUp, onRefresh } = useAuthContext();
@@ -30,18 +25,18 @@ const Page = () => {
   const { setError } = methods;
 
   const onSubmitForm = async (data: IAuthRegister) => {
-    const response = await SignUp(data);
-    if ("admin" in response) {
-      signUp();
-      onRefresh();
-      router.push("/admin/dashboard");
-    } else {
-      setError(response.name as "email" | "password", {
-        type: "manual",
-        message: response.message,
-      });
-      console.log(response.message);
-    }
+    console.log(data);
+    // const response = await SignUp(data);
+    // if (response.message) {
+    //   console.log(response.message);
+    // }
+    // if (response.data) {
+    //   signUp();
+    //   onRefresh();
+    //   router.push("/admin/dashboard");
+    // } else {
+    //   console.log(response.message);
+    // }
   };
 
   return (
@@ -57,6 +52,7 @@ const Page = () => {
         >
           <InputField name="username" type="text" label="Username" />
           <InputField name="email" type="email" label="Email" />
+          <InputField name="phonenumber" type="text" label="Phone Number" />
           <InputField name="password" type="password" label="Password" />
           <Button variant="contained" type="submit">
             Submit

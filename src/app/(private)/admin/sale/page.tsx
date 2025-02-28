@@ -6,7 +6,7 @@ import { MdClose, MdEditDocument } from "react-icons/md";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { formattedTimeStamp } from "@/helpers/format-time";
+import { formattedTimeStamp } from "@/helpers/format/time";
 import BasicModal from "@/components/Modal";
 import dynamic from "next/dynamic";
 import API_URL from "@/lib/api";
@@ -16,7 +16,6 @@ import { useForm } from "react-hook-form";
 import { Column } from "@/constants/TableHead/Product";
 import { Button, TextField } from "@mui/material";
 import Head from "next/head"; // Use next/head for title
-import { useTitleContext } from "@/context/TitleContext";
 
 const Page = () => {
   const [title, setTitle] = useState("");
@@ -25,8 +24,7 @@ const Page = () => {
   const [purchasedOrders, setPurchasedOrders] = useState<PurchasedOrderList[]>(
     []
   );
-  const [toggle, setToggle] = useState(false);
-  const [print, setPrint] = useState(false);
+
   const methods = useForm();
   const [id, setId] = useState("");
 
@@ -52,6 +50,15 @@ const Page = () => {
       },
     },
 
+    {
+      id: "amount",
+      label: "SubTotal",
+      minWidth: 100,
+      format: (value: number) =>
+        value !== undefined && value !== null
+          ? `$${value.toFixed(2)}`
+          : "$0.00",
+    },
     {
       id: "discount",
       label: "Discount",
@@ -82,7 +89,7 @@ const Page = () => {
     },
     {
       id: "createdBy",
-      label: "Seller",
+      label: "Cashier",
       minWidth: 170,
     },
   ];

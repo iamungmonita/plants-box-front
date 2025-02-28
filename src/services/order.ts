@@ -3,6 +3,7 @@ import { orderResponse, PurchasedOrderList } from "@/schema/order";
 import { GET } from ".";
 import query from "query-string";
 import { queryParam } from "./products";
+import { ILayout } from "@/app/(private)/admin/settings/roles/create/page";
 
 //GET
 export function getOrder(
@@ -27,4 +28,12 @@ export function getPurchasedOrderByProductId(
 export function getOrderById(id: string): Promise<orderResponse> {
   const url = `${API_URL}/order/` + id;
   return GET<orderResponse, {}>(url, {});
+}
+export interface totalAmountResponse {
+  amount: number;
+  count: number;
+}
+export function getTotalAmountToday(): Promise<ILayout<totalAmountResponse>> {
+  const url = `${API_URL}/order/order-today`;
+  return GET<ILayout<totalAmountResponse>, {}>(url);
 }

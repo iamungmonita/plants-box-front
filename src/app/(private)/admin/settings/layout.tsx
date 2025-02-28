@@ -4,12 +4,11 @@ import React from "react";
 
 const layout = ({ children }: { children: React.ReactNode }) => {
   const { isAuthorized } = useAuthContext();
-  if (!isAuthorized(["owner"])) {
+  if (!isAuthorized(["Cashier"])) {
     return <div>You do not have permission to view this page.</div>;
   }
   return (
     <div>
-      <p>this is layout for system</p>
       <div>{children}</div>
     </div>
   );

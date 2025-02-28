@@ -1,3 +1,4 @@
+import { IRoleResponse } from "@/app/(private)/admin/settings/roles/create/page";
 import { formattedTimeStamp } from "@/helpers/format/time";
 import API_URL from "@/lib/api";
 import { ProductReturnList } from "@/schema/products";
@@ -12,32 +13,16 @@ export interface Column<T> {
   render?: (value: any, row: T) => React.ReactNode; // Render method for custom columns like image
 }
 
-export const columns: Column<ProductReturnList>[] = [
+export const columns: Column<IRoleResponse>[] = [
   {
-    id: "pictures", // Assuming "pictures" exists on ProductReturnList
+    id: "_id", // Assuming "pictures" exists on ProductReturnList
     label: "Image",
     minWidth: 100,
-    render: (_: any, row: ProductReturnList) =>
-      row.pictures ? (
-        <img
-          src={`${API_URL}${row.pictures}`}
-          alt="Product"
-          style={{ width: 50, height: 50, objectFit: "cover" }}
-        />
-      ) : (
-        <span>No Image</span>
-      ),
   },
   { id: "name", label: "Name", minWidth: 170 },
-  { id: "category", label: "Category", minWidth: 100 },
-  {
-    id: "price",
-    label: "Price",
-    minWidth: 170,
-    align: "right",
-    format: (value: number) => `$${value.toFixed(2)}`,
-  },
-  { id: "stock", label: "Stock", minWidth: 170 },
+  { id: "code", label: "Code", minWidth: 100 },
+
+  { id: "remark", label: "Remarks", minWidth: 170 },
   {
     id: "createdAt",
     label: "Created At",

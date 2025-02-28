@@ -49,6 +49,7 @@ export const addToCart = async <
         storedItems[existingItemIndex].quantity *
           parseFloat(storedItems[existingItemIndex].price);
         storedItems[existingItemIndex].quantity += 1;
+        storedItems[existingItemIndex].stock = stock;
         setSnackbarMessage?.(`Another one of ${name} has been added to cart`);
       }
     } else {
@@ -56,7 +57,7 @@ export const addToCart = async <
       storedItems.push({
         _id,
         price,
-        stock,
+        stock: stock,
         quantity: 1,
         name,
       });
@@ -130,10 +131,9 @@ export const handleOrder = async (
   paymentMethod: string,
   profile: string | undefined,
   discount: number,
-  discountedAmount: number,
   calculatedDiscount: number,
-  vatAmount: number,
-  totalAmount: number
+  totalAmount: number,
+  orderId: string
 ) => {
   await fetch(`${API_URL}/order/create`, {
     method: "POST",
@@ -147,14 +147,13 @@ export const handleOrder = async (
       paymentMethod,
       profile,
       discount,
-      discountedAmount,
       calculatedDiscount,
-      vatAmount,
       totalAmount,
+      orderId,
     }),
   })
     .then((result) => result.json())
-    .then((a) => console.log(a.saveOrder))
+    .then((a) => console.log(a))
     .catch((err) => console.log(err));
 };
 
@@ -175,10 +174,9 @@ export const settlement = async (
   paymentMethod: string,
   profile: string | undefined,
   discount: number,
-  discountedAmount: number,
   calculatedDiscount: number,
-  vatAmount: number,
-  totalAmount: number
+  totalAmount: number,
+  orderId: string
 ) => {
   try {
     await Promise.all(
@@ -190,10 +188,9 @@ export const settlement = async (
       paymentMethod,
       profile,
       discount,
-      discountedAmount,
       calculatedDiscount,
-      vatAmount,
-      totalAmount
+      totalAmount,
+      orderId
     );
 
     return {

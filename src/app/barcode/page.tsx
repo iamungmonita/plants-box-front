@@ -15,11 +15,18 @@ export interface Product {
 
 const CartPage: React.FC = () => {
   const [productId, setProductId] = useState<string>(""); // Store scanned barcode value
-  const [cart, setCart] = useState<Product[]>([]); // Store cart items
-  const products = [{ name: "product 1", productId: "sku-00001", price: 2 }];
+  const [cart, setCart] = useState<ProductReturnList[]>([]); // Store cart items
+  // const products = [{ name: "product 1", productId: "sku-00001", price: 2 }];
+  const [products, setProducts] = useState<ProductReturnList[]>([]);
 
   // Simulated product data for demonstration
-
+  useEffect(() => {
+    const fetch = async () => {
+      const response = await getAllProducts();
+      setProducts(response);
+    };
+    fetch();
+  }, []);
   // Handle barcode scan result
   const handleBarcodeScan = (data: any) => {
     if (data) {
@@ -30,7 +37,7 @@ const CartPage: React.FC = () => {
   // Add product to cart
   const addToCart = () => {
     // Find the product based on the scanned barcode value
-    const product = products.find((product) => product.productId === productId);
+    const product = products.find((product) => product.barcode === productId);
 
     if (product) {
       setCart((prevCart) => [...prevCart, product]); // Add the product to the cart

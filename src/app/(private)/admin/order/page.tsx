@@ -15,24 +15,16 @@ import {
 } from "@/helpers/addToCart";
 import { ProductReturnList } from "@/schema/products";
 import { getAllProducts } from "@/services/products";
-import { AttachMoney, QrCode2 } from "@mui/icons-material";
-import {
-  Autocomplete,
-  ButtonGroup,
-  TextField,
-  Typography,
-} from "@mui/material";
-import Button from "@mui/material/Button/Button";
-import Image from "next/image";
-import Link from "next/link";
-import { Input } from "postcss";
+import { AttachMoney, CurrencyExchange, QrCode2 } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { PiPrinterFill } from "react-icons/pi";
-import { formattedKHR } from "@/helpers/format-currency";
+import { formattedKHR } from "@/helpers/format/currency";
 import { TbShoppingCartPause } from "react-icons/tb";
 import AutocompleteForm from "@/components/Autocomplete";
 import { MdCurrencyExchange } from "react-icons/md";
+import CustomButton from "@/components/Button";
+import ToggleButton from "@/components/ToggleButton";
 
 const ITEMS_PER_PAGE = 8; // Adjust this number based on how many items you want per page
 export interface IHold {
@@ -43,28 +35,34 @@ const page = () => {
   const [products, setProducts] = useState<ProductReturnList[]>([]);
   const [holdCustomers, setHoldCustomers] = useState<IHold[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  // const [category, setCategory] = useState("");
   const [items, setItems] = useState<ShoppingCartProduct[]>([]);
   const methods = useForm();
   const barcode = methods.watch("barcode");
   const payment = methods.watch("payment");
   const paymentKHR = methods.watch("payment-khr");
   const category = methods.watch("category");
-  const [paymentMethod, setPaymentMethod] = useState("khqr");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [currency, setCurrency] = useState("usd");
   const { register, watch, setValue } = methods;
   const discount = watch("discount");
-  const { profile, isAuthorized } = useAuthContext();
+  const { profile } = useAuthContext();
   const [amount, setAmount] = useState<number>(0);
-  const [discountedAmount, setDiscountedAmount] = useState<number>(0);
   const [calculatedDiscount, setCalculateDiscount] = useState<number>(0);
-  const [vatAmount, setVatAmount] = useState<number>(0);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [refresh, setRefresh] = useState<boolean>(false);
-  const [toggleCash, setToggleCash] = useState<boolean>(false);
+  // const [toggleCash, setToggleCash] = useState<boolean>(false);
   const [toggleKHR, setToggleKHR] = useState<boolean>(false);
   const [exchange, setExchange] = useState<number>(0);
   const [orderId, setOrderId] = useState<string>("");
+
+  const onRefresh = () => {
+    setRefresh((prev) => !prev);
+    setValue("discount", null);
+    setValue("payment", null);
+    setValue("payment-khr", null);
+    setPaymentMethod("cash");
+    setExchange(0);
+  };
   //
   useEffect(() => {
     const fetchProduct = async () => {
@@ -82,17 +80,15 @@ const page = () => {
     };
     fetchProduct();
   }, [category, barcode, refresh]);
+
   const generateNextOrderId = (): string => {
     let lastOrderId = localStorage.getItem("lastOrderId");
     let currentOrderId = localStorage.getItem("currentOrderId");
 
     if (!lastOrderId) {
-      lastOrderId = "PO-00000"; // Start from 0, next will be PO-00001
+      lastOrderId = "PO-00001"; // Start from 0, next will be PO-00001
     }
-    // if (currentOrderId) {
-    //   localStorage.setItem("lastOrderId", currentOrderId);
-    //   localStorage.removeItem("currentOrderId");
-    // }
+
     if (currentOrderId === lastOrderId) {
       localStorage.removeItem("currentOrderId");
       return currentOrderId;
@@ -106,24 +102,11 @@ const page = () => {
 
   useEffect(() => {
     const lastOrderId = localStorage.getItem("lastOrderId");
-    setOrderId(lastOrderId ?? "PO-00000");
+    setOrderId(lastOrderId ?? "PO-00001");
   }, []);
-  // const getOrderId = (): string => {
-  //   let orderId = localStorage.getItem("currentOrderId");
-  //   if (!orderId) {
-  //     orderId = generateNextOrderId();
-  //     localStorage.setItem("currentOrderId", orderId);
-  //   }
-  //   return orderId;
-  // };
 
   const handleSelect = (method: string) => {
     setPaymentMethod(method);
-    if (method === "cash") {
-      setToggleCash(true);
-    } else {
-      setToggleCash(false);
-    }
   };
   const handleSelectCurrency = (method: string) => {
     window.dispatchEvent(new Event("exchangeRateUpdated"));
@@ -134,45 +117,29 @@ const page = () => {
       setToggleKHR(false);
     }
   };
-  // useEffect(() => {
-  //   const orderId = getOrderId();
-  //   setOrderId(orderId);
-  // }, []);
+
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (toggleCash) {
-        const validPayment = isNaN(Number(payment)) ? 0 : Number(payment);
-        const validPaymentKHR = isNaN(Number(paymentKHR))
-          ? 0
-          : Number(paymentKHR);
+      const validPayment = isNaN(Number(payment)) ? 0 : Number(payment);
+      const validPaymentKHR = isNaN(Number(paymentKHR))
+        ? 0
+        : Number(paymentKHR);
 
-        // const convertedPayment = toggleKHR
-        //   ? validPayment * exchangeRate
-        //   : validPayment;
-
-        // const convertedTotalAmount = toggleKHR
-        //   ? totalAmount * exchangeRate
-        //   : totalAmount;
-        // if (toggleKHR && ) {
-
-        if (validPaymentKHR && validPayment) {
-          const converted = validPaymentKHR / exchangeRate;
-          const combined = converted + validPayment;
-          setExchange(combined - totalAmount);
-        } else if (validPayment) {
-          setExchange(validPayment - totalAmount);
-        } else if (validPaymentKHR) {
-          setExchange(validPaymentKHR / exchangeRate - totalAmount);
-        } else {
-          setExchange(0);
-        }
+      if (validPaymentKHR && validPayment) {
+        const converted = validPaymentKHR / exchangeRate;
+        const combined = converted + validPayment;
+        setExchange(combined - totalAmount);
+      } else if (validPayment) {
+        setExchange(validPayment - totalAmount);
+      } else if (validPaymentKHR) {
+        setExchange(validPaymentKHR / exchangeRate - totalAmount);
       } else {
-        setExchange(0); // Reset exchange when input is empty
+        setExchange(0);
       }
     }, 1000); // Delay calculation by 500ms after last input
 
     return () => clearTimeout(timeout); // Cleanup timeout on each keystroke
-  }, [payment, totalAmount, toggleCash, paymentKHR, toggleKHR]);
+  }, [payment, totalAmount, paymentKHR, toggleKHR]);
   const [exchangeRate, setExchangeRate] = useState<number>(4100);
   useEffect(() => {
     const { items, total } = updateCartItems();
@@ -215,13 +182,9 @@ const page = () => {
   }, []);
   useEffect(() => {
     const discountValue = discount !== 0 ? (amount * discount) / 100 : 0;
-    const newDiscountedAmount = amount - discountValue;
-    const vat = newDiscountedAmount * 0.05;
-    const newTotal = newDiscountedAmount + vat;
+    const newTotal = amount - discountValue;
 
     setCalculateDiscount(discountValue);
-    setDiscountedAmount(newDiscountedAmount);
-    setVatAmount(vat);
     setTotalAmount(newTotal);
   }, [discount, amount]);
 
@@ -232,13 +195,11 @@ const page = () => {
       paymentMethod,
       profile?.firstname,
       discount,
-      discountedAmount,
       calculatedDiscount,
-      vatAmount,
-      totalAmount
+      totalAmount,
+      orderId
     );
-    setValue("discount", 0);
-    setRefresh(!refresh);
+    onRefresh();
     setOrderId(generateNextOrderId());
   };
 
@@ -256,7 +217,7 @@ const page = () => {
   };
   const onRemoveAll = () => {
     clearLocalStorage();
-    setValue("discount", 0);
+    onRefresh();
   };
   const OnHoldOrder = () => {
     if (items.length === 0) return; // Prevent saving an empty cart
@@ -274,7 +235,7 @@ const page = () => {
     localStorage.setItem("plants", JSON.stringify([]));
     window.dispatchEvent(new Event("cartUpdated"));
     setOrderId(generateNextOrderId()); // Generate new order ID
-    setRefresh(!refresh);
+    onRefresh();
   };
 
   useEffect(() => {
@@ -323,39 +284,23 @@ const page = () => {
               label="Category"
             />
           </Form>
+          <div className="flex border py-1 px-2 rounded w-1/2 items-center justify-between gap-4">
+            <p className="font-bold pr-2 border-r pl-1">ON HOLD</p>
 
-          {holdCustomers.map((cus, index) => (
-            <button onClick={() => restoreHeldCart(cus.orderId)} key={index}>
-              {cus.orderId}
-            </button>
-          ))}
-          {/* <div className="w-full flex gap-2 justify-between items-center">
-            {categories.map((value, index) => (
-              <Button
-                key={index}
-                variant="text"
-                onClick={() =>
-                  setCategory(value === "All Products" ? "" : value)
-                }
-                className="rounded-lg h-full"
-                sx={{
-                  fontFamily: "var(--text)",
-                  backgroundColor:
-                    category === value
-                      ? "var(--medium-light)"
-                      : category === ""
-                      ? value === "All Products"
-                        ? "var(--medium-light)"
-                        : "gray"
-                      : "gray",
-                  color: "white",
-                  border: "none",
-                }}
-              >
-                <p className="capitalize px-4"> {value}</p>
-              </Button>
-            ))}
-          </div> */}
+            <div className="justify-end space-x-2">
+              {holdCustomers.map((cus, index) => (
+                <button
+                  className="text-base border rounded px-4 py-2 hover:bg-slate-100"
+                  onClick={() => restoreHeldCart(cus.orderId)}
+                  key={index}
+                >
+                  <p style={{ color: "var(--medium-light)", fontWeight: 600 }}>
+                    {cus.orderId}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 py-4">
@@ -388,15 +333,14 @@ const page = () => {
       <div
         className={`flex flex-col border items-start justify-between bg-white shadow-lg  min-h-screen min-w-[400px] max-w-[400px] p-4 gap-4`}
       >
-        <div className="text-lg flex justify-between items-center w-full">
-          <div className="flex items-center gap-4">
-            <MdCurrencyExchange className="w-5 h-5" />
-            <p>$1 = ៛{formattedKHR(exchangeRate)}</p>
-          </div>
-          <p className="text-base">{orderId}</p>
-        </div>
+        <p className="text-base flex justify-between items-center w-full ">
+          <span className="bg-slate-100 rounded-lg px-4 py-2">{orderId}</span>
+          <span className="rounded-lg border px-4 py-2 flex items-center">
+            <MdCurrencyExchange className="mr-2" /> ៛
+            {formattedKHR(exchangeRate)}
+          </span>
+        </p>
 
-        {/* Shopping Cart Items Section */}
         <div className="flex flex-col w-full flex-grow overflow-y-auto items-start">
           <OrderPanel />
         </div>
@@ -410,49 +354,23 @@ const page = () => {
             placeholder="Ex: 10%"
             className="p-2 border rounded"
           />
-
-          <ButtonGroup
-            className="w-full "
-            variant="outlined"
-            aria-label="payment method"
-          >
-            {[
+          <ToggleButton
+            options={[
               { value: "usd", label: "USD" },
               { value: "khr", label: "KHR" },
-            ].map((item) => (
-              <Button
-                className="w-full"
-                key={item.value}
-                onClick={() => handleSelectCurrency(item.value)}
-                variant={currency === item.value ? "contained" : "outlined"}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  borderRadius: "8px",
-                  padding: 1,
-                  borderColor:
-                    currency === item.value ? "var(--secondary)" : "#ccc",
-                  backgroundColor:
-                    currency === item.value ? "var(--secondary)" : "white",
-                  color: currency === item.value ? "white" : "black",
-                  "&:hover": {
-                    backgroundColor:
-                      currency === item.value
-                        ? "var(--medium-light)"
-                        : "#f5f5f5",
-                  },
-                }}
-              >
-                {item.label}
-              </Button>
-            ))}
-          </ButtonGroup>
+            ]}
+            onSelect={handleSelectCurrency}
+            selectedValue={currency}
+          />
         </Form>
 
         {/* Checkout & Buttons Section */}
         <div className="w-full flex flex-col justify-between">
-          <div className="flex flex-col font-semibold border-t pt-2">
+          <div className="flex flex-col text-lg font-semibold border-t pt-2">
+            <p className="flex justify-between items-center">
+              <span>Items:</span>
+              {items.length}
+            </p>
             <p className="flex justify-between items-center">
               <span>Subtotal:</span>
               {!toggleKHR
@@ -465,30 +383,25 @@ const page = () => {
                 ? `$${calculatedDiscount.toFixed(2)}`
                 : `៛${formattedKHR(calculatedDiscount * exchangeRate)}`}
             </p>
-            <p className="flex justify-between items-center ">
-              <span>VAT:</span>
-              {!toggleKHR
-                ? `$${vatAmount.toFixed(2)}`
-                : `៛${formattedKHR(vatAmount * exchangeRate)}`}
-            </p>
-            <h2 className="flex justify-between text-xl font-bold items-center ">
+
+            <h2 className="flex justify-between text-2xl font-bold items-center ">
               <span>Total:</span>
               {!toggleKHR
                 ? `$${totalAmount.toFixed(2)}`
                 : `៛${formattedKHR(totalAmount * exchangeRate)}`}
             </h2>
-            {toggleCash && (
-              <div className="grid grid-cols-2 rounded justify-between items-center">
+            {paymentMethod === "cash" && items.length > 0 && (
+              <div className="grid grid-cols-2 p-2 mt-2 border-y justify-between items-center">
                 <div className="grid grid-cols-2 gap-4">
                   <input
-                    className="px-2 py-1 border-b rounded outline-none"
+                    className="rounded outline-none border-r"
                     type="text"
                     placeholder="$20.00"
                     {...register("payment")}
                   />
 
                   <input
-                    className="px-2 py-1 border-b rounded outline-none"
+                    className="rounded outline-none"
                     type="text"
                     placeholder="៛40,000"
                     {...register("payment-khr")}
@@ -505,93 +418,46 @@ const page = () => {
           </div>
         </div>
         <div className="flex flex-col gap-4 w-full">
-          <ButtonGroup
-            className="w-full "
-            variant="outlined"
-            aria-label="payment method"
-          >
-            {[
-              { value: "khqr", label: "KHQR", icon: <QrCode2 /> },
-              { value: "cash", label: "Cash", icon: <AttachMoney /> },
-            ].map((item) => (
-              <Button
-                className="w-full"
-                key={item.value}
-                onClick={() => handleSelect(item.value)}
-                variant={
-                  paymentMethod === item.value ? "contained" : "outlined"
-                }
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  borderRadius: "8px",
-                  padding: 1,
-                  borderColor:
-                    paymentMethod === item.value ? "var(--secondary)" : "#ccc",
-                  backgroundColor:
-                    paymentMethod === item.value ? "var(--secondary)" : "white",
-                  color: paymentMethod === item.value ? "white" : "black",
-                  "&:hover": {
-                    backgroundColor:
-                      paymentMethod === item.value
-                        ? "var(--medium-light)"
-                        : "#f5f5f5",
-                  },
-                }}
-              >
-                {item.icon}
-                {item.label}
-              </Button>
-            ))}
-          </ButtonGroup>
+          {items.length > 0 && (
+            <ToggleButton
+              options={[
+                { value: "khqr", label: "KHQR", icon: <QrCode2 /> },
+                { value: "cash", label: "Cash", icon: <AttachMoney /> },
+              ]}
+              selectedValue={paymentMethod}
+              onSelect={handleSelect}
+            />
+          )}
         </div>
         <div className="grid grid-cols-4 gap-2 w-full mb-5">
-          <Button
-            onClick={handleSettlement}
+          <CustomButton
             className="col-span-2"
-            variant="outlined"
-            sx={{
-              backgroundColor: "var(--secondary)",
-              color: "white",
-              fontFamily: "var(--text)",
-              padding: 1,
-            }}
-            disabled={items.length <= 0 && !payment && !paymentKHR}
-            type="button"
-          >
-            Place Order
-          </Button>
-          <Button
-            className="col-span-1"
-            variant="outlined"
-            onClick={onRemoveAll}
+            theme={`${
+              items.length <= 0 ||
+              (paymentMethod === "cash" && !(paymentKHR || payment))
+                ? "dark"
+                : ""
+            }`}
+            disabled={
+              items.length <= 0 ||
+              (paymentMethod === "cash" && !(paymentKHR || payment))
+            }
+            onHandleButton={handleSettlement}
+            text="Place Order"
+          />
+          <CustomButton
+            onHandleButton={onRemoveAll}
+            icon={VscClearAll}
             disabled={items.length <= 0}
-            sx={{
-              backgroundColor: "gray",
-              color: "white",
-              fontFamily: "var(--text)",
+            theme={`${items.length <= 0 && "dark"}`}
+          />
 
-              border: "none",
-            }}
-            type="button"
-          >
-            <VscClearAll className="text-xl" />
-          </Button>
-
-          <Button
-            variant="outlined"
-            className="col-span-1"
-            sx={{
-              borderColor: "var(--secondary)",
-              color: "var(--secondary)",
-              fontFamily: "var(--text)",
-            }}
-            type="button"
+          <CustomButton
+            onHandleButton={OnHoldOrder}
+            icon={TbShoppingCartPause}
             disabled={items.length <= 0}
-          >
-            <TbShoppingCartPause onClick={OnHoldOrder} className="text-xl" />
-          </Button>
+            theme={`${items.length <= 0 ? "dark" : "general"}`}
+          />
         </div>
       </div>
     </div>
