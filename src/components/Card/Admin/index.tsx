@@ -52,7 +52,7 @@ const AdminCard = ({ product }: { product: ProductReturnList }) => {
     <Card
       key={product._id}
       className={`shadow-lg cursor-pointer relative min-w-[180px] h-[320px]
-       flex flex-col hover:bg-slate-100 border duration-500 ease-in-out transition-all `}
+       flex flex-col hover:bg-gray-100 border duration-500 ease-in-out transition-all `}
     >
       <div className="relative w-full h-[60%]">
         <Image
@@ -90,7 +90,7 @@ const AdminCard = ({ product }: { product: ProductReturnList }) => {
                       ?.quantity
                   )
                 }
-                className="text-xl px-2.5 border rounded"
+                className="text-xl px-4 py-2 border rounded"
               >
                 -
               </button>
@@ -101,7 +101,7 @@ const AdminCard = ({ product }: { product: ProductReturnList }) => {
               <button
                 disabled={product.stock <= 0}
                 onClick={() => handleAddToCart(product._id)}
-                className="text-xl px-2.5 border rounded"
+                className="text-xl px-4 py-2 border rounded"
               >
                 +
               </button>

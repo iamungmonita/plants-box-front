@@ -1,101 +1,95 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { GoTrash } from "react-icons/go";
 import { ShoppingCartProduct } from "../ShoppingCart";
-import { addToCart } from "@/helpers/addToCart";
+import { addToCart, handleDecrement } from "@/helpers/addToCart";
+import { useCartItems } from "@/hooks/useCartItems";
+import Form from "../Form";
+import { useForm, useFormContext } from "react-hook-form";
 
 interface CartCardProps<ShoppingCartProduct> {
   item: ShoppingCartProduct;
   onDecrement: (id: string, quantity: number) => void;
   onRemove: (id: string) => void;
+  onRetrieveDiscount?: (data: any) => void;
   renderExtraInfo?: (item: ShoppingCartProduct) => React.ReactNode; // Allows custom content
 }
 
 const CartCard = <T extends ShoppingCartProduct>({
   item,
-
   onDecrement,
   onRemove,
+  onRetrieveDiscount,
 }: CartCardProps<T>) => {
+  const { items } = useCartItems();
+  const [discountedValue, setDiscountedValue] = useState<number>(0);
+  const sub = (price: string | number, qty: string | number) => {
+    // Ensure both price and qty are numbers before multiplying
+    return parseFloat(price.toString()) * parseFloat(qty.toString()) || 0;
+  };
+  const [inputValue, setInputValue] = useState<string>("");
+  const onHandleDiscountChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    id: string
+  ) => {
+    setInputValue(e.target.value);
+
+    const existingItemIndex = items.findIndex((item) => item._id === id);
+    if (existingItemIndex !== -1) {
+      const total = sub(
+        items[existingItemIndex].price,
+        items[existingItemIndex].quantity
+      );
+      const discount = Number(e.target.value) / 100;
+      const totalDiscountValue = discount * total;
+      items[existingItemIndex].discount = totalDiscountValue.toString();
+    }
+
+    localStorage.setItem("plants", JSON.stringify(items));
+    window.dispatchEvent(new Event("cartUpdated"));
+  };
+
   return (
-    <div className="border shadow-md w-full rounded-lg py-2 px-4">
-      <div className="flex justify-between w-full items-center">
-        <h2 className="flex gap-2 w-40">
-          <span>{item.quantity}x</span> {item.name}
-        </h2>
-        <p className=" text-gray-500">${item.price.toFixed(2)}</p>
-        <h2 className="justify-end ">
-          ${(item.price * item.quantity).toFixed(2)}
-        </h2>
+    <>
+      <td className="py-2 flex mr-4 items-center justify-between">
         <button
-          className="text-gray-400 hover:text-red-500"
-          onClick={() => onRemove(item._id)}
+          onClick={() =>
+            handleDecrement(
+              item._id,
+              items[items.findIndex((index) => index._id === item._id)]
+                ?.quantity
+            )
+          }
+          className="text-xl px-2 border rounded"
         >
-          <GoTrash className="w-5 h-5" />
+          -
         </button>
-      </div>
-
-      {/* <div className="flex items-center gap-4">
-        <div className="relative w-[150px] h-[100px]">
-          <Image
-            title={item.name}
-            src={item.picture[0]}
-            alt={item.name as string}
-            width={100}
-            height={100}
-            className="w-full h-full object-cover rounded p-1 border"
-          />
-        </div>
-        <div className="w-full">
-          <div className="flex justify-between w-full">
-            <div>
-              <h2 className="text-lg font-semibold">{item.name}</h2>
-
-              <p className="text-sm">{item.size}</p>
-              <p className="text-sm text-gray-500">${item.price.toFixed(2)}</p>
-            </div>
-            <div className="flex flex-col items-center gap-2 justify-between h-full">
-              <div className="flex items-center gap-2 justify-end w-full">
-                <button
-                  onClick={() => onDecrement(item._id, item.quantity)}
-                  className="text-xl px-2.5 border rounded"
-                >
-                  -
-                </button>
-                <span>{item.quantity}</span>
-                <button
-                  onClick={() => addToCart(item._id, "plants")}
-                  className="text-xl px-2.5 border rounded"
-                >
-                  +
-                </button>
-              </div>
-              <p
-                className={`${
-                  item.quantity === item.stock
-                    ? "text-red-500 opacity-100"
-                    : "opacity-0"
-                } text-sm duration-500 transition-transform`}
-              >
-                Only {item.quantity} left in stock
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center justify-between mt-2 w-full">
-        <h2 className="text-xl items-center flex gap-2 w-full">
-          <span className="text-base text-gray-500">Total:</span> $
-          {(item.price * item.quantity).toFixed(2)}
-        </h2>
+        <span> {item.quantity}</span>
         <button
-          className="text-gray-400 hover:text-red-500"
-          onClick={() => onRemove(item._id)}
+          disabled={item.stock <= 0}
+          onClick={() => addToCart(item._id, "plants")}
+          className="text-xl px-2 border rounded"
         >
-          <GoTrash className="w-5 h-5" />
+          +
         </button>
-      </div> */}
-    </div>
+      </td>
+      <td className="py-2">{item.name}</td>
+      <td className="py-2">${(item.price * item.quantity).toFixed(2)}</td>
+      <td>
+        <input
+          value={inputValue || item.discount}
+          type="text"
+          placeholder="%"
+          onChange={(e) => onHandleDiscountChange(e, item._id)}
+          className="p-2 w-16"
+        />
+      </td>
+
+      <td className="py-2">${(item.price * item.quantity).toFixed(2)}</td>
+      {/* <td className="py-2">
+        <GoTrash />
+      </td> */}
+    </>
   );
 };
 

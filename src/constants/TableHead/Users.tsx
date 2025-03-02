@@ -18,16 +18,11 @@ export interface Column<T> {
 }
 
 export const columns: Column<IAuthRegisterResponse>[] = [
-  {
-    id: "_id", // Assuming "pictures" exists on ProductReturnList
-    label: "Image",
-    minWidth: 100,
-  },
   { id: "firstname", label: "First Name", minWidth: 170 },
   { id: "lastname", label: "Last Name", minWidth: 100 },
 
-  { id: "email", label: "email", minWidth: 170 },
-  { id: "role", label: "role", minWidth: 170 },
+  { id: "email", label: "Email", minWidth: 170 },
+  { id: "role", label: "Role", minWidth: 170 },
   {
     id: "createdAt",
     label: "Created At",

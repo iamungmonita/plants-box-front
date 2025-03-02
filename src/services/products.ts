@@ -2,6 +2,7 @@ import { ProductAddPicture, ProductReturnList } from "@/schema/products";
 import API_URL from "@/lib/api";
 import { GET, POST, PUT } from ".";
 import query from "query-string";
+import { ILayout } from "@/app/(private)/admin/settings/roles/create/page";
 
 // GET
 export interface queryParam {
@@ -10,6 +11,9 @@ export interface queryParam {
   type?: string;
   purchasedId?: string;
   barcode?: string;
+  date?: string;
+  start?: string;
+  end?: string;
 }
 
 export function getAllProducts(
@@ -28,9 +32,9 @@ export function getProductById(id: string): Promise<ProductReturnList> {
 //POST
 export function AddNewProduct(
   data: ProductAddPicture
-): Promise<ProductReturnList> {
-  const url = `${API_URL}/upload`;
-  return POST<ProductReturnList, ProductAddPicture>(url, data);
+): Promise<ILayout<ProductReturnList>> {
+  const url = `${API_URL}/product/create`;
+  return POST<ILayout<ProductReturnList>, ProductAddPicture>(url, data);
 }
 
 //PUT
@@ -45,7 +49,7 @@ export function updateProductStockById(
 export function updateProductDetailsById(
   id: string,
   params: ProductAddPicture
-): Promise<ProductReturnList> {
+): Promise<ILayout<ProductReturnList>> {
   const url = `${API_URL}/product/update-details/` + id;
-  return PUT<ProductReturnList, ProductAddPicture>(url, params);
+  return PUT<ILayout<ProductReturnList>, ProductAddPicture>(url, params);
 }

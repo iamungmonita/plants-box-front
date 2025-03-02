@@ -16,7 +16,12 @@ import InputField from "@/components/InputText";
 
 const page = () => {
   const [products, setProducts] = useState<ProductReturnList[]>([]);
-  const methods = useForm();
+  const methods = useForm({
+    defaultValues: {
+      name: "",
+      category: "",
+    },
+  });
   const { watch } = methods;
   const name = watch("name");
   const category = watch("category");
@@ -47,12 +52,7 @@ const page = () => {
         methods={methods}
         className="grid grid-cols-3 gap-4 w-1/2 max-md:w-full max-md:grid-cols-1"
       >
-        <InputField
-          label=""
-          name="name"
-          type="text"
-          placeholder="Search Product Name"
-        />
+        <InputField label="Search Product Name" name="name" type="text" />
 
         <AutocompleteForm
           label="Category"

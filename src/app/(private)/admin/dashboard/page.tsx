@@ -2,46 +2,73 @@
 import { useAuthContext } from "@/context/AuthContext";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Form from "@/components/Form";
-import InputField from "@/components/InputText";
-import { Button } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { MdCurrencyExchange } from "react-icons/md";
-import { ExchangeRate } from "@/components/Modals/ExchangeRate";
+import { getOrder } from "@/services/order";
+import { PurchasedOrderList } from "@/schema/order";
+import ReusableTable from "@/components/Table";
+import { columns } from "@/constants/TableHead/Orders";
 import { formattedTimeStamp } from "@/helpers/format/time";
-import { getTotalAmountToday } from "@/services/order";
 
 const page = () => {
   const router = useRouter();
   const [amount, setAmount] = useState<number>(0);
+  const [orders, setOrders] = useState<PurchasedOrderList[]>([]);
   const [transactions, setTransactions] = useState<number>(0);
-  const { isAuthenticated, signOut, profile } = useAuthContext();
+  const { isAuthenticated } = useAuthContext();
+  const [selectedDate, setSelectedDate] = useState<string>("");
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/auth/sign-in");
     }
-    const fetch = async () => {
-      const response = await getTotalAmountToday();
-      if (response.data) {
-        setAmount(response.data.amount);
-        setTransactions(response.data.count);
-      }
-    };
-    fetch();
-  }, []);
+    const today = new Date().toLocaleDateString("en-CA");
+    setSelectedDate(today);
+  }, [isAuthenticated, router]);
+
+  useEffect(() => {
+    if (selectedDate) {
+      const fetch = async () => {
+        const response = await getOrder({
+          start: selectedDate,
+          end: selectedDate,
+        });
+        if (response.data) {
+          setAmount(response.data.amount);
+          setTransactions(response.data.count);
+          setOrders(response.data.orders);
+        }
+      };
+      fetch();
+    }
+  }, [selectedDate]); // Run when selectedDate changes
 
   return (
     <div>
       {isAuthenticated && (
-        <div>
-          <h2 className="text-xl font-semibold">
-            Welcome back, {profile?.firstname}
-          </h2>
-          <p>
-            Today, we have earned ${amount.toFixed(2)} so far on {transactions}{" "}
-            transactions.
-          </p>
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Dashboard</h2>
+          <div className="grid grid-cols-6 gap-4 justify-between items-center">
+            <p className="bg-gray-100 px-4 py-2 flex items-center justify-between rounded-lg">
+              <span className="font-semibold"> Date:</span>
+              <span>
+                {formattedTimeStamp(new Date().toISOString(), "DD-MMM-YYYY")}
+              </span>
+            </p>
+            <p className="bg-gray-100 px-4 py-2 flex items-center justify-between rounded-lg">
+              <span className="font-semibold"> Total:</span>
+              <span>${amount.toFixed(2)}</span>
+            </p>
+            <p className="bg-gray-100 px-4 py-2 flex items-center justify-between rounded-lg">
+              <span className="font-semibold"> Transactions:</span>
+              <span>{transactions}</span>
+            </p>
+          </div>
+          {orders.length > 0 && (
+            <ReusableTable
+              columns={columns}
+              data={orders}
+              onRowClick={() => console.log(orders.map((order) => order))}
+            />
+          )}
         </div>
       )}
     </div>

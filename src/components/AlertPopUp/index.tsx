@@ -17,7 +17,7 @@ const AlertPopUp = ({
       open={open}
       anchorOrigin={{
         vertical: "top", // Centers it vertically
-        horizontal: "center", // Centers it horizontally
+        horizontal: "right", // Centers it horizontally
       }}
       onClose={onClose}
       autoHideDuration={3000} // Automatically hides after 3 seconds

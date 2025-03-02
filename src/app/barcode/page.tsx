@@ -5,6 +5,7 @@ import { Button } from "@mui/material";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
 import { getAllProducts } from "@/services/products";
 import { ProductReturn, ProductReturnList } from "@/schema/products";
+import { addToCart } from "@/helpers/addToCart";
 
 // Define types for the product and cart
 export interface Product {
@@ -34,20 +35,28 @@ const CartPage: React.FC = () => {
     }
   };
 
-  // Add product to cart
-  const addToCart = () => {
-    // Find the product based on the scanned barcode value
+  //   const addto = () => {
+  //     // Find the product based on the scanned barcode value
+  //     const product = products.find((product) => product.barcode === productId);
+  //
+  //     if (product) {
+  //       setCart((prevCart) => [...prevCart, product]); // Add the product to the cart
+  //       alert(`${product.name} added to cart!`);
+  //       setProductId(""); // Clear the barcode after adding
+  //     } else {
+  //       alert("Product not found!");
+  //     }
+  //   };
+  useEffect(() => {
     const product = products.find((product) => product.barcode === productId);
-
     if (product) {
-      setCart((prevCart) => [...prevCart, product]); // Add the product to the cart
+      addToCart(product._id, "plants");
       alert(`${product.name} added to cart!`);
       setProductId(""); // Clear the barcode after adding
     } else {
       alert("Product not found!");
     }
-  };
-
+  }, [productId]);
   return (
     <div>
       <h1>Scan a Barcode to Add Product to Cart</h1>
@@ -60,11 +69,11 @@ const CartPage: React.FC = () => {
 
       <div>
         <p>Scanned Product ID: {productId}</p>
-        {productId && (
-          <Button onClick={addToCart} variant="contained">
+        {/* {productId && (
+          <Button onClick={handleAddToCart()} variant="contained">
             Add to Cart
           </Button>
-        )}
+        )} */}
       </div>
 
       <div>

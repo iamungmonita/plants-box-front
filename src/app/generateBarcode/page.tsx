@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import BarcodeGenerator from "@/components/BarCode";
 const App = () => {
-  const [productId, setProductId] = useState("sku-00840");
+  const [productId, setProductId] = useState("sku-00087");
 
   // Function to handle barcode value change (for example when inputting a product ID)
   const handleBarcodeChange = (e) => {

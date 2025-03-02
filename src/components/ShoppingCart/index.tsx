@@ -13,6 +13,7 @@ export interface ShoppingCartProduct {
   stock: number;
   quantity: number;
   name: string;
+  discount: string;
 }
 
 const ShoppingCart = ({ onClose }: { onClose?: () => void }) => {

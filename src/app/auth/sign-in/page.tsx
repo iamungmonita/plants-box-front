@@ -13,7 +13,7 @@ import { Button } from "@mui/material";
 import { IAuthLogIn } from "@/models/auth";
 import { getAdminProfile, SignIn } from "@/services/authentication";
 import BasicModal from "@/components/Modal";
-import { InitialLog, Log } from "@/services/log";
+import { createLog, countLog } from "@/services/log";
 import MoneyCounter from "@/components/Modals/MoneyCounter";
 
 const Page = () => {
@@ -37,11 +37,10 @@ const Page = () => {
     if (response.data) {
       signIn();
       onRefresh();
-      const firstLog = await Log({
+      const firstLog = await countLog({
         userId: response.data._id,
-        username: response.data.firstname,
-        role: response.data.role,
       });
+      console.log(firstLog);
       if (!firstLog) {
         setToggle(false);
         router.push("/admin/dashboard");

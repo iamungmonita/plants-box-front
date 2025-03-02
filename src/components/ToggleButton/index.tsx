@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import { Button, ButtonGroup } from "@mui/material";
+import Image from "next/image";
 
 // Define a type for the ToggleButton props
 interface ToggleButtonProps {
-  options: { value: string; label: string; icon?: React.ReactNode }[]; // The options now include an icon
+  options: {
+    value: string;
+    label?: string;
+    icon?: React.ReactNode;
+    image?: string;
+  }[]; // The options now include an icon
   selectedValue: string; // The currently selected value
   onSelect: (value: string) => void; // Callback function to handle value selection
 }
@@ -44,9 +50,19 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
             },
           }}
         >
-          <span className="flex items-center gap-2">
+          <span className="flex items-center justify-center">
             {item.icon && <span>{item.icon}</span>}
-            <span style={{ fontFamily: "var(--text)" }}>{item.label}</span>
+            {item.image && (
+              <Image
+                src={item.image}
+                alt={item.image as string}
+                width={60}
+                height={60}
+              />
+            )}
+            {item.label && (
+              <span style={{ fontFamily: "var(--text)" }}>{item.label}</span>
+            )}
           </span>
         </Button>
       ))}

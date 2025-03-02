@@ -25,9 +25,6 @@ const page = () => {
     fetchRoles();
   }, []);
 
-  const deliveryMethod = watch("deliveryMethod");
-  console.log(deliveryMethod);
-
   return (
     <div className="flex flex-col min-h-screen justify-start gap-4">
       <div className="flex items-center justify-between gap-4">

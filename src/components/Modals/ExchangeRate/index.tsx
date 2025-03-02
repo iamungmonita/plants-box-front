@@ -1,24 +1,20 @@
 import { useAuthContext } from "@/context/AuthContext";
-import { ILog, InitialLog } from "@/services/log";
-import { Button } from "@mui/material";
-import { useRouter } from "next/navigation";
-import React, { use, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import InputField from "@/components/InputText";
 import Form from "@/components/Form";
 import CustomButton from "@/components/Button";
 import AlertPopUp from "@/components/AlertPopUp";
 import { formattedKHR } from "@/helpers/format/currency";
-import { CloseSharp } from "@mui/icons-material";
-import { MdClose } from "react-icons/md";
+import { useExchangeRate } from "@/hooks/useExchangeRate";
+
 export interface ExchangeRate {
   rate: string;
 }
-export const ExchangeRate = ({
-  onCloseModal,
-}: {
-  onCloseModal: () => void;
-}) => {
+export const ExchangeRate = () => {
+  const exchangeRate = useExchangeRate();
+  const [toggle, setToggle] = useState(false);
+
   const methods = useForm<ExchangeRate>({
     defaultValues: {
       rate: "",
@@ -26,45 +22,24 @@ export const ExchangeRate = ({
   });
   const { setValue, watch } = methods;
   const rate = watch("rate");
-  const { isAuthorized } = useAuthContext();
-  const [exchangeRate, setExchangeRate] = useState<string>("");
   const onSubmitForm = ({ rate }: ExchangeRate) => {
     localStorage.setItem("exchange-rate", rate);
     window.dispatchEvent(new Event("exchangeRateUpdated"));
-    setValue("rate", rate);
     setToggle(true);
     setValue("rate", "");
   };
 
-  // if (!isAuthorized(["seller"])) {
-  //   return <div>You do not have permission to change exchange rate.</div>;
-  // }
-  const handleExchangeRate = () => {
-    const rate = localStorage.getItem("exchange-rate");
-    setExchangeRate(rate ? rate : (prev) => prev);
-  };
-
-  useEffect(() => {
-    handleExchangeRate();
-    window.addEventListener("exchangeRateUpdated", handleExchangeRate);
-    return () =>
-      window.removeEventListener("exchangeRateUpdated", handleExchangeRate);
-  }, []);
-  const [toggle, setToggle] = useState(false);
   const handleCloseAlert = () => {
     setToggle(false);
   };
+  // const { isAuthorized } = useAuthContext();
+
   return (
     <Form methods={methods} onSubmit={onSubmitForm} className="space-y-4 w-3/4">
-      {/* <MdClose
-        onClick={onCloseModal}
-        className="float-right w-7 h-7 bg-slate-100 shadow p-1 hover:cursor-pointer"
-      /> */}
-
       <p className="text-lg">
-        Your exchange rate is now ៛{formattedKHR(parseFloat(exchangeRate))}.
+        Your exchange rate is now ៛{formattedKHR(exchangeRate)}.
       </p>
-      <InputField label="Exchange rate" type="string" name="rate" />
+      <InputField label="Exchange rate" type="text" name="rate" />
       <CustomButton
         type="submit"
         text="Change"
@@ -74,9 +49,9 @@ export const ExchangeRate = ({
       <AlertPopUp
         open={toggle}
         onClose={handleCloseAlert}
-        message={`Your exchange rate has been successfully changed to ៛${formattedKHR(
-          parseFloat(exchangeRate)
-        )}`}
+        message={`Exchange rate has been changed to ៛${formattedKHR(
+          exchangeRate
+        )}.`}
       />
     </Form>
   );

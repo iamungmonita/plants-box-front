@@ -9,6 +9,7 @@ type CartItem = {
   stock: number;
   quantity: number;
   name: string;
+  discount: number | string | undefined;
 };
 
 export const addToCart = async <
@@ -19,6 +20,7 @@ export const addToCart = async <
     pictures: string;
     name: string;
     size: string;
+    discount: number | string;
   }
 >(
   id: string,
@@ -27,7 +29,7 @@ export const addToCart = async <
 ) => {
   try {
     const productData = await getProductById(id);
-    const { _id, price, stock, pictures, name } = productData;
+    const { _id, price, stock, pictures, name, discount } = productData;
     const imagePaths = `${API_URL}${pictures}`;
 
     // Get existing items from localStorage
@@ -56,6 +58,7 @@ export const addToCart = async <
       // If it's a new item, add it to the cart
       storedItems.push({
         _id,
+        discount: 0,
         price,
         stock: stock,
         quantity: 1,

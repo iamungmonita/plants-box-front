@@ -8,11 +8,11 @@ import { ILayout } from "@/app/(private)/admin/settings/roles/create/page";
 //GET
 export function getOrder(
   params: queryParam = {}
-): Promise<PurchasedOrderList[]> {
+): Promise<ILayout<IOrderResponse>> {
   const queryString = query.stringify(params);
-
   const url = `${API_URL}/order/retrieve?${queryString}`;
-  return GET<PurchasedOrderList[], {}>(url, {});
+  console.log(url);
+  return GET<ILayout<IOrderResponse>, {}>(url, {});
 }
 export interface Params {
   purchasedId?: string;
@@ -29,11 +29,18 @@ export function getOrderById(id: string): Promise<orderResponse> {
   const url = `${API_URL}/order/` + id;
   return GET<orderResponse, {}>(url, {});
 }
-export interface totalAmountResponse {
+export interface IOrderResponse {
+  orders: PurchasedOrderList[];
   amount: number;
   count: number;
 }
-export function getTotalAmountToday(): Promise<ILayout<totalAmountResponse>> {
-  const url = `${API_URL}/order/order-today`;
-  return GET<ILayout<totalAmountResponse>, {}>(url);
-}
+
+// export function getTotalAmountToday(
+//   params: queryParam = {}
+// ): Promise<ILayout<orderresponse>> {
+//   const queryString = query.stringify(params);
+//
+//   const url = `${API_URL}/order/order-today?${queryString}`;
+//   console.log(url);
+//   return GET<ILayout<totalAmountResponse>, {}>(url);
+// }

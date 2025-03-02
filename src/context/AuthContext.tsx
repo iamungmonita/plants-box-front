@@ -53,9 +53,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchProfile = async (abortController: AbortController) => {
     try {
       const response = await getAdminProfile(abortController);
-      if ("admin" in response) {
+      if (response.data) {
         setIsAuthenticated(true);
-        setProfile(response.admin);
+        setProfile(response.data);
       } else if (response.name && response.message) {
         setProfile(null);
         setIsAuthenticated(false);

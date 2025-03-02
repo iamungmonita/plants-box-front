@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Link, SvgIconTypeMap } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
+import NextLink from "next/link";
 
 export interface IButton {
   text?: string;
@@ -39,8 +40,7 @@ export const CustomButton = (props: IButton) => {
             : theme === "dark"
             ? "gray"
             : "var(--medium-light)",
-        borderColor:
-          theme === "general" ? "var(--medium-light)" : "transparent",
+        borderColor: theme === "general" ? "gray" : "transparent",
         fontFamily: "var(--text)",
         paddingBottom: 1.5,
         paddingTop: 1.5,
@@ -55,6 +55,7 @@ export const CustomButton = (props: IButton) => {
     >
       {path ? (
         <Link
+          component={NextLink}
           href={path}
           style={{ textDecoration: "none" }}
           className="w-full "

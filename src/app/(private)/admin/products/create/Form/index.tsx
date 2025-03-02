@@ -17,9 +17,19 @@ import { categories } from "@/constants/AutoComplete";
 import API_URL from "@/lib/api";
 import Checkbox from "@/components/Checkbox";
 import { useAuthContext } from "@/context/AuthContext";
+import CustomButton from "@/components/Button";
 
 export const CreateForm = ({ createId }: { createId: string }) => {
   const methods = useForm<Product>({
+    defaultValues: {
+      name: "",
+      pictures: "",
+      price: "",
+      category: "",
+      isActive: true,
+      stock: 0,
+      barcode: "",
+    },
     resolver: yupResolver(ProductSchema),
   });
   const { handleSubmit, setValue } = methods;
@@ -50,13 +60,17 @@ export const CreateForm = ({ createId }: { createId: string }) => {
       const response = createId
         ? await updateProductDetailsById(createId, productData)
         : await AddNewProduct(productData);
-
+      if (response.success) {
+        // toggleAlert(true);
+      } else {
+      }
       if (!createId) {
         setValue("name", "");
         setValue("category", "");
         setValue("price", "");
         setValue("barcode", "");
         setValue("stock", 0);
+        setValue("isActive", false);
         setValue("pictures", null as any);
         setFile(null);
         setPreviewUrl(null);
@@ -130,9 +144,9 @@ export const CreateForm = ({ createId }: { createId: string }) => {
 
     fetchProduct();
   }, [createId]);
-  if (!isAuthorized(["owner"])) {
-    return <div>You do not have permission to view this page.</div>;
-  }
+  // if (!isAuthorized(["owner"])) {
+  //   return <div>You do not have permission to view this page.</div>;
+  // }
 
   return (
     <Form
@@ -183,14 +197,11 @@ export const CreateForm = ({ createId }: { createId: string }) => {
         </div>
       </div>
 
-      <Button
-        variant="contained"
-        className="col-span-2"
+      <CustomButton
         type="submit"
-        sx={{ backgroundColor: "var(--medium-light)", padding: 1 }}
-      >
-        {createId ? "Update Plant" : "Add Plant"}
-      </Button>
+        className="col-span-2"
+        text={`${createId ? "Update Product" : "Create Product"}`}
+      />
     </Form>
   );
 };

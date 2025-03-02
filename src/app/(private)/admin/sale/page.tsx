@@ -16,14 +16,20 @@ import { useForm } from "react-hook-form";
 import { Column } from "@/constants/TableHead/Product";
 import { Button, TextField } from "@mui/material";
 import Head from "next/head"; // Use next/head for title
+import { columns } from "@/constants/TableHead/Orders";
+import InputField from "@/components/InputText";
+import Form from "@/components/Form";
 
 const Page = () => {
   const [title, setTitle] = useState("");
   const params = useParams();
-  const [product, setProduct] = useState<ProductReturnList | null>(null);
-  const [purchasedOrders, setPurchasedOrders] = useState<PurchasedOrderList[]>(
-    []
+  const [orders, setOrders] = useState<PurchasedOrderList[]>([]);
+  const [amount, setAmount] = useState<number>(0);
+  const [transactions, setTransactions] = useState<number>(0);
+  const [selectedStartDate, setSelectedStartDate] = useState<string | null>(
+    null
   );
+  const [selectedEndDate, setSelectedEndDate] = useState<string | null>(null);
 
   const methods = useForm();
   const [id, setId] = useState("");
@@ -35,101 +41,87 @@ const Page = () => {
 
   const purchasedId = methods.watch("purchasedId");
 
-  const columns: Column<PurchasedOrderList>[] = [
-    {
-      id: "purchasedId",
-      label: "Purchased ID",
-      minWidth: 100,
-    },
-    {
-      id: "orders",
-      label: "Sold Items",
-      minWidth: 100,
-      render: (_: any, row: PurchasedOrderList) => {
-        return row.orders.length || "N/A";
-      },
-    },
-
-    {
-      id: "amount",
-      label: "SubTotal",
-      minWidth: 100,
-      format: (value: number) =>
-        value !== undefined && value !== null
-          ? `$${value.toFixed(2)}`
-          : "$0.00",
-    },
-    {
-      id: "discount",
-      label: "Discount",
-      minWidth: 100,
-      format: (value: number) =>
-        value !== undefined && value !== null ? `${value}%` : "0%",
-    },
-    {
-      id: "totalAmount",
-      label: "Total Amount",
-      minWidth: 100,
-      format: (value: number) =>
-        value !== undefined && value !== null
-          ? `$${value.toFixed(2)}`
-          : "$0.00",
-    },
-    {
-      id: "paymentMethod",
-      label: "Payment Method",
-      minWidth: 100,
-    },
-    {
-      id: "createdAt",
-      label: "Purchased At",
-      minWidth: 170,
-      formatString: (value: string) =>
-        formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
-    },
-    {
-      id: "createdBy",
-      label: "Cashier",
-      minWidth: 170,
-    },
-  ];
-
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const orders = await getOrder({ purchasedId });
-        setPurchasedOrders(orders);
+        const response = await getOrder({
+          purchasedId:
+            purchasedId && purchasedId.trim() !== "" ? purchasedId : undefined,
+          start: selectedStartDate ?? undefined,
+          end: selectedEndDate ?? undefined,
+        });
+        if (response.data) {
+          setOrders(response.data.orders);
+          setAmount(response.data.amount);
+          setTransactions(response.data.count);
+        }
       } catch (err) {
         console.error("Failed to fetch product details:", err);
       }
     };
     fetchProduct();
-  }, [purchasedId]);
+  }, [purchasedId, selectedEndDate, selectedStartDate]);
+  const handleStartDateChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newDate = event.target.value; // The value will be in YYYY-MM-DD format
+    setSelectedStartDate(newDate || null); // This triggers the second useEffect hook
+  };
+  const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = event.target.value; // The value will be in YYYY-MM-DD format
+    setSelectedEndDate(newDate || null); // This triggers the second useEffect hook
+  };
 
   return (
     <div>
-      <div className="">
-        <div className="space-y-4">
-          <TextField
-            className="w-1/2"
-            {...methods.register("purchasedId")}
-            type="text"
-            label="Search Purchased ID"
-            placeholder="PO-00001"
-          />
-
-          {purchasedOrders.length > 0 ? (
-            <ReusableTable
-              columns={columns}
-              data={purchasedOrders}
-              onRowClick={() =>
-                console.log(purchasedOrders.map((order) => order))
-              }
+      <div className="flex flex-col gap-4">
+        <h2 className="font-semibold text-xl">Sale Records</h2>
+        <Form
+          methods={methods}
+          className="grid grid-cols-7 mt-4 items-center gap-4"
+        >
+          <div className="col-span-3">
+            <InputField
+              name="purchasedId"
+              type="text"
+              label="Search Purchased ID"
+              placeholder="PO-00001"
             />
-          ) : (
-            <div>No orders have been recorded for this product.</div>
-          )}
-        </div>
+          </div>
+          <input
+            className="border rounded p-3.5 bg-gray-100"
+            type="date"
+            id="startDateInput"
+            value={selectedStartDate || ""} // Binding state to input
+            onChange={handleStartDateChange} // Handling date change
+          />
+          <input
+            className="border rounded p-3.5 bg-gray-100"
+            type="date"
+            id="endDateInput"
+            value={selectedEndDate || ""} // Binding state to input
+            onChange={handleEndDateChange} // Handling date change
+          />
+          <div className="text-sm">
+            <p className="">
+              <span>Total: </span>
+              <span>${amount.toFixed(2)}</span>
+            </p>
+            <p className="">
+              <span>Transactions: </span>
+              <span>{transactions}</span>
+            </p>
+          </div>
+        </Form>
+        {orders.length > 0 ? (
+          <ReusableTable
+            columns={columns}
+            data={orders}
+            onRowClick={() => console.log(orders.map((order) => order))}
+          />
+        ) : (
+          <div>No orders have been recorded for this product.</div>
+        )}
       </div>
     </div>
   );

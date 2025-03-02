@@ -25,6 +25,7 @@ export interface ProductReturn {
   isActive: boolean;
   stock: number; // Number of plants available in stock
   barcode: string;
+  discount?: number;
 }
 
 export interface ProductReturnList extends ProductReturn {
@@ -41,6 +42,5 @@ export const ProductSchema = yup.object().shape({
   category: yup.string().required("Category is required"),
   price: yup.string().required("Price is required"),
   pictures: yup.string().optional(), // Validate as string (base64)
-
   stock: yup.number().required("stock is required"),
 });
