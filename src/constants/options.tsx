@@ -9,11 +9,10 @@ export const optionsCurrency = [
 export const optionsMethod = [
   {
     value: "khqr",
-
     image: "/assets/KHQR.png",
   },
   {
-    value: "visa",
+    value: "card",
     image: "/assets/visa.png",
   },
   {

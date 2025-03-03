@@ -10,14 +10,14 @@ const AlertPopUp = ({
 }: {
   message: string;
   open: boolean;
-  onClose: () => void;
+  onClose?: () => void;
 }) => {
   return (
     <Snackbar
       open={open}
       anchorOrigin={{
         vertical: "top", // Centers it vertically
-        horizontal: "right", // Centers it horizontally
+        horizontal: "center", // Centers it horizontally
       }}
       onClose={onClose}
       autoHideDuration={3000} // Automatically hides after 3 seconds

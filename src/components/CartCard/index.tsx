@@ -40,9 +40,8 @@ const CartCard = <T extends ShoppingCartProduct>({
         items[existingItemIndex].price,
         items[existingItemIndex].quantity
       );
-      const discount = Number(e.target.value) / 100;
-      const totalDiscountValue = discount * total;
-      items[existingItemIndex].discount = totalDiscountValue.toString();
+      const discount = e.target.value;
+      items[existingItemIndex].discount = discount;
     }
 
     localStorage.setItem("plants", JSON.stringify(items));
@@ -51,7 +50,7 @@ const CartCard = <T extends ShoppingCartProduct>({
 
   return (
     <>
-      <td className="py-2 flex mr-4 items-center justify-between">
+      <td className="py-3 flex items-center justify-between">
         <button
           onClick={() =>
             handleDecrement(
@@ -60,21 +59,23 @@ const CartCard = <T extends ShoppingCartProduct>({
                 ?.quantity
             )
           }
-          className="text-xl px-2 border rounded"
+          className="text-xl px-2 shadow-lg border rounded"
         >
           -
         </button>
-        <span> {item.quantity}</span>
+        <span className="max-w-8 w-full min-w-8 text-center">
+          {item.quantity}
+        </span>
         <button
           disabled={item.stock <= 0}
           onClick={() => addToCart(item._id, "plants")}
-          className="text-xl px-2 border rounded"
+          className="text-xl px-2 shadow-md border rounded"
         >
           +
         </button>
       </td>
-      <td className="py-2">{item.name}</td>
-      <td className="py-2">${(item.price * item.quantity).toFixed(2)}</td>
+      <td className="py-3 col-span-2 ml-4">{item.name}</td>
+      <td className="py-3">${(item.price * item.quantity).toFixed(2)}</td>
       <td>
         <input
           value={inputValue || item.discount}
@@ -85,8 +86,8 @@ const CartCard = <T extends ShoppingCartProduct>({
         />
       </td>
 
-      <td className="py-2">${(item.price * item.quantity).toFixed(2)}</td>
-      {/* <td className="py-2">
+      <td className="py-3">${(item.price * item.quantity).toFixed(2)}</td>
+      {/* <td className="py-3">
         <GoTrash />
       </td> */}
     </>

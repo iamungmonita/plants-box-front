@@ -25,6 +25,7 @@ import { formattedKHR } from "@/helpers/format/currency";
 import { settlement, clearLocalStorage } from "@/helpers/addToCart";
 import generateNextOrderId from "@/helpers/generateOrderId";
 import { ShoppingCartProduct } from "@/components/ShoppingCart";
+import HorizontalLinearStepper from "@/components/Step";
 
 interface IHold {
   orderId: string;
@@ -42,7 +43,7 @@ const Page = () => {
   const [holdCustomers, setHoldCustomers] = useState<IHold[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [orderId, setOrderId] = useState<string>("PO-00001");
-  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [currency, setCurrency] = useState("usd");
   const [calculatedDiscount, setCalculatedDiscount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -67,6 +68,7 @@ const Page = () => {
       try {
         const response = await getAllProducts({ category, barcode });
         setProducts(response || []);
+        console.log(response);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
@@ -96,7 +98,7 @@ const Page = () => {
       Number(discount) !== 0 ? (amount * Number(discount)) / 100 : 0;
     const newTotal = amount - discountValue;
     setCalculatedDiscount(discountValue);
-    setTotalAmount(newTotal);
+    setTotalAmount(newTotal - discountedValue());
   }, [discount, amount]);
 
   const onRefresh = () => {
@@ -104,7 +106,7 @@ const Page = () => {
     methods3.setValue("discount", "");
     methods3.setValue("payment", "");
     methods3.setValue("paymentKHR", "");
-    setPaymentMethod("cash");
+    setPaymentMethod("");
   };
 
   const handlePageChange = (direction: "next" | "prev") => {
@@ -113,6 +115,7 @@ const Page = () => {
 
   const handleSelect = (method: string) => {
     setPaymentMethod(method);
+    console.log(method);
   };
 
   const handleSelectCurrency = (method: string) => {
@@ -136,12 +139,19 @@ const Page = () => {
   };
 
   const discountedValue = () => {
-    return items.reduce((acc, item) => acc + parseFloat(item.discount), 0);
+    return items.reduce((acc, item) => {
+      const discount = Number(item.discount) || 0; // Ensure a valid number
+      const price = Number(item.price) || 0;
+      const quantity = Number(item.quantity) || 0;
+
+      return acc + (discount / 100) * price * quantity;
+    }, 0);
   };
 
   const onRemoveAll = () => {
     clearLocalStorage();
     setRefresh(!refresh);
+    setPaymentMethod("");
   };
 
   const heldOrder = () => {
@@ -241,7 +251,7 @@ const Page = () => {
         </div>
       </div>
 
-      <div className="flex flex-col border items-start justify-between bg-white shadow-lg min-h-screen min-w-[530px] p-4 gap-4">
+      <div className="flex flex-col border items-start justify-between bg-white shadow-lg min-h-screen min-w-[530px] max-w-[530px] p-4 gap-4">
         <p className="text-base flex justify-between items-center w-full">
           <span className="bg-gray-100 rounded-lg px-4 py-2">{orderId}</span>
           <span className="rounded-lg border px-4 py-2 flex items-center">
@@ -250,10 +260,14 @@ const Page = () => {
         </p>
 
         <div className="flex flex-col w-full flex-grow overflow-y-auto items-start">
-          <OrderPanel />
+          {/* <OrderPanel /> */}
+          <HorizontalLinearStepper
+            step={paymentMethod}
+            totalAmount={totalAmount - discountedValue()}
+          />
         </div>
 
-        <Form
+        {/* <Form
           methods={methods3}
           className="w-full grid grid-cols-2 items-center gap-2 justify-between"
         >
@@ -268,31 +282,32 @@ const Page = () => {
             onSelect={handleSelectCurrency}
             selectedValue={currency}
           />
-        </Form>
+        </Form> */}
 
-        <div className="flex flex-col w-full text-lg font-semibold border-t pt-2">
-          <p className="flex justify-between items-center">
-            <span>Items:</span>
-            {items.length}
-          </p>
-          <p className="flex justify-between items-center">
-            <span>Subtotal:</span>
-            {!toggleKHR
-              ? `$${amount.toFixed(2)}`
-              : `៛${formattedKHR(amount * exchangeRate)}`}
-          </p>
-          <p className="flex justify-between items-center">
-            <span>Discount:</span>${discountedValue().toFixed(2)}
-          </p>
+        {paymentMethod !== "cash" && (
+          <div className="flex flex-col w-full text-lg font-semibold border-t pt-2">
+            <p className="flex justify-between items-center">
+              <span>Items:</span>
+              {items.length}
+            </p>
+            <p className="flex justify-between items-center">
+              <span>Subtotal:</span>
+              {!toggleKHR
+                ? `$${amount.toFixed(2)}`
+                : `៛${formattedKHR(amount * exchangeRate)}`}
+            </p>
+            <p className="flex justify-between items-center">
+              <span>Discount:</span>${discountedValue().toFixed(2)}
+            </p>
 
-          <h2 className="flex justify-between text-2xl font-bold items-center">
-            <span>Total:</span>
-            {!toggleKHR
-              ? `$${totalAmount.toFixed(2)}`
-              : `៛${formattedKHR(totalAmount * exchangeRate)}`}
-          </h2>
+            <h2 className="flex justify-between text-2xl font-bold items-center">
+              <span>Total:</span>
+              {!toggleKHR
+                ? `$${(totalAmount - discountedValue()).toFixed(2)}`
+                : `៛${formattedKHR(totalAmount * exchangeRate)}`}
+            </h2>
 
-          {/* {paymentMethod === "cash" && items.length > 0 && (
+            {/* {paymentMethod === "cash" && items.length > 0 && (
             <div className="grid grid-cols-2 p-2 mt-2 border-y justify-between items-center">
               <div className="grid grid-cols-2 gap-4">
                 <input
@@ -320,18 +335,16 @@ const Page = () => {
               </p>
             </div>
           )} */}
-        </div>
-
+          </div>
+        )}
         <div className="flex flex-col gap-4 w-full">
-          {items.length > 0 && (
-            <ToggleButton
-              options={optionsMethod}
-              selectedValue={paymentMethod}
-              onSelect={handleSelect}
-            />
-          )}
+          <ToggleButton
+            disabled={items.length <= 0}
+            options={optionsMethod}
+            selectedValue={paymentMethod}
+            onSelect={handleSelect}
+          />
         </div>
-
         <div className="grid grid-cols-4 gap-2 w-full mb-5">
           <CustomButton
             className="col-span-2"
@@ -346,7 +359,7 @@ const Page = () => {
               (paymentMethod === "cash" && !(paymentKHR || payment))
             }
             onHandleButton={placeOrder}
-            text="Place Order"
+            text="Confirm Order"
           />
           <CustomButton
             onHandleButton={onRemoveAll}

@@ -1,7 +1,7 @@
 "use client";
 import { PurchasedOrderList } from "@/schema/order";
 import { ProductReturnList } from "@/schema/products";
-import { getProductById } from "@/services/products";
+import { getAllProducts, getProductById } from "@/services/products";
 import { MdClose, MdEditDocument } from "react-icons/md";
 import Image from "next/image";
 import { useParams } from "next/navigation";
@@ -24,7 +24,7 @@ const Page = () => {
   const [title, setTitle] = useState("");
   const params = useParams();
   const [product, setProduct] = useState<ProductReturnList | null>(null);
-  const [purchasedOrders, setPurchasedOrders] = useState<PurchasedOrderList[]>(
+  const [purchasedOrders, setPurchasedOrders] = useState<ProductReturnList[]>(
     []
   );
   const methods = useForm({
@@ -41,29 +41,38 @@ const Page = () => {
     setId(params.id as string); // Extract id safely
   }, [params]);
 
-  const columns: Column<PurchasedOrderList>[] = [
+  const columns: Column<{
+    updateNumber: number;
+    addedStock: number;
+    oldStock: number;
+    createdAt: string;
+    updatedAt: string;
+  }>[] = [
     {
-      id: "purchasedId",
-      label: "Purchased ID",
+      id: "updateNumber",
+      label: "Update No.",
       minWidth: 100,
     },
-
     {
-      id: "orders",
-      label: "Sold Qty",
+      id: "oldStock",
+      label: "Old Stock",
       minWidth: 100,
-      render: (_: any, row: PurchasedOrderList) => {
-        const matchingId = row.orders.find((order) => order._id === id);
-        return matchingId ? (
-          <p key={matchingId._id}>{matchingId.quantity}</p>
-        ) : (
-          <p>No match</p>
-        );
-      },
     },
     {
-      id: "createdAt",
-      label: "Purchased At",
+      id: "addedStock",
+      label: "Added Stock",
+      minWidth: 100,
+    },
+    // {
+    //   id: "createdAt",
+    //   label: "Created At",
+    //   minWidth: 170,
+    //   formatString: (value: string) =>
+    //     formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
+    // },
+    {
+      id: "updatedAt",
+      label: "Updated At",
       minWidth: 170,
       formatString: (value: string) =>
         formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
@@ -75,12 +84,8 @@ const Page = () => {
     if (!id) return;
     const fetchProduct = async () => {
       try {
-        const [productData, orders] = await Promise.all([
-          getProductById(id),
-          getPurchasedOrderByProductId(id, purchasedId || ""),
-        ]);
+        const [productData] = await Promise.all([getProductById(id)]);
         setProduct(productData);
-        setPurchasedOrders(orders);
       } catch (err) {
         console.error("Failed to fetch product details:", err);
       }
@@ -107,7 +112,7 @@ const Page = () => {
           <CreateForm createId={product._id} />
         </div>
         <div className="space-y-4">
-          <Form methods={methods}>
+          {/* <Form methods={methods}>
             <InputField
               // className="w-1/2"
               // {...methods.register("purchasedId")}
@@ -116,12 +121,12 @@ const Page = () => {
               label="Search Purchased ID"
               placeholder="PO-00001"
             />
-          </Form>
+          </Form> */}
 
-          {purchasedOrders.length > 0 ? (
+          {product.updatedCount.length > 0 ? (
             <ReusableTable
               columns={columns}
-              data={purchasedOrders}
+              data={product.updatedCount}
               onRowClick={() =>
                 console.log(purchasedOrders.map((order) => order))
               }

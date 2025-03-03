@@ -77,7 +77,7 @@ const Page = () => {
           onSubmit={onSubmitForm}
         >
           <InputField name="name" type="text" label="Role" />
-          <InputField name="code" type="number" label="Code" />
+          <Checkbox name="code" />
           <InputField name="remarks" type="remarks" label="Remark" />
           <Checkbox name="isActive" />
           <CustomButton text="Create" type="submit" />

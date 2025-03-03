@@ -11,16 +11,19 @@ interface ToggleButtonProps {
     image?: string;
   }[]; // The options now include an icon
   selectedValue: string; // The currently selected value
+  disabled?: boolean;
   onSelect: (value: string) => void; // Callback function to handle value selection
 }
 
 const ToggleButton: React.FC<ToggleButtonProps> = ({
+  disabled,
   options,
   selectedValue,
   onSelect,
 }) => {
   return (
     <ButtonGroup
+      disabled={disabled}
       className="w-full"
       variant="outlined"
       aria-label="payment method"
@@ -37,8 +40,7 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
             gap: 1,
             borderRadius: "4px",
             padding: 1,
-            borderColor:
-              selectedValue === item.value ? "var(--medium-light)" : "#ccc",
+            borderColor: "#ccc",
             backgroundColor:
               selectedValue === item.value ? "var(--medium-light)" : "white",
             color: selectedValue === item.value ? "white" : "black",

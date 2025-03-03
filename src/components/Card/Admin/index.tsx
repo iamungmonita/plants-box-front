@@ -80,7 +80,7 @@ const AdminCard = ({ product }: { product: ProductReturnList }) => {
               </p>
             )}
           </div>
-          {product.stock > 0 && (
+          {/* {product.stock > 0 && (
             <div className="flex items-center gap-2 justify-end w-full">
               <button
                 onClick={() =>
@@ -106,7 +106,14 @@ const AdminCard = ({ product }: { product: ProductReturnList }) => {
                 +
               </button>
             </div>
-          )}
+          )} */}
+          <button
+            disabled={product.stock <= 0}
+            onClick={() => handleAddToCart(product._id)}
+            className="text-xl px-4 py-2 shadow-lg border rounded"
+          >
+            +
+          </button>
         </div>
       </div>
     </Card>

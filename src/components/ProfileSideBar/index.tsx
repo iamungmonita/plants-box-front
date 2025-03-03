@@ -26,7 +26,7 @@ function ProfileSidebar() {
   const exchangeRate = useExchangeRate();
   const collapsibleCtx = classNames({
     "max-w-20 ": isCollapse,
-    "max-w-[250px] max-md:max-w-full h-full": !isCollapse,
+    "max-w-[220px] max-md:max-w-full h-full": !isCollapse,
   });
 
   function onLogoutOut() {
@@ -121,13 +121,13 @@ function ProfileSidebar() {
             )}
           </div>
         </ul>
-        <span className="justify-end rounded bg-gray-100 px-4 py-2 flex items-center">
+        <span className="justify-end bg-gray-100 px-4 py-2 flex items-center">
           <MdCurrencyExchange className="mr-2" /> ៛{formattedKHR(exchangeRate)}
         </span>
         <div className="mb-10 space-y-4">
           <CustomButton
             onHandleButton={() => setToggleModal(true)}
-            text="Set Exchange Rate"
+            text="Exchange Rate"
             theme="general"
           />
           <CustomButton

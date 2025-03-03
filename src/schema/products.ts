@@ -26,6 +26,14 @@ export interface ProductReturn {
   stock: number; // Number of plants available in stock
   barcode: string;
   discount?: number;
+  stockUpdateCount?: number;
+  updatedCount: {
+    updateNumber: number;
+    addedStock: number;
+    oldStock: number;
+    createdAt: string;
+    updatedAt: string;
+  }[];
 }
 
 export interface ProductReturnList extends ProductReturn {

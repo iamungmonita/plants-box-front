@@ -41,11 +41,11 @@ const OrderPanel = ({ onClose }: { onClose?: () => void }) => {
   return (
     <div className="w-full">
       <div className="flex-grow max-h-[40vh] scroll-container space-y-2 py-2">
-        <table className="w-full text-left text-gray-700 mt-4">
+        <table className="w-full text-left text-gray-700">
           <thead>
-            <tr className="border-b">
+            <tr className="grid grid-cols-6 gap-4 border-b items-center">
               <th className="py-2">Qty</th>
-              <th className="py-2">Item</th>
+              <th className="py-2 col-span-2 ml-4">Item</th>
               <th className="py-2">Price</th>
               <th className="py-2">Discount</th>
               <th className="py-2">Subtotal</th>
@@ -53,7 +53,10 @@ const OrderPanel = ({ onClose }: { onClose?: () => void }) => {
           </thead>
           <tbody>
             {items.map((item) => (
-              <tr key={item._id} className="border-b">
+              <tr
+                key={item._id}
+                className="grid grid-cols-6 gap-4 border-b items-center"
+              >
                 <CartCard
                   onRetrieveDiscount={getDiscountedValue}
                   key={item._id}

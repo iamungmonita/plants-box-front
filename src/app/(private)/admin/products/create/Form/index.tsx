@@ -18,6 +18,7 @@ import API_URL from "@/lib/api";
 import Checkbox from "@/components/Checkbox";
 import { useAuthContext } from "@/context/AuthContext";
 import CustomButton from "@/components/Button";
+import AlertPopUp from "@/components/AlertPopUp";
 
 export const CreateForm = ({ createId }: { createId: string }) => {
   const methods = useForm<Product>({
@@ -36,6 +37,7 @@ export const CreateForm = ({ createId }: { createId: string }) => {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [toggleAlert, setToggleAlert] = useState<boolean>(false);
   const { register } = methods;
   const { isAuthorized } = useAuthContext();
   const convertFileToBase64 = (file: File): Promise<string> => {
@@ -61,7 +63,7 @@ export const CreateForm = ({ createId }: { createId: string }) => {
         ? await updateProductDetailsById(createId, productData)
         : await AddNewProduct(productData);
       if (response.success) {
-        // toggleAlert(true);
+        setToggleAlert(true);
       } else {
       }
       if (!createId) {
@@ -196,6 +198,12 @@ export const CreateForm = ({ createId }: { createId: string }) => {
           </label>
         </div>
       </div>
+
+      <AlertPopUp
+        open={toggleAlert}
+        message="Success!"
+        onClose={() => setToggleAlert(false)}
+      />
 
       <CustomButton
         type="submit"
