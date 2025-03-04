@@ -35,6 +35,7 @@ export interface IOrderResponse {
   count: number;
 }
 
+export { PurchasedOrderList };
 // export function getTotalAmountToday(
 //   params: queryParam = {}
 // ): Promise<ILayout<orderresponse>> {

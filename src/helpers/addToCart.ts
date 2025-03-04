@@ -96,7 +96,9 @@ export const updateCartItems = () => {
 
 export const clearLocalStorage = () => {
   localStorage.removeItem("plants");
+  localStorage.removeItem("membership");
   window.dispatchEvent(new Event("cartUpdated"));
+  window.dispatchEvent(new Event("memberUpdated"));
   return { items: [], total: 0 }; // Notify all components
 };
 

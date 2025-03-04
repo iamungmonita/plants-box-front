@@ -29,7 +29,6 @@ import HorizontalLinearStepper from "@/components/Step";
 import BasicModal from "@/components/Modal";
 import Membership from "@/components/Modals/Membership";
 import { useMembership } from "@/hooks/useMembership";
-import { pointToAmount } from "@/helpers/calculation/getPoint";
 interface IHold {
   orderId: string;
   items: ShoppingCartProduct[];
@@ -38,10 +37,10 @@ interface IHold {
 const ITEMS_PER_PAGE = 8;
 
 const Page = () => {
+  const { member } = useMembership();
   const { profile } = useAuthContext();
   const exchangeRate = useExchangeRate();
   const { items, amount } = useCartItems();
-
   const [products, setProducts] = useState<ProductReturnList[]>([]);
   const [holdCustomers, setHoldCustomers] = useState<IHold[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -52,23 +51,33 @@ const Page = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [refresh, setRefresh] = useState(false);
   const [toggleKHR, setToggleKHR] = useState(false);
-  const [togglePoint, setTogglePoint] = useState(false);
   const [toggleMembership, setToggleMembership] = useState(false);
-  const [converted, setConverted] = useState(0);
-  const { member } = useMembership();
+
   const methods1 = useForm({ defaultValues: { barcode: "", category: "" } });
   const methods2 = useForm<{ heldCart: string }>({
     defaultValues: { heldCart: "" },
   });
   const methods3 = useForm({
-    defaultValues: { payment: "", paymentKHR: "", discount: "" },
+    defaultValues: { payment: "", paymentKHR: "", discount: "", point: "" },
   });
 
   const barcode = methods1.watch("barcode");
   const category = methods1.watch("category");
   const heldCart = methods2.watch("heldCart");
-  const { payment, paymentKHR, discount } = methods3.watch();
+  const { payment, paymentKHR, discount, point } = methods3.watch();
 
+  useEffect(() => {
+    const discountValue =
+      discount === "" || isNaN(Number(discount)) ? 0 : Number(discount);
+    console.log("Discount Value:", discountValue);
+
+    const newItems = items.map((item) => ({
+      ...item, // Spread existing properties
+      discount: discountValue, // Add/update the discount property
+    }));
+    localStorage.setItem("plants", JSON.stringify(newItems));
+    window.dispatchEvent(new Event("cartUpdated"));
+  }, []);
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -81,26 +90,6 @@ const Page = () => {
     };
     fetchProducts();
   }, [category, barcode, refresh]);
-  // Run only once when the component mounts
-
-  useEffect(() => {
-    if (items.length === 0) return; // Prevent overwriting with empty array
-
-    const discountValue = member
-      ? 20
-      : discount === "" || isNaN(Number(discount))
-      ? 0
-      : Number(discount);
-    console.log("Discount Value:", discountValue);
-
-    const newItems = items.map((item) => ({
-      ...item, // Keep existing properties
-      discount: discountValue, // Update discount
-    }));
-
-    localStorage.setItem("plants", JSON.stringify(newItems)); // Save to localStorage
-    window.dispatchEvent(new Event("cartUpdated")); // Notify other components
-  }, [discount, member]);
 
   useEffect(() => {
     const orderId = localStorage.getItem("lastOrderId") ?? "PO-00001";
@@ -133,7 +122,6 @@ const Page = () => {
     methods3.setValue("payment", "");
     methods3.setValue("paymentKHR", "");
     setPaymentMethod("");
-    setConverted(0);
   };
 
   const handlePageChange = (direction: "next" | "prev") => {
@@ -179,13 +167,6 @@ const Page = () => {
     clearLocalStorage();
     setRefresh(!refresh);
     setPaymentMethod("");
-  };
-  const calculatePoint = () => {
-    setTogglePoint(true);
-    const result = pointToAmount(member?.points || 0);
-    setConverted(result);
-
-    setTogglePoint(false);
   };
 
   const heldOrder = () => {
@@ -311,17 +292,19 @@ const Page = () => {
         >
           <div className="col-span-2">
             <CustomButton
-              onHandleButton={() => setToggleMembership(true)}
-              text={`${member ? member.firstname : "Check Membership"}`}
               theme="general"
+              text={`${member ? member.firstname : "Check Membership"}`}
+              onHandleButton={() => setToggleMembership(true)}
             />
           </div>
           <CustomButton
-            onHandleButton={calculatePoint}
-            text={`${member?.points ? member.points : 0}P`}
+            {...methods3.register("point")}
+            type="button"
             theme="general"
+            text="100P"
+            className="p-2 border rounded"
           />
-          <InputField name="discount" label="Discount" type="text" />
+          <InputField name="discount" type="text" label="Discount" />
         </Form>
 
         {paymentMethod !== "cash" && (
@@ -342,9 +325,9 @@ const Page = () => {
 
             <h2 className="flex justify-between text-2xl font-bold items-center">
               <span>Total:</span>
-              {togglePoint
+              {!toggleKHR
                 ? `$${(totalAmount - discountedValue()).toFixed(2)}`
-                : `$${(totalAmount - converted).toFixed(2)}`}
+                : `៛${formattedKHR(totalAmount * exchangeRate)}`}
             </h2>
 
             {/* {paymentMethod === "cash" && items.length > 0 && (

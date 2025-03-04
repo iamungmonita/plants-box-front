@@ -1,7 +1,12 @@
 import { IRoleResponse } from "@/app/(private)/admin/settings/roles/create/page";
+import {
+  IAuthRegister,
+  IAuthRegisterResponse,
+} from "@/app/(private)/admin/settings/users/create/page";
 import { formattedTimeStamp } from "@/helpers/format/time";
 import API_URL from "@/lib/api";
 import { ProductReturnList } from "@/schema/products";
+import { IMember, IMembershipResponse } from "@/services/membership";
 
 export interface Column<T> {
   id: keyof T; // id should be a key of T, which is ProductReturnList in this case
@@ -13,11 +18,12 @@ export interface Column<T> {
   render?: (value: any, row: T) => React.ReactNode; // Render method for custom columns like image
 }
 
-export const columns: Column<IRoleResponse>[] = [
-  { id: "name", label: "Name", minWidth: 170 },
-  { id: "code", label: "Code", minWidth: 100 },
+export const columns: Column<IMember>[] = [
+  { id: "firstname", label: "First Name", minWidth: 170 },
+  { id: "lastname", label: "Last Name", minWidth: 100 },
 
-  { id: "remark", label: "Remarks", minWidth: 170 },
+  { id: "phonenumber", label: "Phone Number", minWidth: 170 },
+  { id: "type", label: "Membership Type", minWidth: 170 },
   {
     id: "createdAt",
     label: "Created At",

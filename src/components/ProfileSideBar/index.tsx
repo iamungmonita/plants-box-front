@@ -100,7 +100,11 @@ function ProfileSidebar() {
             </button>
             {openDropdowns.has("settings") && (
               <ul className="flex flex-col">
-                {[{ path: "users" }, { path: "roles" }].map((item) => (
+                {[
+                  { path: "users" },
+                  { path: "roles" },
+                  { path: "membership" },
+                ].map((item) => (
                   <Link
                     key={item.path}
                     style={{

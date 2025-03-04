@@ -14,6 +14,7 @@ export interface queryParam {
   date?: string;
   start?: string;
   end?: string;
+  phonenumber?: string;
 }
 
 export function getAllProducts(
