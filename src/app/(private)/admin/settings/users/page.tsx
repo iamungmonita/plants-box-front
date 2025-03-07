@@ -7,10 +7,10 @@ import { useForm } from "react-hook-form";
 import { columns } from "@/constants/TableHead/Users";
 import { getUsers, RetrieveRoles } from "@/services/system";
 import CustomButton from "@/components/Button";
-import { IAuthRegister, IAuthRegisterResponse } from "./create/page";
+import { Profile } from "@/schema/auth";
 
 const page = () => {
-  const [users, setUsers] = useState<IAuthRegisterResponse[]>([]);
+  const [users, setUsers] = useState<Profile[]>([]);
   const methods = useForm();
   const { watch } = methods;
   useEffect(() => {
@@ -36,7 +36,6 @@ const page = () => {
           />
         </div>
       </div>
-
       <div>
         <ReusableTable columns={columns} data={users} />
       </div>

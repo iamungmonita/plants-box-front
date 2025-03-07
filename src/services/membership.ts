@@ -2,47 +2,37 @@ import { IAuthRegister } from "@/app/(private)/admin/settings/users/create/page"
 import { GET, POST } from ".";
 import { FieldValues } from "react-hook-form";
 import { ILayout } from "@/app/(private)/admin/settings/roles/create/page";
-import { Response } from "@/schema/order";
+import { PurchasedOrderList, Response } from "@/schema/order";
 import API_URL from "@/lib/api";
 import query from "query-string";
 import { queryParam } from "./products";
 
 export interface IMembership extends FieldValues {
-  firstname: string;
-  lastname: string;
-  phonenumber: string;
-  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
   type: string;
   isActive: boolean;
-  invoice: string[];
-  purchasedId: string;
+  invoices: { purchasedId: string; totalAmount: number }[];
   points: number;
+  createdBy: string;
 }
-export interface IMember extends Response {
-  firstname: string;
-  lastname: string;
-  phonenumber: string;
-  email: string;
-  type: string;
-  isActive: boolean;
-  invoice: string[];
-  points: number;
-}
-export interface IMembershipResponse {
-  member: IMember[];
+export interface IMemberResponse extends IMembership, Response {}
+export interface IMembershipResponseList {
+  member: IMemberResponse[];
   count: number;
 }
 export function CreateMembership(
   form: IMembership
-): Promise<ILayout<IMembershipResponse>> {
+): Promise<ILayout<IMemberResponse>> {
   const url = `${API_URL}/membership/create`;
-  return POST<ILayout<IMembershipResponse>, IMembership>(url, form);
+  return POST<ILayout<IMemberResponse>, IMembership>(url, form);
 }
 export function retrieveMembership(
   params: queryParam = {}
-): Promise<ILayout<IMembershipResponse>> {
+): Promise<ILayout<IMembershipResponseList>> {
   const queryString = query.stringify(params);
 
   const url = `${API_URL}/membership/retrieve?${queryString}`;
-  return GET<ILayout<IMembershipResponse>>(url);
+  return GET<ILayout<IMembershipResponseList>>(url);
 }

@@ -7,69 +7,89 @@ import AutocompleteForm from "@/components/Autocomplete";
 import Checkbox from "@/components/Checkbox";
 import CustomButton from "@/components/Button";
 import { CreateMembership, IMembership } from "@/services/membership";
-import { getOrder, PurchasedOrderList } from "@/services/order";
+import {
+  getPurchasedOrderByPurchasedId,
+  PurchasedOrderList,
+} from "@/services/order";
 import { optionsMembership } from "@/constants/membership";
-import { amountToPoint, pointToAmount } from "@/helpers/calculation/getPoint";
+import { amountToPoint, sum } from "@/helpers/calculation/getPoint";
+import { useAuthContext } from "@/context/AuthContext";
+import ImageUpload from "@/components/Upload";
 
 const Page = () => {
   const methods = useForm<IMembership>({
     defaultValues: {
       type: "",
-      firstname: "",
-      lastname: "",
-      phonenumber: "",
-      email: "",
+      firstName: "",
+      lastName: "",
+      phoneNumber: "",
       isActive: true,
       purchasedId: "",
-      invoice: [], // It's an array of invoices
-      points: 0,
     },
   });
   const { watch, setValue, handleSubmit, register } = methods;
-
   const purchasedId = watch("purchasedId");
-  const [invoices, setInvoices] = useState<string[]>([]);
+
+  const { profile } = useAuthContext();
+  const [invoices, setInvoices] = useState<
+    { purchasedId: string; totalAmount: number }[]
+  >([]);
+  const [orders, setOrders] = useState<PurchasedOrderList | null>(null);
 
   const onSubmitForm = async (data: IMembership) => {
-    console.log(data);
-    const response = await CreateMembership(data);
-    if (response.message) {
-      console.log(response.message);
-    }
-    if (response.data) {
-      console.log(data);
+    // If `data.invoice` is an array, append the `purchasedId` to it
+
+    if (orders) {
+      const updatedInvoice = [
+        ...invoices,
+        {
+          purchasedId: orders.purchasedId, // Extract the purchasedId
+          totalAmount: orders.totalAmount, // Extract the totalAmount
+        },
+      ];
+      setInvoices(updatedInvoice);
+      const acc = updatedInvoice.map((invoice) => invoice.totalAmount);
+      const total = sum(acc);
+      const points = amountToPoint(total);
+      const { purchasedId, ...dataWithoutPurchasedId } = data;
+      const updatedData = {
+        ...dataWithoutPurchasedId,
+        points: points,
+        createdBy: profile?.firstName as string,
+        invoices: updatedInvoice, // Assign the manually managed invoice list to the data
+      };
+
+      const response = await CreateMembership(updatedData);
+      if (response.data) {
+        console.log(response.data);
+      } else {
+        console.log(response.message);
+      }
     } else {
-      console.log(response.message);
+      console.log("not found");
     }
   };
-
   useEffect(() => {
     const fetchMembership = async () => {
       try {
-        const response = await getOrder({ purchasedId });
-        if (response.data) {
-          // Map the data to push the invoices into the form field
-          const orderInvoices = response.data?.orders.map(
-            (order: PurchasedOrderList) => order.purchasedId
-          );
-          const getAmount = response.data.orders.filter((order) => order);
-          const points = amountToPoint(Number(getAmount[0].amount));
-          const money = pointToAmount(Number(points));
-          console.log(points, money);
-          setInvoices(orderInvoices);
+        const response = await getPurchasedOrderByPurchasedId(purchasedId);
 
-          // Push all invoices to the 'invoice' array in the form
-          setValue("invoice", orderInvoices);
-          setValue("points", points);
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          setOrders(response.data[0]); // ✅ Safely extract the first object
+        } else {
+          console.warn(
+            "No orders found or invalid response format:",
+            response.data
+          );
+          setOrders({} as PurchasedOrderList); // Fallback to an empty object
         }
       } catch (error) {
-        console.error("Error uploading:", error);
+        console.error("Error fetching membership:", error);
       }
     };
-    fetchMembership();
-  }, [purchasedId, setValue]);
 
-  const options = optionsMembership.map((option) => option.label);
+    if (purchasedId) fetchMembership();
+  }, [purchasedId]);
 
   return (
     <div className="flex justify-center items-center min-h-screen w-full">
@@ -83,22 +103,18 @@ const Page = () => {
           onSubmit={handleSubmit(onSubmitForm)}
         >
           <div className="grid grid-cols-2 gap-4">
-            <InputField name="firstname" type="text" label="First Name" />
-            <InputField name="lastname" type="text" label="Last Name" />
+            <InputField name="firstName" type="text" label="First Name" />
+            <InputField name="lastName" type="text" label="Last Name" />
           </div>
-          <InputField name="email" type="email" label="Email" />
-          <InputField name="phonenumber" type="text" label="Phone Number" />
-          <InputField name="purchasedId" type="text" label="PurchasedId" />
-          <AutocompleteForm options={options} name="type" label="Type" />
-
-          {/* This will now display the list of invoices */}
-          <input
-            value={invoices.join(", ")}
-            {...register("invoice")}
-            readOnly
+          <InputField name="phoneNumber" type="text" label="Phone Number" />
+          <InputField name="purchasedId" label="Purchased ID" type="text" />
+          <AutocompleteForm
+            options={optionsMembership}
+            name="type"
+            label="Membership Type"
           />
+          <Checkbox name="isActive" label="Is Active" />
 
-          <Checkbox name="isActive" />
           <CustomButton text="Create" type="submit" />
         </Form>
       </div>

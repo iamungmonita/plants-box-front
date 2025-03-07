@@ -23,7 +23,7 @@ const AlertPopUp = ({
       autoHideDuration={3000} // Automatically hides after 3 seconds
     >
       <Alert
-        severity={message?.includes("in stock") ? "error" : "success"}
+        severity={message?.includes("Error") ? "error" : "success"}
         sx={{ width: "100%" }}
       >
         {message}

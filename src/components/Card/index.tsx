@@ -3,12 +3,12 @@ import { Button, Card } from "@mui/material";
 import { TbShoppingBagPlus } from "react-icons/tb";
 import API_URL from "@/lib/api";
 import { addToCart, updateCartItems } from "@/helpers/addToCart";
-import { ProductReturnList } from "@/schema/products";
+import { ProductResponse } from "@/schema/products";
 import Image from "next/image";
 import AlertPopUp from "../AlertPopUp";
 import { usePathname } from "next/navigation";
 
-const ProductCard = ({ product }: { product: ProductReturnList }) => {
+const ProductCard = ({ product }: { product: ProductResponse }) => {
   const [snackbarMessage, setSnackbarMessage] = React.useState<string>("");
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const [toggleWidth, setToggleWidth] = React.useState(false);
@@ -63,7 +63,7 @@ const ProductCard = ({ product }: { product: ProductReturnList }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="md:text-lg">
-                ${parseInt(product.price.toString()).toFixed(2)}
+                ${parseFloat(product.price.toString()).toFixed(2)}
               </p>
               {product.stock === 0 ? (
                 <p className="text-sm text-red-500">Out of Stock</p>

@@ -9,7 +9,8 @@ interface InputFieldProps {
   multiline?: boolean;
   minRows?: number;
   placeholder?: string;
-  onBlur?: () => void; // Make sure the onBlur is optional here
+  step?: string; // Step for numeric inputs
+  onBlur?: () => void;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -19,8 +20,8 @@ const InputField: React.FC<InputFieldProps> = ({
   multiline = false,
   minRows = 1,
   placeholder,
-
-  onBlur, // Accept onBlur directly as a prop here
+  step = "0.01",
+  onBlur,
 }) => {
   const { control } = useFormContext();
 
@@ -46,10 +47,17 @@ const InputField: React.FC<InputFieldProps> = ({
           error={!!fieldState.error}
           helperText={fieldState.error?.message}
           InputLabelProps={{ shrink: true }}
-          inputProps={{ min: 0 }}
+          inputProps={{
+            min: type === "number" ? 0 : undefined, // Apply min only for numeric fields
+            step: type === "number" ? step : undefined, // Apply step only for numeric fields
+          }}
           onBlur={(e) => {
-            field.onBlur(); // Trigger the field's blur event
-            if (onBlur) onBlur(); // Call the passed in onBlur function
+            if (type === "number") {
+              const value = parseFloat(e.target.value) || 0; // Normalize numeric value
+              field.onChange(value); // Update form state
+            }
+            field.onBlur(); // Trigger React Hook Form's onBlur
+            if (onBlur) onBlur(); // Call additional onBlur logic
           }}
         />
       )}

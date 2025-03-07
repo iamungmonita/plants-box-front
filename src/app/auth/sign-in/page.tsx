@@ -8,9 +8,8 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { LogInSchema } from "@/schema/auth";
+import { IAuthLogIn, LogInSchema } from "@/schema/auth";
 import { Button, CircularProgress } from "@mui/material";
-import { IAuthLogIn } from "@/models/auth";
 import { getAdminProfile, SignIn } from "@/services/authentication";
 import BasicModal from "@/components/Modal";
 import { createLog, countLog } from "@/services/log";
@@ -54,8 +53,8 @@ const Page = () => {
         setToggle(true);
       } else {
         setToggle(false);
+        router.push("/admin/dashboard");
       }
-      router.push("/admin/dashboard");
     } else {
       setError(response.name as "email" | "password", {
         type: "manual",
@@ -64,11 +63,11 @@ const Page = () => {
       console.log(response.message);
     }
   };
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/admin/dashboard");
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     router.push("/admin/dashboard");
+  //   }
+  // }, []);
   // if (loading) {
   //   return (
   //     <div>
@@ -82,7 +81,7 @@ const Page = () => {
         <h2 className="text-center font-bold text-xl">Sign In</h2>
 
         <BasicModal
-          content={<MoneyCounter />}
+          ContentComponent={MoneyCounter}
           open={toggle}
           // onClose={() => setToggle(false)}
         />

@@ -1,4 +1,4 @@
-import { ProductAddPicture, ProductReturnList } from "@/schema/products";
+import { Product, ProductResponse } from "@/schema/products";
 import API_URL from "@/lib/api";
 import { GET, POST, PUT } from ".";
 import query from "query-string";
@@ -14,43 +14,47 @@ export interface queryParam {
   date?: string;
   start?: string;
   end?: string;
-  phonenumber?: string;
+  phoneNumber?: string;
 }
 
 export function getAllProducts(
   params: queryParam = {}
-): Promise<ProductReturnList[]> {
+): Promise<ILayout<ProductResponse[]>> {
   const queryString = query.stringify(params);
   const url = `${API_URL}/product/retrieve?${queryString}`;
-  return GET<ProductReturnList[], {}>(url, {});
+  return GET<ILayout<ProductResponse[]>, {}>(url, {});
+}
+export function getBestSellingProducts(): Promise<ILayout<ProductResponse[]>> {
+  const url = `${API_URL}/product/best-sellers`;
+  return GET<ILayout<ProductResponse[]>, {}>(url, {});
 }
 
-export function getProductById(id: string): Promise<ProductReturnList> {
+export function getProductById(id: string): Promise<ILayout<ProductResponse>> {
   const url = `${API_URL}/product/` + id;
-  return GET<ProductReturnList, {}>(url, {});
+  return GET<ILayout<ProductResponse>, {}>(url, {});
 }
 
 //POST
 export function AddNewProduct(
-  data: ProductAddPicture
-): Promise<ILayout<ProductReturnList>> {
+  data: Product
+): Promise<ILayout<ProductResponse>> {
   const url = `${API_URL}/product/create`;
-  return POST<ILayout<ProductReturnList>, ProductAddPicture>(url, data);
+  return POST<ILayout<ProductResponse>, Product>(url, data);
 }
 
 //PUT
 export function updateProductStockById(
   id: string,
   params: any
-): Promise<ProductReturnList> {
+): Promise<ProductResponse> {
   const url = `${API_URL}/product/update/` + id;
-  return POST<ProductReturnList, typeof params>(url, params);
+  return POST<ProductResponse, typeof params>(url, params);
 }
 
 export function updateProductDetailsById(
   id: string,
-  params: ProductAddPicture
-): Promise<ILayout<ProductReturnList>> {
+  params: Product
+): Promise<ILayout<ProductResponse>> {
   const url = `${API_URL}/product/update-details/` + id;
-  return PUT<ILayout<ProductReturnList>, ProductAddPicture>(url, params);
+  return PUT<ILayout<ProductResponse>, Product>(url, params);
 }

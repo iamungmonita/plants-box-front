@@ -1,13 +1,11 @@
-import { IMember } from "@/services/membership";
+import { IMembership } from "@/services/membership";
 import { useEffect, useState } from "react";
 
-// Utility function to fetch and validate member data from localStorage
-export const updateMember = (): IMember | null => {
+export const updateMember = (): IMembership | null => {
   try {
     const storedMember = localStorage.getItem("membership");
     if (storedMember) {
       const parsedMember = JSON.parse(storedMember);
-      // You can add further validation here if needed to check if the parsedMember is of type IMember
       return parsedMember;
     }
   } catch (error) {
@@ -17,7 +15,7 @@ export const updateMember = (): IMember | null => {
 };
 
 export const useMembership = () => {
-  const [member, setMember] = useState<IMember | null>(null);
+  const [member, setMember] = useState<IMembership | null>(null);
 
   useEffect(() => {
     const storedMember = updateMember();
@@ -32,7 +30,7 @@ export const useMembership = () => {
     return () => {
       window.removeEventListener("memberUpdated", handleMembership);
     };
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, []);
 
   return { member };
 };

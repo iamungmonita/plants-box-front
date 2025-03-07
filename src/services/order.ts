@@ -17,15 +17,14 @@ export function getOrder(
 export interface Params {
   purchasedId?: string;
 }
-export function getPurchasedOrderByProductId(
-  id: string,
+export function getPurchasedOrderByPurchasedId(
   purchasedId: string
-): Promise<PurchasedOrderList[]> {
-  const url = `${API_URL}/order/retrieve/${id}?purchasedId=${purchasedId}`;
-  return GET<PurchasedOrderList[], {}>(url, {});
+): Promise<ILayout<PurchasedOrderList>> {
+  const url = `${API_URL}/order/retrieve/` + purchasedId;
+  return GET<ILayout<PurchasedOrderList>, {}>(url, {});
 }
 
-export function getOrderById(id: string): Promise<orderResponse> {
+export function getOrderByPurchasedId(id: string): Promise<orderResponse> {
   const url = `${API_URL}/order/` + id;
   return GET<orderResponse, {}>(url, {});
 }

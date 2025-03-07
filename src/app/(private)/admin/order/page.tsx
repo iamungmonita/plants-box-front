@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { VscClearAll } from "react-icons/vsc";
 import { TbShoppingCartPause } from "react-icons/tb";
-import { MdCurrencyExchange } from "react-icons/md";
+import { MdCurrencyExchange, MdDelete } from "react-icons/md";
 
 import AdminCard from "@/components/Card/Admin";
 import Form from "@/components/Form";
@@ -20,7 +20,6 @@ import { getAllProducts } from "@/services/products";
 import { useCartItems } from "@/hooks/useCartItems";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 
-import { ProductReturnList } from "@/schema/products";
 import { formattedKHR } from "@/helpers/format/currency";
 import { settlement, clearLocalStorage } from "@/helpers/addToCart";
 import generateNextOrderId from "@/helpers/generateOrderId";
@@ -30,6 +29,13 @@ import BasicModal from "@/components/Modal";
 import Membership from "@/components/Modals/Membership";
 import { useMembership } from "@/hooks/useMembership";
 import { pointToAmount } from "@/helpers/calculation/getPoint";
+import { ProductResponse } from "@/schema/products";
+import { useHeldCarts } from "@/hooks/useHeldCart";
+import useFetch from "@/hooks/useFetch";
+import { getDiscountValue } from "@/constants/membership";
+import ConfirmOrder from "@/components/Modals/ConfirOrder";
+import Image from "next/image";
+import API_URL from "@/lib/api";
 interface IHold {
   orderId: string;
   items: ShoppingCartProduct[];
@@ -42,19 +48,17 @@ const Page = () => {
   const exchangeRate = useExchangeRate();
   const { items, amount } = useCartItems();
 
-  const [products, setProducts] = useState<ProductReturnList[]>([]);
-  const [holdCustomers, setHoldCustomers] = useState<IHold[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [orderId, setOrderId] = useState<string>("PO-00001");
   const [paymentMethod, setPaymentMethod] = useState("");
-  const [currency, setCurrency] = useState("usd");
   const [calculatedDiscount, setCalculatedDiscount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [refresh, setRefresh] = useState(false);
-  const [toggleKHR, setToggleKHR] = useState(false);
-  const [togglePoint, setTogglePoint] = useState(false);
+  const carts = useHeldCarts([refresh]);
+  const [membershipPayment, setMembershipPayment] = useState("");
+  const [toggleConfirmOrder, setToggleConfirmOrder] = useState(false);
   const [toggleMembership, setToggleMembership] = useState(false);
-  const [converted, setConverted] = useState(0);
+  // const [converted, setConverted] = useState(0);
   const { member } = useMembership();
   const methods1 = useForm({ defaultValues: { barcode: "", category: "" } });
   const methods2 = useForm<{ heldCart: string }>({
@@ -68,39 +72,11 @@ const Page = () => {
   const category = methods1.watch("category");
   const heldCart = methods2.watch("heldCart");
   const { payment, paymentKHR, discount } = methods3.watch();
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await getAllProducts({ category, barcode });
-        setProducts(response || []);
-        console.log(response);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
-    fetchProducts();
-  }, [category, barcode, refresh]);
-  // Run only once when the component mounts
-
-  useEffect(() => {
-    if (items.length === 0) return; // Prevent overwriting with empty array
-
-    const discountValue = member
-      ? 20
-      : discount === "" || isNaN(Number(discount))
-      ? 0
-      : Number(discount);
-    console.log("Discount Value:", discountValue);
-
-    const newItems = items.map((item) => ({
-      ...item, // Keep existing properties
-      discount: discountValue, // Update discount
-    }));
-
-    localStorage.setItem("plants", JSON.stringify(newItems)); // Save to localStorage
-    window.dispatchEvent(new Event("cartUpdated")); // Notify other components
-  }, [discount, member]);
+  const { data: products = [] } = useFetch(
+    getAllProducts,
+    { category, barcode },
+    [refresh, category, barcode]
+  );
 
   useEffect(() => {
     const orderId = localStorage.getItem("lastOrderId") ?? "PO-00001";
@@ -110,14 +86,6 @@ const Page = () => {
   useEffect(() => {
     restoreHeldCart(heldCart);
   }, [heldCart]);
-
-  useEffect(() => {
-    const getHeldCarts = () => {
-      const heldOrders = JSON.parse(localStorage.getItem("heldOrders") || "[]");
-      setHoldCustomers(heldOrders ?? []);
-    };
-    getHeldCarts();
-  }, [refresh]);
 
   useEffect(() => {
     const discountValue =
@@ -132,9 +100,15 @@ const Page = () => {
     methods3.setValue("discount", "");
     methods3.setValue("payment", "");
     methods3.setValue("paymentKHR", "");
+    methods3.setValue("discount", "0");
     setPaymentMethod("");
-    setConverted(0);
+    setMembershipPayment("");
+    // setConverted(0);
   };
+
+  useEffect(() => {
+    onRefresh();
+  }, [member]);
 
   const handlePageChange = (direction: "next" | "prev") => {
     setCurrentPage((prev) => (direction === "next" ? prev + 1 : prev - 1));
@@ -145,27 +119,70 @@ const Page = () => {
     console.log(method);
   };
 
-  const handleSelectCurrency = (method: string) => {
-    setCurrency(method);
-    setToggleKHR(method === "khr");
-  };
-
-  const placeOrder = () => {
+  const placeOrder = (orderId: string) => {
     settlement(
       items,
       amount,
       paymentMethod,
-      profile?.firstname,
+      profile?.firstName,
       Number(discount),
       calculatedDiscount,
       totalAmount,
       orderId
     );
+    const updatedHeldOrders = carts.filter(
+      (cart: any) => cart.orderId !== orderId
+    );
+    setToggleConfirmOrder(false);
+
+    localStorage.setItem("heldOrders", JSON.stringify(updatedHeldOrders));
     setOrderId(generateNextOrderId());
     onRefresh();
   };
 
+  useEffect(() => {
+    if (!items || items.length === 0) return; // Prevent overwriting with empty data
+
+    const updatedItems = items.map((item) => ({
+      ...item,
+      discount: discount,
+    }));
+
+    localStorage.setItem("plants", JSON.stringify(updatedItems));
+    window.dispatchEvent(new Event("cartUpdated"));
+
+    let discountValue =
+      Number(discount) !== 0 ? (amount * Number(discount)) / 100 : 0;
+
+    let newTotal = amount - discountValue;
+
+    if (membershipPayment && membershipPayment !== member?.type) {
+      const convertedAmount = pointToAmount(Number(member?.points));
+      discountedValue();
+      newTotal = amount - convertedAmount;
+    }
+
+    const safeTotal = Number.isFinite(newTotal) ? newTotal : 0;
+
+    // ✅ Update state only if necessary to prevent re-renders
+    setTotalAmount((prevTotal) =>
+      prevTotal !== safeTotal ? safeTotal : prevTotal
+    );
+  }, [discount, amount, membershipPayment, refresh]); // ✅ Ensure dependencies don't trigger re-renders unnecessarily
+  // Add `items` to dependencies
+
+  const handleSelectMembershipPayment = (payment: string) => {
+    setMembershipPayment(payment);
+
+    if (payment === member?.type) {
+      const value = getDiscountValue(member.type);
+      methods3.setValue("discount", String(value));
+    }
+  };
   const discountedValue = () => {
+    if (membershipPayment !== member?.type) {
+      return 0;
+    }
     return items.reduce((acc, item) => {
       const discount = Number(item.discount) || 0; // Ensure a valid number
       const price = Number(item.price) || 0;
@@ -175,86 +192,119 @@ const Page = () => {
     }, 0);
   };
 
-  const onRemoveAll = () => {
+  const onRemoveAllItems = () => {
     clearLocalStorage();
     setRefresh(!refresh);
     setPaymentMethod("");
   };
-  const calculatePoint = () => {
-    setTogglePoint(true);
-    const result = pointToAmount(member?.points || 0);
-    setConverted(result);
 
-    setTogglePoint(false);
+  const onRemoveHoldOrder = (orderId: string) => {
+    clearLocalStorage();
+    onRefresh();
+    const updatedHeldOrders = carts.filter(
+      (cart: any) => cart.orderId !== orderId
+    );
+    localStorage.setItem("heldOrders", JSON.stringify(updatedHeldOrders));
+    const lastOrderId = localStorage.getItem("lastOrderId");
+    if (lastOrderId) {
+      localStorage.setItem("currentOrderId", lastOrderId as string);
+    }
+
+    setOrderId(generateNextOrderId());
   };
 
-  const heldOrder = () => {
+  const heldOrder = (orderId: string) => {
     if (items.length === 0) return;
+
     const heldOrders = JSON.parse(localStorage.getItem("heldOrders") || "[]");
-    const newOrder = { orderId, items };
-    heldOrders.push(newOrder);
-    localStorage.setItem("heldOrders", JSON.stringify(heldOrders));
+
+    const orderExists = heldOrders.some(
+      (order: { orderId: string }) => order.orderId === orderId
+    );
+
+    if (!orderExists) {
+      const newOrder = { orderId, items };
+      heldOrders.push(newOrder);
+
+      localStorage.setItem("heldOrders", JSON.stringify(heldOrders));
+
+      setOrderId(generateNextOrderId());
+    } else {
+      setOrderId(generateNextOrderId());
+      methods2.setValue("heldCart", "");
+    }
     localStorage.setItem("plants", JSON.stringify([]));
     window.dispatchEvent(new Event("cartUpdated"));
-    setOrderId(generateNextOrderId());
-    onRefresh();
+    setMembershipPayment("");
   };
   const restoreHeldCart = (selectedPurchaseId: string) => {
-    const selectedCart = holdCustomers.find(
+    const selectedCart = carts.filter(
       (cart: any) => cart.orderId === selectedPurchaseId
     );
 
-    if (selectedCart) {
-      setOrderId(selectedCart.orderId);
-      localStorage.setItem("plants", JSON.stringify(selectedCart.items));
-      const updatedHeldOrders = holdCustomers.filter(
-        (cart: any) => cart.orderId !== selectedPurchaseId
-      );
-      localStorage.setItem("heldOrders", JSON.stringify(updatedHeldOrders));
+    if (selectedCart[0]) {
+      console.log(selectedCart[0].orderId);
+      setOrderId(selectedCart[0].orderId);
+      localStorage.setItem("plants", JSON.stringify(selectedCart[0].items));
+
       window.dispatchEvent(new Event("cartUpdated"));
       const lastOrderId = localStorage.getItem("lastOrderId");
       localStorage.setItem("currentOrderId", lastOrderId as string);
     }
-    setRefresh(!refresh);
-    methods2.setValue("heldCart", "");
   };
+
   const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
   const currentItems = products.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+  const onClear = () => {
+    methods1.setValue("barcode", "");
+    methods1.setValue("category", "");
+  };
 
   return (
     <div className="flex w-full justify-between gap-4">
+      <BasicModal
+        ContentComponent={ConfirmOrder}
+        onAction={() => placeOrder(orderId)}
+        onClose={() => setToggleConfirmOrder(false)}
+        open={toggleConfirmOrder}
+      />
+
       <div className="w-full">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           <Form
             methods={methods1}
-            className="col-span-1 grid grid-cols-2 gap-4"
+            className="col-span-3 grid grid-cols-5 gap-4"
           >
-            <InputField
-              label=""
-              name="barcode"
-              type="text"
-              placeholder="Search Barcode"
-            />
-            <AutocompleteForm
-              options={categories}
-              name="category"
-              label="Category"
-            />
+            <div className="col-span-4 grid-cols-2 grid gap-4">
+              <InputField
+                label=""
+                name="barcode"
+                type="text"
+                placeholder="Search Barcode"
+              />
+              <AutocompleteForm
+                options={categories}
+                name="category"
+                label="Category"
+              />
+            </div>
+            <CustomButton text="Clear" theme="alarm" onHandleButton={onClear} />
           </Form>
           <Form
             methods={methods2}
-            className="col-span-1 flex w-full justify-end"
+            className={`${carts.length > 0 && "bg-yellow-500"} col-span-1`}
           >
-            <div className="w-1/3">
-              <AutocompleteForm
-                options={holdCustomers.map((cart) => cart.orderId)}
-                name="heldCart"
-                label={`On Hold (${holdCustomers.length})`}
-              />
-            </div>
+            <AutocompleteForm
+              options={carts.map((option) => ({
+                label: `${option.orderId}`,
+                value: option.orderId,
+              }))}
+              name="heldCart"
+              label={`On Hold (${carts.length})`}
+            />
           </Form>
         </div>
 
@@ -284,46 +334,78 @@ const Page = () => {
           </button>
         </div>
       </div>
-
       <div className="flex flex-col border items-start justify-between bg-white shadow-lg min-h-screen min-w-[530px] max-w-[530px] p-4 gap-4">
         <p className="text-base flex justify-between items-center w-full">
-          <span className="bg-gray-100 rounded-lg px-4 py-2">{orderId}</span>
-          <span className="rounded-lg border px-4 py-2 flex items-center">
-            Cashier: {profile?.firstname}
+          <span className="border rounded px-4 py-2">{orderId}</span>
+          <span className="rounded border pl-2 pr-4 flex gap-2 items-center">
+            <Image
+              width={50}
+              height={50}
+              src={`${
+                profile?.pictures
+                  ? `${API_URL}${profile?.pictures}`
+                  : "/assets/default-profile.jpg"
+              }`}
+              alt={profile?.firstName as string}
+              className="w-[40px] h-[40px] object-cover shadow rounded-full p-1"
+            />
+
+            {profile?.firstName}
           </span>
         </p>
 
         <div className="flex flex-col w-full flex-grow overflow-y-auto items-start">
-          {/* <OrderPanel /> */}
           <HorizontalLinearStepper
             step={paymentMethod}
-            totalAmount={totalAmount - discountedValue()}
+            totalAmount={totalAmount}
           />
         </div>
         <BasicModal
-          content={<Membership />}
+          ContentComponent={Membership}
           onClose={() => setToggleMembership(false)}
           open={toggleMembership}
         />
         <Form
           methods={methods3}
-          className="w-full grid grid-cols-4 items-center gap-2 justify-between"
+          className="w-full grid grid-cols-5 items-center gap-2 justify-between"
         >
-          <div className="col-span-2">
+          <div className="col-span-3">
             <CustomButton
               onHandleButton={() => setToggleMembership(true)}
-              text={`${member ? member.firstname : "Check Membership"}`}
+              text={`${
+                member
+                  ? `${member.firstName} ${member.lastName}`
+                  : "Check Membership"
+              }`}
               theme="general"
             />
           </div>
-          <CustomButton
-            onHandleButton={calculatePoint}
-            text={`${member?.points ? member.points : 0}P`}
-            theme="general"
-          />
-          <InputField name="discount" label="Discount" type="text" />
+          <div className="flex col-span-2 flex-col gap-4 w-full">
+            {member && member?.type !== "Point" && (
+              <ToggleButton
+                disabled={!member}
+                options={[
+                  { label: `${member?.type}`, value: `${member?.type}` },
+                  { label: `${member?.points}`, value: `${member?.points}` },
+                ]}
+                selectedValue={membershipPayment}
+                onSelect={handleSelectMembershipPayment}
+              />
+            )}
+            {member?.type === "Point" && (
+              <ToggleButton
+                options={[
+                  { label: `${member?.points}`, value: `${member?.points}` },
+                ]}
+                selectedValue={membershipPayment}
+                onSelect={handleSelectMembershipPayment}
+              />
+            )}
+            {!member && (
+              <InputField name="discount" label="Discount" type="text" />
+            )}
+          </div>
         </Form>
-
         {paymentMethod !== "cash" && (
           <div className="flex flex-col w-full text-lg font-semibold border-t pt-2">
             <p className="flex justify-between items-center">
@@ -331,50 +413,15 @@ const Page = () => {
               {items.length}
             </p>
             <p className="flex justify-between items-center">
-              <span>Subtotal:</span>
-              {!toggleKHR
-                ? `$${amount.toFixed(2)}`
-                : `៛${formattedKHR(amount * exchangeRate)}`}
+              <span>Subtotal:</span>${amount.toFixed(2)}
             </p>
             <p className="flex justify-between items-center">
               <span>Discount:</span>${discountedValue().toFixed(2)}
             </p>
 
             <h2 className="flex justify-between text-2xl font-bold items-center">
-              <span>Total:</span>
-              {togglePoint
-                ? `$${(totalAmount - discountedValue()).toFixed(2)}`
-                : `$${(totalAmount - converted).toFixed(2)}`}
+              <span>Total:</span>${totalAmount.toFixed(2)}
             </h2>
-
-            {/* {paymentMethod === "cash" && items.length > 0 && (
-            <div className="grid grid-cols-2 p-2 mt-2 border-y justify-between items-center">
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  className="rounded outline-none border-r"
-                  type="text"
-                  placeholder="$20.00"
-                  {...methods3.register("payment")}
-                />
-                <input
-                  className="rounded outline-none"
-                  type="text"
-                  placeholder="៛40,000"
-                  {...methods3.register("paymentKHR")}
-                />
-              </div>
-              <p className="flex gap-4 items-center justify-end">
-                <span>Change:</span>
-                {!toggleKHR
-                  ? `$${
-                      payment ? (Number(payment) - totalAmount).toFixed(2) : 0
-                    }`
-                  : `៛${formattedKHR(
-                      (Number(paymentKHR) - totalAmount) * exchangeRate
-                    )}`}
-              </p>
-            </div>
-          )} */}
           </div>
         )}
         <div className="flex flex-col gap-4 w-full">
@@ -388,27 +435,30 @@ const Page = () => {
         <div className="grid grid-cols-4 gap-2 w-full mb-5">
           <CustomButton
             className="col-span-2"
-            theme={`${
-              items.length <= 0 ||
-              (paymentMethod === "cash" && !(paymentKHR || payment))
-                ? "dark"
-                : ""
-            }`}
-            disabled={
-              items.length <= 0 ||
-              (paymentMethod === "cash" && !(paymentKHR || payment))
-            }
-            onHandleButton={placeOrder}
+            theme={`${items.length <= 0 ? "dark" : ""}`}
+            disabled={items.length <= 0}
+            onHandleButton={() => setToggleConfirmOrder(true)}
             text="Confirm Order"
           />
+
+          {heldCart === orderId ? (
+            <CustomButton
+              onHandleButton={() => onRemoveHoldOrder(orderId)}
+              icon={MdDelete}
+              disabled={items.length <= 0}
+              theme={`${items.length <= 0 ? "dark" : "alarm"}`}
+            />
+          ) : (
+            <CustomButton
+              onHandleButton={onRemoveAllItems}
+              icon={VscClearAll}
+              disabled={items.length <= 0}
+              theme={`${items.length <= 0 ? "dark" : "alarm"}`}
+            />
+          )}
+
           <CustomButton
-            onHandleButton={onRemoveAll}
-            icon={VscClearAll}
-            disabled={items.length <= 0}
-            theme={`${items.length <= 0 ? "dark" : "general"}`}
-          />
-          <CustomButton
-            onHandleButton={heldOrder}
+            onHandleButton={() => heldOrder(orderId)}
             icon={TbShoppingCartPause}
             disabled={items.length <= 0}
             theme={items.length <= 0 ? "dark" : "general"}

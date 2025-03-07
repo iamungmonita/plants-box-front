@@ -7,12 +7,12 @@ import {
   handleDecrement,
   updateCartItems,
 } from "@/helpers/addToCart";
-import { ProductReturnList } from "@/schema/products";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ShoppingCartProduct } from "@/components/ShoppingCart";
+import { ProductResponse } from "@/schema/products";
 
-const AdminCard = ({ product }: { product: ProductReturnList }) => {
+const AdminCard = ({ product }: { product: ProductResponse }) => {
   const [toggleWidth, setToggleWidth] = React.useState(false);
 
   const [items, setItems] = React.useState<ShoppingCartProduct[]>([]);
@@ -58,7 +58,11 @@ const AdminCard = ({ product }: { product: ProductReturnList }) => {
         <Image
           width={500}
           height={500}
-          src={`${API_URL}${product.pictures}`}
+          src={`${
+            product.pictures
+              ? `${API_URL}${product.pictures}`
+              : "/assets/default.png"
+          }`}
           alt={product.name}
           title={product.name}
           className="w-full h-full object-cover shadow rounded-t p-2"
@@ -70,7 +74,7 @@ const AdminCard = ({ product }: { product: ProductReturnList }) => {
         <div className="flex items-center justify-between">
           <div>
             <p className="md:text-lg">
-              ${parseInt(product.price.toString()).toFixed(2)}
+              ${parseFloat(product.price.toString()).toFixed(2)}
             </p>
             {product.stock === 0 ? (
               <p className="text-sm text-red-500">Out of Stock</p>

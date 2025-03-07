@@ -1,7 +1,6 @@
 import { IRoleResponse } from "@/app/(private)/admin/settings/roles/create/page";
 import { formattedTimeStamp } from "@/helpers/format/time";
 import API_URL from "@/lib/api";
-import { ProductReturnList } from "@/schema/products";
 
 export interface Column<T> {
   id: keyof T; // id should be a key of T, which is ProductReturnList in this case
@@ -15,9 +14,8 @@ export interface Column<T> {
 
 export const columns: Column<IRoleResponse>[] = [
   { id: "name", label: "Name", minWidth: 170 },
-  { id: "code", label: "Code", minWidth: 100 },
+  { id: "createdBy", label: "Created By", minWidth: 170 },
 
-  { id: "remark", label: "Remarks", minWidth: 170 },
   {
     id: "createdAt",
     label: "Created At",
@@ -32,4 +30,5 @@ export const columns: Column<IRoleResponse>[] = [
     formatString: (value: string) =>
       formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
   },
+  { id: "remark", label: "Remarks", minWidth: 170 },
 ];

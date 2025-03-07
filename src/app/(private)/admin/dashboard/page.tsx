@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { getOrder } from "@/services/order";
 import { PurchasedOrderList } from "@/schema/order";
 import ReusableTable from "@/components/Table";
-import { columns } from "@/constants/TableHead/Orders";
+import { columns } from "@/constants/TableHead/Dashboard";
 import { formattedTimeStamp } from "@/helpers/format/time";
 import {
   getMonthRange,
@@ -13,6 +13,9 @@ import {
   getYearRange,
 } from "@/helpers/calculation/getDate";
 import { TbCoin } from "react-icons/tb";
+import { getAllProducts, getBestSellingProducts } from "@/services/products";
+import BasicPie from "@/components/Chart";
+import { ProductResponse } from "@/schema/products";
 const page = () => {
   const router = useRouter();
   const [amount, setAmount] = useState<number>(0);
@@ -35,8 +38,9 @@ const page = () => {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const today = new Date().toLocaleDateString("en-CA"); // Format: YYYY-MM-DD
   const { start, end } = getWeekRange();
-  const { monthStart, monthEnd } = getMonthRange();
-  const { yearEnd, yearStart } = getYearRange();
+  const [products, setProducts] = useState<
+    { id: string; value: number; label: string }[]
+  >([]);
 
   // Function to get the start and end of the current week (Monday to Sunday)
 
@@ -50,21 +54,20 @@ const page = () => {
 
   useEffect(() => {
     if (selectedDate) {
-      const fetchOrders = async () => {
-        const today = new Date();
-
-        // Get weekly, monthly, and yearly ranges
+      const fetch = async () => {
         const weekRange = getWeekRange();
         const monthRange = getMonthRange();
         const yearRange = getYearRange();
 
         try {
           const [
+            responses,
             todayResponse,
             weeklyResponse,
             monthlyResponse,
             yearlyResponse,
           ] = await Promise.all([
+            getBestSellingProducts(),
             getOrder({ start: selectedDate, end: selectedDate }),
             getOrder({ start: weekRange.start, end: weekRange.end }),
             getOrder({
@@ -73,10 +76,21 @@ const page = () => {
             }),
             getOrder({ start: yearRange.yearStart, end: yearRange.yearEnd }),
           ]);
-
+          if (responses.data) {
+            const products = responses.data
+              ?.slice(0, 10)
+              .map(({ _id, soldQty, name }) => ({
+                id: _id,
+                value: soldQty,
+                label: name,
+              }));
+            setProducts(products);
+          }
           // Update states
           if (todayResponse.data) {
             setOrders(todayResponse.data.orders);
+            setAmount(todayResponse.data.amount);
+            setTransactions(todayResponse.data.count);
           }
           if (weeklyResponse.data) {
             setWeekly({
@@ -101,7 +115,7 @@ const page = () => {
         }
       };
 
-      fetchOrders();
+      fetch();
     }
   }, [selectedDate]);
   // Run when selectedDate changes
@@ -111,74 +125,74 @@ const page = () => {
       {isAuthenticated && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Dashboard</h2>
-          <div className="grid grid-cols-4 gap-4 justify-between items-center">
+          <div className="grid grid-cols-3 gap-5 justify-between items-center">
             <div className="space-y-1">
-              <h2 className="font-semibold">Daily Earning</h2>
-              <div className="bg-gray-100 col-span-1 px-4 py-2 flex flex-col  justify-between rounded-lg">
-                <span className="flex justify-between">
-                  <span>Total:</span>
-                  <span>${amount.toFixed(2)}</span>
-                </span>
-                <span className="flex justify-between">
-                  <span className="font-semibold"> Transactions:</span>
-                  <span>{transactions}</span>
-                </span>
-              </div>
-            </div>
-            <div className="space-y-1">
-              <h2 className="font-semibold">Weekly Earning</h2>
-              <div className="bg-gray-100 col-span-1 px-4 py-2 flex flex-col  justify-between rounded-lg">
-                <span className="flex justify-between">
-                  <span>Total:</span>
+              <div className="bg-gray-100 shadow-lg col-span-1 p-5 flex flex-col  justify-between rounded-lg">
+                <span className="flex text-xl font-semibold justify-between">
+                  <span>This Week:</span>
                   <span>${weekly?.total.toFixed(2)}</span>
                 </span>
                 <span className="flex justify-between">
-                  <span className="font-semibold"> Transactions:</span>
+                  <span className="font-semibold"> Sales:</span>
                   <span>{weekly?.amount}</span>
                 </span>
               </div>
             </div>
             <div className="space-y-1">
-              <h2 className="font-semibold">Monthly Earning</h2>
-              <div className="bg-gray-100 col-span-1 px-4 py-2 flex flex-col  justify-between rounded-lg">
-                <span className="flex justify-between">
-                  <span>Total:</span>
+              <div className="bg-gray-100 shadow-lg col-span-1 p-5 flex flex-col  justify-between rounded-lg">
+                <span className="flex text-xl font-semibold justify-between">
+                  <span>This Month:</span>
                   <span>${monthly?.total.toFixed(2)}</span>
                 </span>
                 <span className="flex justify-between">
-                  <span className="font-semibold"> Transactions:</span>
+                  <span className="font-semibold"> Sales:</span>
                   <span>{monthly?.amount}</span>
                 </span>
               </div>
             </div>
             <div className="space-y-1">
-              <h2 className="font-semibold">Yearly Earning</h2>
-              <div className="bg-gray-100 col-span-1 px-4 py-2 flex flex-col  justify-between rounded-lg">
-                <span className="flex justify-between">
-                  <span>Total:</span>
+              <div className="bg-gray-100 shadow-lg col-span-1 p-5 flex flex-col  justify-between rounded-lg">
+                <span className="flex text-xl font-semibold justify-between">
+                  <span className="">This Year:</span>
                   <span>${yearly?.total.toFixed(2)}</span>
                 </span>
                 <span className="flex justify-between">
-                  <span className="font-semibold"> Transactions:</span>
+                  <span className="font-semibold">Sales:</span>
                   <span>{yearly?.amount}</span>
                 </span>
               </div>
             </div>
-            {/* <p className="bg-gray-100 px-4 py-2 flex items-center justify-between rounded-lg">
-              <span className="font-semibold"> Total:</span>
-            </p>
-            <p className="bg-gray-100 px-4 py-2 flex items-center justify-between rounded-lg">
-              <span className="font-semibold"> Transactions:</span>
-              <span>{transactions}</span>
-            </p> */}
           </div>
-          {orders.length > 0 && (
-            <ReusableTable
-              columns={columns}
-              data={orders}
-              onRowClick={() => console.log(orders.map((order) => order))}
-            />
-          )}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <div className="bg-gray-100 shadow-lg col-span-1 p-5 flex flex-col justify-between rounded-lg">
+                  <span className="flex text-xl font-semibold gap-4 justify-end">
+                    <span>Today:</span>
+                    <span>${amount.toFixed(2)}</span>
+                  </span>
+                  <span className="flex justify-end gap-4">
+                    <span className="font-semibold"> Sales:</span>
+                    <span>{transactions}</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="shadow-lg">
+                <ReusableTable
+                  columns={columns}
+                  data={orders}
+                  onRowClick={() => console.log(orders.map((order) => order))}
+                />
+              </div>
+            </div>
+            <div className="p-4 shadow-lg min-h-[85vh] flex flex-col h-full rounded-lg border w-full">
+              <h2 className="text-2xl font-bold">Top 10 Best Sellers</h2>
+              <div className="p-4 w-full flex flex-col h-full justify-center">
+                <BasicPie data={products} />
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

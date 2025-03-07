@@ -50,7 +50,7 @@ function ProfileSidebar() {
   return (
     <aside className={classNames(collapsibleCtx, "md:relative shadow-lg p-4")}>
       <BasicModal
-        content={<ExchangeRate />}
+        ContentComponent={ExchangeRate}
         open={toggleModal}
         onClose={() => setToggleModal(false)}
       />
@@ -79,7 +79,7 @@ function ProfileSidebar() {
                   : "",
                 color: isActive(item.path) ? "white" : "",
               }}
-              className="py-3 border-t px-4 rounded hover:bg-gray-100"
+              className="py-3 border-t px-4 hover:bg-gray-100"
             >
               {item.name}
             </Link>
@@ -115,7 +115,7 @@ function ProfileSidebar() {
                         ? "white"
                         : "",
                     }}
-                    className="py-3 !pl-6 capitalize border-t px-4 cursor-pointer rounded hover:bg-gray-100"
+                    className="py-3 !pl-6 capitalize border-t px-4 cursor-pointer hover:bg-gray-100"
                     href={`/admin/settings/${item.path}`}
                   >
                     {item.path}
@@ -137,7 +137,7 @@ function ProfileSidebar() {
           <CustomButton
             onHandleButton={onLogoutOut}
             text="Log Out"
-            theme="dark"
+            theme="alarm"
           />
         </div>
       </div>

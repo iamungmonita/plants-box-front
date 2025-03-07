@@ -6,10 +6,8 @@ import {
   IRole,
   IRoleResponse,
 } from "@/app/(private)/admin/settings/roles/create/page";
-import {
-  IAuthRegister,
-  IAuthRegisterResponse,
-} from "@/app/(private)/admin/settings/users/create/page";
+import {} from "@/app/(private)/admin/settings/users/create/page";
+import { Profile } from "@/schema/auth";
 
 export function CreateRole(form: IRole): Promise<ILayout<IRoleResponse>> {
   const url = `${API_URL}/system/create`;
@@ -19,7 +17,7 @@ export function RetrieveRoles(): Promise<ILayout<IRoleResponse[]>> {
   const url = `${API_URL}/system/retrieve`;
   return GET<ILayout<IRoleResponse[]>>(url);
 }
-export function getUsers(): Promise<ILayout<IAuthRegisterResponse[]>> {
+export function getUsers(): Promise<ILayout<Profile[]>> {
   const url = `${API_URL}/system/users`;
-  return GET<ILayout<IAuthRegisterResponse[]>>(url);
+  return GET<ILayout<Profile[]>>(url);
 }

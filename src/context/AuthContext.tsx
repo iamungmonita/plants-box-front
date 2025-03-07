@@ -1,7 +1,7 @@
 "use client";
 
 import API_URL from "@/lib/api";
-import { Profile } from "@/models/auth";
+import { Profile } from "@/schema/auth";
 import { getAdminProfile, SignOut } from "@/services/authentication";
 import { getAccessToken } from "@/utils/Cookie";
 import { useRouter } from "next/navigation";
@@ -17,7 +17,7 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   signIn: () => void;
   signUp: () => void;
-  isAuthorized: (roles: string[]) => boolean; // Check if user has the required role
+  isAuthorized: (profileRoles?: string[], roleCodes?: string[]) => boolean; // Check if user has the required role
 
   signOut: () => void;
   onRefresh: () => void;
@@ -43,11 +43,32 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefresh, setIsRefresh] = useState<boolean>(false);
 
-  const isAuthorized = (roles: string[]) => {
-    if (profile && profile.role) {
-      return roles.includes(profile.role); // Check if the user's role matches any required roles
+  const isAuthorized = (
+    profileRoles?: string[],
+    roleCodes?: string[]
+  ): boolean => {
+    // If neither profileRoles nor roleCodes are provided, deny access
+    if (!profileRoles && !roleCodes) {
+      return true; // Allowing everyone might not be what you want
     }
-    return false; // Default to false if profile is not loaded
+
+    // If profileRoles is provided but roleCodes is missing, deny access
+    if (profileRoles && !roleCodes) {
+      return false;
+    }
+
+    // If roleCodes is provided, check if any roleCode in profileRoles matches
+    if (roleCodes && roleCodes.length > 0 && profileRoles) {
+      return profileRoles.some((roleCode) => roleCodes.includes(roleCode));
+    }
+
+    // If profileRoles is missing, but roleCodes is provided, allow access
+    if (!profileRoles && roleCodes && roleCodes.length > 0) {
+      return true; // This allows access if roleCodes are provided but no profileRoles
+    }
+
+    // Default to false if no roleCodes provided, deny access
+    return true;
   };
 
   const fetchProfile = async (abortController: AbortController) => {

@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import Form from "@/components/Form";
-import { FieldValues, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import InputField from "@/components/InputText";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button } from "@mui/material";
 import { Product, ProductSchema } from "@/schema/products";
+import { useAuthContext } from "@/context/AuthContext";
 import AutocompleteForm from "@/components/Autocomplete";
 import {
   AddNewProduct,
@@ -16,19 +16,24 @@ import {
 import { categories } from "@/constants/AutoComplete";
 import API_URL from "@/lib/api";
 import Checkbox from "@/components/Checkbox";
-import { useAuthContext } from "@/context/AuthContext";
 import CustomButton from "@/components/Button";
 import AlertPopUp from "@/components/AlertPopUp";
+import { convertFileToBase64 } from "@/helpers/format/picture";
+import ImageUpload from "@/components/Upload";
 
 export const CreateForm = ({ createId }: { createId: string }) => {
+  const { profile } = useAuthContext();
+  const [createdBy, setCreatedBy] = useState(profile?.firstName as string);
   const methods = useForm<Product>({
     defaultValues: {
       name: "",
       pictures: "",
-      price: "",
+      price: 0,
       category: "",
       isActive: true,
+      isDiscountable: true,
       stock: 0,
+      importedPrice: 0,
       barcode: "",
     },
     resolver: yupResolver(ProductSchema),
@@ -36,106 +41,119 @@ export const CreateForm = ({ createId }: { createId: string }) => {
   const { handleSubmit, setValue } = methods;
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [_, setLoading] = useState<boolean>(false);
   const [toggleAlert, setToggleAlert] = useState<boolean>(false);
-  const { register } = methods;
-  const { isAuthorized } = useAuthContext();
-  const convertFileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
+  const [alertMessage, setAlertMessage] = useState<string>("");
 
   const onSubmit = async (data: Product) => {
     try {
-      let fileBase64 = "";
-
+      let fileBase64 = ""; // Default to existing image
       if (file instanceof File) {
         fileBase64 = await convertFileToBase64(file);
       }
 
-      const productData = { ...data, pictures: fileBase64 };
+      const productData = {
+        ...data,
+        createdBy: createdBy,
+        pictures: fileBase64 || data.pictures, // Ensure the correct image is sent
+      };
+      console.log(productData);
 
       const response = createId
         ? await updateProductDetailsById(createId, productData)
         : await AddNewProduct(productData);
+
       if (response.success) {
         setToggleAlert(true);
+        setAlertMessage("Success!");
       } else {
+        setToggleAlert(false);
+        setAlertMessage(`Error: ${response.message}`);
       }
       if (!createId) {
         setValue("name", "");
         setValue("category", "");
-        setValue("price", "");
+        setValue("price", 0);
+        setValue("importedPrice", 0);
         setValue("barcode", "");
         setValue("stock", 0);
-        setValue("isActive", false);
+        setValue("isActive", true);
+        setValue("isDiscountable", true);
         setValue("pictures", null as any);
         setFile(null);
         setPreviewUrl(null);
+      } else if (fileBase64) {
+        // If updating, update preview with new image
+        setPreviewUrl(fileBase64);
       }
     } catch (error) {
       console.error("Error uploading:", error);
     }
   };
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (event.target.files && event.target.files.length > 0) {
-      const selectedFile = event.target.files[0];
-      setFile(selectedFile);
-      setPreviewUrl(URL.createObjectURL(selectedFile));
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const selectedFile = e.dataTransfer.files[0];
-      setFile(selectedFile);
-      setPreviewUrl(URL.createObjectURL(selectedFile));
-    }
-  };
+  //   const handleFileChange = async (
+  //     event: React.ChangeEvent<HTMLInputElement>
+  //   ) => {
+  //     if (event.target.files && event.target.files.length > 0) {
+  //       const selectedFile = event.target.files[0];
+  //       setFile(selectedFile);
+  //       setPreviewUrl(URL.createObjectURL(selectedFile));
+  //     }
+  //   };
+  //   const handleDragOver = (e: React.DragEvent) => {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //   };
+  //
+  //   const handleDrop = (e: React.DragEvent) => {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //
+  //     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+  //       const selectedFile = e.dataTransfer.files[0];
+  //       setFile(selectedFile);
+  //       setPreviewUrl(URL.createObjectURL(selectedFile));
+  //     }
+  //   };
 
   const handleRemoveImage = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setValue("pictures", "");
     setFile(null);
     setPreviewUrl(null);
   };
 
   useEffect(() => {
     if (!createId) return;
-
     const fetchProduct = async () => {
       try {
         setLoading(true);
         const productData = await getProductById(createId);
-        const product = productData;
-        setValue("name", product.name);
-        const selectedCategory = categories.find(
-          (opt) => opt === product.category
-        );
-        if (selectedCategory) {
-          setValue("category", selectedCategory ?? "");
-        }
-        setValue("price", product.price);
-        setValue("stock", product.stock);
-        setValue("barcode", product.barcode);
-        setValue("isActive", product.isActive);
-        setValue("pictures", product.pictures as unknown as string);
-        if (product.pictures) {
-          setPreviewUrl(`${API_URL}${product.pictures as unknown as string}`);
+        if (productData.data) {
+          setValue("name", productData.data?.name);
+          const selectedCategory = categories.find(
+            (opt) => opt.value === productData.data?.category
+          );
+          if (selectedCategory) {
+            setValue("category", selectedCategory.value ?? "");
+          }
+          setValue("price", productData.data?.price);
+          setValue("stock", productData.data?.stock);
+          setValue("barcode", productData.data?.barcode);
+          setValue("isActive", productData.data?.isActive);
+          setValue("isDiscountable", productData.data?.isDiscountable);
+          setValue("importedPrice", productData.data?.importedPrice);
+          if (productData.data?.pictures) {
+            setValue(
+              "pictures",
+              productData.data?.pictures as unknown as string
+            );
+            setPreviewUrl(
+              `${API_URL}${productData.data?.pictures as unknown as string}`
+            );
+          } else {
+            setValue("pictures", "");
+          }
         }
       } catch (err) {
         console.error("Error fetching product:", err);
@@ -143,13 +161,8 @@ export const CreateForm = ({ createId }: { createId: string }) => {
         setLoading(false);
       }
     };
-
     fetchProduct();
   }, [createId]);
-  // if (!isAuthorized(["owner"])) {
-  //   return <div>You do not have permission to view this page.</div>;
-  // }
-
   return (
     <Form
       methods={methods}
@@ -160,10 +173,18 @@ export const CreateForm = ({ createId }: { createId: string }) => {
       <InputField name="barcode" type="text" label="Barcode" />
       <AutocompleteForm label="Category" name="category" options={categories} />
       <InputField name="stock" type="number" label="Stock" />
-      <InputField name="price" type="text" label="Price" />
-      <Checkbox name="isActive" />
+      <InputField name="importedPrice" type="number" label="Imported Price" />
+      <InputField name="price" type="number" label="Price" />
+      <Checkbox name="isActive" label="Active" />
+      <Checkbox name="isDiscountable" label="Discountable" />
+      <ImageUpload
+        previewUrl={previewUrl}
+        setFile={setFile}
+        setPreviewUrl={setPreviewUrl}
+        handleRemoveImage={handleRemoveImage}
+      />
 
-      <div className="col-span-2 w-full space-y-4">
+      {/* <div className="col-span-2 w-full space-y-4">
         <div
           className="border-2 border-dashed p-4 flex justify-center items-center"
           onDragOver={handleDragOver}
@@ -197,22 +218,19 @@ export const CreateForm = ({ createId }: { createId: string }) => {
             )}
           </label>
         </div>
-      </div>
+      </div> */}
 
       <AlertPopUp
         open={toggleAlert}
-        message="Success!"
+        message={alertMessage}
         onClose={() => setToggleAlert(false)}
       />
 
       <CustomButton
         type="submit"
         className="col-span-2"
-        text={`${createId ? "Update Product" : "Create Product"}`}
+        text={`${createId ? "Update" : "Create"}`}
       />
     </Form>
   );
 };
-function isAuthorized(arg0: string[]) {
-  throw new Error("Function not implemented.");
-}

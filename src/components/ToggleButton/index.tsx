@@ -27,6 +27,10 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
       className="w-full"
       variant="outlined"
       aria-label="payment method"
+      sx={{
+        maxHeight: "100%",
+        height: "100%",
+      }}
     >
       {options.map((item) => (
         <Button
@@ -36,10 +40,11 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
           variant={selectedValue === item.value ? "contained" : "outlined"}
           sx={{
             display: "flex",
+
             alignItems: "center",
             gap: 1,
             borderRadius: "4px",
-            padding: 1,
+            padding: 1.5,
             borderColor: "#ccc",
             backgroundColor:
               selectedValue === item.value ? "var(--medium-light)" : "white",

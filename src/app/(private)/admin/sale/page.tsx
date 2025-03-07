@@ -1,6 +1,5 @@
 "use client";
 import { PurchasedOrderList } from "@/schema/order";
-import { ProductReturnList } from "@/schema/products";
 import { getProductById } from "@/services/products";
 import { MdClose, MdEditDocument } from "react-icons/md";
 import Image from "next/image";
@@ -19,6 +18,7 @@ import Head from "next/head"; // Use next/head for title
 import { columns } from "@/constants/TableHead/Orders";
 import InputField from "@/components/InputText";
 import Form from "@/components/Form";
+import CustomButton from "@/components/Button";
 
 const Page = () => {
   const [title, setTitle] = useState("");
@@ -80,13 +80,16 @@ const Page = () => {
           methods={methods}
           className="grid grid-cols-7 mt-4 items-center gap-4"
         >
-          <div className="col-span-3">
-            <InputField
-              name="purchasedId"
-              type="text"
-              label="Search Purchased ID"
-              placeholder="PO-00001"
-            />
+          <div className="col-span-4 grid grid-cols-5 gap-4">
+            <div className="col-span-4">
+              <InputField
+                name="purchasedId"
+                type="text"
+                label="Search Purchased ID"
+                placeholder="PO-00001"
+              />
+            </div>
+            <CustomButton text="Clear" theme="alarm" />
           </div>
           <input
             className="border rounded p-3.5 bg-gray-100"

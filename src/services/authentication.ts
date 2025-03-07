@@ -1,8 +1,9 @@
-import { IAuthLogIn, Profile } from "@/models/auth";
+import { Profile } from "@/schema/auth";
 import { GET, POST } from ".";
 import API_URL from "@/lib/api";
-import { IAuthRegister } from "@/app/(private)/admin/settings/users/create/page";
 import { ILayout } from "@/app/(private)/admin/settings/roles/create/page";
+import { IAuthLogIn, IAuthRegister } from "@/schema/auth";
+
 //GET
 export function getAdminProfile(
   abortController: AbortController
@@ -10,6 +11,7 @@ export function getAdminProfile(
   const url = `${API_URL}/auth/profile`;
   return GET<ILayout<Profile>>(url, abortController);
 }
+
 //POST
 export function SignIn(form: IAuthLogIn): Promise<ILayout<Profile>> {
   const url = `${API_URL}/auth/signin`;

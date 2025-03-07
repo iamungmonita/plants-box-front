@@ -2,8 +2,7 @@
 import AutocompleteForm from "@/components/Autocomplete";
 import Form from "@/components/Form";
 import ReusableTable from "@/components/Table";
-
-import { ProductReturnList } from "@/schema/products";
+import { useAuthContext } from "@/context/AuthContext";
 import { getAllProducts } from "@/services/products";
 import { TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
@@ -13,16 +12,19 @@ import { columns } from "@/constants/TableHead/Product";
 import { categories } from "@/constants/AutoComplete";
 import CustomButton from "@/components/Button";
 import InputField from "@/components/InputText";
+import { ProductResponse } from "@/schema/products";
 
 const page = () => {
-  const [products, setProducts] = useState<ProductReturnList[]>([]);
+  const { profile, isAuthorized } = useAuthContext();
+  const [products, setProducts] = useState<ProductResponse[]>([]);
+
   const methods = useForm({
     defaultValues: {
       name: "",
       category: "",
     },
   });
-  const { watch } = methods;
+  const { watch, setValue } = methods;
   const name = watch("name");
   const category = watch("category");
   useEffect(() => {
@@ -32,7 +34,9 @@ const page = () => {
           name,
           category,
         });
-        setProducts(response);
+        if (response.data) {
+          setProducts(response.data);
+        }
       } catch (error) {
         console.error("Error uploading:", error);
       }
@@ -40,25 +44,37 @@ const page = () => {
     fetchProduct();
   }, [name, category]);
   const router = useRouter();
+  const onClear = () => {
+    setValue("category", "");
+    setValue("name", "");
+  };
+  console.log(profile?.codes);
   return (
     <div className="flex flex-col min-h-screen justify-start gap-4">
       <div className="flex items-center justify-between gap-4">
         <h2 className="font-semibold text-xl">Products</h2>
-        <div className=" w-52">
-          <CustomButton path="/admin/products/create" text="Create Product" />
+        <div className="w-52">
+          <CustomButton
+            roleCodes={["1001"]}
+            profileCodes={profile?.codes}
+            path="/admin/products/create"
+            text="Create Product"
+          />
         </div>
       </div>
       <Form
         methods={methods}
-        className="grid grid-cols-3 gap-4 w-1/2 max-md:w-full max-md:grid-cols-1"
+        className="grid grid-cols-5 gap-4 w-1/2 max-md:w-full max-md:grid-cols-1"
       >
-        <InputField label="Search Product Name" name="name" type="text" />
-
-        <AutocompleteForm
-          label="Category"
-          name="category"
-          options={categories.slice(1)}
-        />
+        <div className="col-span-4 grid grid-cols-2 gap-4">
+          <InputField label="Search Product Name" name="name" type="text" />
+          <AutocompleteForm
+            label="Category"
+            name="category"
+            options={categories}
+          />
+        </div>
+        <CustomButton text="Clear" theme="alarm" onHandleButton={onClear} />
       </Form>
       <div>
         <ReusableTable

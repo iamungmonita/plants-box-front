@@ -62,7 +62,7 @@ export const MoneyCounter = () => {
 
   const onSubmitForm = async (data: ILog) => {
     data = {
-      createdBy: profile?.firstname as string,
+      createdBy: profile?.firstName as string,
       riels,
       dollars,
     };
@@ -85,7 +85,7 @@ export const MoneyCounter = () => {
       className="w-3/4 mx-auto space-y-10"
     >
       <h2 className="text-xl font-bold flex flex-col">
-        <span>Good Morning, {profile?.firstname}.</span>
+        <span>Good Morning, {profile?.firstName}.</span>
         <span className="text-lg font-normal text-gray-500">
           Please count the money left in the drawer.
         </span>

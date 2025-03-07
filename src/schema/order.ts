@@ -2,18 +2,18 @@ import { ShoppingCartProduct } from "@/components/ShoppingCart";
 import { FieldValues } from "react-hook-form";
 import * as yup from "yup";
 
-export interface Product extends FieldValues {
-  description: string;
-  name: string;
-  pictures: File[]; // Array of image URLs
-  price: string; // Assuming price is a string; you can change it to a number if needed
-  type: string;
-  size: string; // e.g., "Small", "Medium", "Large"
-  temperature: string; // e.g., "60-75°F", "18-25°C"
-  instruction: string; // Detailed care instructions
-  habit: string; // Growth pattern, size, etc.
-  stock: number; // Number of plants available in stock
-}
+// export interface Product extends FieldValues {
+//   description: string;
+//   name: string;
+//   pictures: File[]; // Array of image URLs
+//   price: string; // Assuming price is a string; you can change it to a number if needed
+//   type: string;
+//   size: string; // e.g., "Small", "Medium", "Large"
+//   temperature: string; // e.g., "60-75°F", "18-25°C"
+//   instruction: string; // Detailed care instructions
+//   habit: string; // Growth pattern, size, etc.
+//   stock: number; // Number of plants available in stock
+// }
 /*{
   "_id": "67ab5c0f174de7c22479db5a",
   "orders": [

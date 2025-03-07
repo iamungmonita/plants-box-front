@@ -8,31 +8,31 @@ import { columns } from "@/constants/TableHead/Membership";
 import { RetrieveRoles } from "@/services/system";
 import CustomButton from "@/components/Button";
 import {
-  IMember,
-  IMembershipResponse,
+  IMemberResponse,
+  IMembershipResponseList,
   retrieveMembership,
 } from "@/services/membership";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
 
 const page = () => {
-  const [roles, setRoles] = useState<IMember[]>([]);
-  const methods = useForm({ defaultValues: { phonenumber: "" } });
+  const [membership, setMembership] = useState<IMemberResponse[]>([]);
+  const methods = useForm({ defaultValues: { phoneNumber: "" } });
   const { watch } = methods;
-  const phonenumber = watch("phonenumber");
+  const phoneNumber = watch("phoneNumber");
   useEffect(() => {
     const fetchMembership = async () => {
       try {
-        const response = await retrieveMembership({ phonenumber });
+        const response = await retrieveMembership({ phoneNumber });
         if (response.data?.member) {
-          setRoles(response.data.member);
+          setMembership(response.data.member);
         }
       } catch (error) {
         console.error("Error uploading:", error);
       }
     };
     fetchMembership();
-  }, [phonenumber]);
+  }, [phoneNumber]);
 
   return (
     <div className="flex flex-col min-h-screen justify-start gap-4">
@@ -47,10 +47,10 @@ const page = () => {
         </div>
       </div>
       <Form methods={methods} className="w-1/4">
-        <InputField name="phonenumber" type="text" label="Phone Number" />
+        <InputField name="phoneNumber" type="text" label="Phone Number" />
       </Form>
       <div>
-        <ReusableTable columns={columns} data={roles} />
+        <ReusableTable columns={columns} data={membership} />
       </div>
     </div>
   );

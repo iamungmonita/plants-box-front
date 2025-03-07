@@ -1,6 +1,5 @@
 "use client";
 import { PurchasedOrderList } from "@/schema/order";
-import { ProductReturnList } from "@/schema/products";
 import { getAllProducts, getProductById } from "@/services/products";
 import { MdClose, MdEditDocument } from "react-icons/md";
 import Image from "next/image";
@@ -9,7 +8,6 @@ import React, { useEffect, useState } from "react";
 import { formattedTimeStamp } from "@/helpers/format/time";
 
 import API_URL from "@/lib/api";
-import { getPurchasedOrderByProductId } from "@/services/order";
 import ReusableTable from "@/components/Table";
 import { useForm } from "react-hook-form";
 import { Column } from "@/constants/TableHead/Product";
@@ -18,15 +16,14 @@ import { CreateForm } from "../create/Form";
 import { useAuthContext } from "@/context/AuthContext";
 import InputField from "@/components/InputText";
 import Form from "@/components/Form";
+import { ProductResponse } from "@/schema/products";
 
 const Page = () => {
   const { isAuthorized } = useAuthContext();
   const [title, setTitle] = useState("");
   const params = useParams();
-  const [product, setProduct] = useState<ProductReturnList | null>(null);
-  const [purchasedOrders, setPurchasedOrders] = useState<ProductReturnList[]>(
-    []
-  );
+  const [product, setProduct] = useState<ProductResponse | null>(null);
+  const [purchasedOrders, setPurchasedOrders] = useState<ProductResponse[]>([]);
   const methods = useForm({
     defaultValues: {
       purchasedId: "",
@@ -84,8 +81,10 @@ const Page = () => {
     if (!id) return;
     const fetchProduct = async () => {
       try {
-        const [productData] = await Promise.all([getProductById(id)]);
-        setProduct(productData);
+        const response = await getProductById(id);
+        if (response.data) {
+          setProduct(response.data);
+        }
       } catch (err) {
         console.error("Failed to fetch product details:", err);
       }

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ShoppingCartProduct } from "@/components/ShoppingCart";
 type CartItem = {
   _id: string;
-  price: string;
+  price: number;
   stock: number;
   quantity: number;
   name: string;
@@ -29,49 +29,49 @@ export const addToCart = async <
 ) => {
   try {
     const productData = await getProductById(id);
-    const { _id, price, stock, pictures, name, discount } = productData;
-    const imagePaths = `${API_URL}${pictures}`;
+    if (productData.data) {
+      const { _id, price, stock, pictures, name, discount } = productData.data;
+      const imagePaths = `${API_URL}${pictures}`;
+      const storedItems: CartItem[] = JSON.parse(
+        localStorage.getItem(productType) || "[]"
+      );
 
-    // Get existing items from localStorage
-    const storedItems: CartItem[] = JSON.parse(
-      localStorage.getItem(productType) || "[]"
-    );
+      // Find if the item is already in the cart
+      const existingItemIndex = storedItems.findIndex(
+        (item) => item._id === id
+      );
 
-    // Find if the item is already in the cart
-    const existingItemIndex = storedItems.findIndex((item) => item._id === id);
-
-    if (existingItemIndex !== -1) {
-      // If the item exists, update the quantity and price
-      if (storedItems[existingItemIndex].quantity >= stock) {
-        setSnackbarMessage?.(
-          `Sorry, we only have ${stock} of ${name} in stock.`
-        );
-        return;
+      if (existingItemIndex !== -1) {
+        // If the item exists, update the quantity and price
+        if (storedItems[existingItemIndex].quantity >= stock) {
+          setSnackbarMessage?.(
+            `Sorry, we only have ${stock} of ${name} in stock.`
+          );
+          return;
+        } else {
+          storedItems[existingItemIndex].quantity *
+            storedItems[existingItemIndex].price;
+          storedItems[existingItemIndex].quantity += 1;
+          storedItems[existingItemIndex].stock = stock;
+          setSnackbarMessage?.(`Another one of ${name} has been added to cart`);
+        }
       } else {
-        storedItems[existingItemIndex].quantity *
-          parseFloat(storedItems[existingItemIndex].price);
-        storedItems[existingItemIndex].quantity += 1;
-        storedItems[existingItemIndex].stock = stock;
-        setSnackbarMessage?.(`Another one of ${name} has been added to cart`);
+        // If it's a new item, add it to the cart
+        storedItems.push({
+          _id,
+          discount: 0,
+          price,
+          stock: stock,
+          quantity: 1,
+          name,
+        });
+        setSnackbarMessage?.(`${name} has been added to cart`);
       }
-    } else {
-      // If it's a new item, add it to the cart
-      storedItems.push({
-        _id,
-        discount: 0,
-        price,
-        stock: stock,
-        quantity: 1,
-        name,
-      });
-      setSnackbarMessage?.(`${name} has been added to cart`);
+      localStorage.setItem(productType, JSON.stringify(storedItems));
+
+      // Dispatch custom event to notify other components about the cart update
+      window.dispatchEvent(new Event("cartUpdated"));
     }
-
-    // Update localStorage with the new cart
-    localStorage.setItem(productType, JSON.stringify(storedItems));
-
-    // Dispatch custom event to notify other components about the cart update
-    window.dispatchEvent(new Event("cartUpdated"));
   } catch (err) {
     console.error("Error adding to cart:", err);
   }

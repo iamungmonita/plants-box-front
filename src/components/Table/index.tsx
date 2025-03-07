@@ -14,6 +14,7 @@ interface Column<T> {
   minWidth?: number;
   align?: "right" | "left" | "center";
   format?: (value: number) => number | string;
+  formatBoolean?: (value: boolean) => React.ReactNode;
   formatString?: (value: string) => string;
   render?: (value: any, row: T) => React.ReactNode;
 }
@@ -47,9 +48,15 @@ const ReusableTable = <T extends { [key: string]: any }>({
 
   return (
     <Paper
-      sx={{ width: "100%", overflow: "hidden", fontFamily: "var(--text)" }}
+      sx={{
+        width: "100%",
+        maxHeight: "100%",
+        height: "100%",
+        overflow: "hidden",
+        fontFamily: "var(--text)",
+      }}
     >
-      <TableContainer sx={{ maxHeight: 700 }}>
+      <TableContainer sx={{ maxHeight: "100%" }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
@@ -60,6 +67,8 @@ const ReusableTable = <T extends { [key: string]: any }>({
                   style={{
                     minWidth: column.minWidth,
                     fontFamily: "var(--text)",
+                    fontWeight: "600",
+                    backgroundColor: "#f5f5f5",
                   }}
                 >
                   {column.label}
@@ -92,6 +101,8 @@ const ReusableTable = <T extends { [key: string]: any }>({
                             ? column.format(value)
                             : column.formatString
                             ? column.formatString(value)
+                            : column.formatBoolean
+                            ? column.formatBoolean(value)
                             : value
                             ? value
                             : value !== 0

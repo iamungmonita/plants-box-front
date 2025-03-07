@@ -2,6 +2,7 @@
 
 import CustomButton from "@/components/Button";
 import Checkbox from "@/components/Checkbox";
+import CheckboxGroup from "@/components/CheckboxGroup";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
 import { useAuthContext } from "@/context/AuthContext";
@@ -9,25 +10,23 @@ import API_URL from "@/lib/api";
 import { RegisterSchema } from "@/schema/auth";
 import { Response } from "@/schema/order";
 import { SignUp } from "@/services/authentication";
-import { CreateRole } from "@/services/system";
+import { CreateRole, RetrieveRoles } from "@/services/system";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { FieldValue, FieldValues, useForm } from "react-hook-form";
-
+import useFetch from "@/hooks/useFetch";
+import AutocompleteForm from "@/components/Autocomplete";
 export interface IRole extends FieldValues {
   name: string;
-  code: number;
+  codes: string[];
   remark: string;
   isActive: boolean;
 }
-export interface IRoleResponse extends Response {
-  name: string;
-  code: number;
-  remark: string;
-  isActive: boolean;
+export interface IRoleResponse extends IRole, Response {
+  createdBy: string;
 }
 export interface ILayout<T> {
   success: boolean;
@@ -40,29 +39,31 @@ export interface ILayout<T> {
 const Page = () => {
   const router = useRouter();
   const { signUp, onRefresh } = useAuthContext();
-
   const methods = useForm<IRole>({
     defaultValues: {
       name: "",
-      code: 0,
+      codes: [],
       remarks: "",
       isActive: true,
     },
   });
-
-  const { setValue } = methods;
-
+  const { profile } = useAuthContext();
   const onSubmitForm = async (form: IRole) => {
-    const response = await CreateRole(form);
-    if (response.message) {
-      console.log(response.message);
-    } else {
-      console.log(response.data);
-      setValue("name", "");
-      setValue("code", 0);
-      setValue("remarks", "");
-      setValue("isActive", true);
-    }
+    const newForm = {
+      ...form,
+      createdBy: profile?.firstName,
+    };
+    console.log(newForm);
+    // const response = await CreateRole(newForm);
+    // if (response.message) {
+    //   console.log(response.message);
+    // } else {
+    //   console.log(response.data);
+    //   setValue("name", "");
+    //   setValue("code", 0);
+    //   setValue("remarks", "");
+    //   setValue("isActive", true);
+    // }
   };
 
   return (
@@ -77,9 +78,10 @@ const Page = () => {
           onSubmit={onSubmitForm}
         >
           <InputField name="name" type="text" label="Role" />
-          <Checkbox name="code" />
+          <Checkbox name="isActive" label="Is Active" />
           <InputField name="remarks" type="remarks" label="Remark" />
-          <Checkbox name="isActive" />
+
+          <CheckboxGroup />
           <CustomButton text="Create" type="submit" />
         </Form>
       </div>

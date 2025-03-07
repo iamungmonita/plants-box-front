@@ -21,13 +21,18 @@ const style = {
 };
 
 export default function BasicModal({
-  content,
+  ContentComponent,
   open,
   onClose,
+  onAction,
 }: {
   open: boolean;
   onClose?: () => void;
-  content: React.ReactNode;
+  onAction?: () => void; // New prop for action
+  ContentComponent: React.ComponentType<{
+    onClose?: () => void;
+    onAction?: () => void;
+  }>;
 }) {
   const handleBackdropClick = (event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent backdrop click from triggering onClose
@@ -45,13 +50,8 @@ export default function BasicModal({
         }}
       >
         <Box sx={style}>
-          {onClose && (
-            <Button className="fixed top-0 right-0" onClick={onClose}>
-              <CloseSharp />
-            </Button>
-          )}
           <div className="flex justify-center items-center w-full h-full">
-            {content}
+            <ContentComponent onClose={onClose} onAction={onAction} />
           </div>
         </Box>
       </Modal>
