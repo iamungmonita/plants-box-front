@@ -15,14 +15,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
-import { IRoleResponse } from "../../roles/create/page";
-import { Response } from "@/schema/order";
 import ImageUpload from "@/components/Upload";
 import { convertFileToBase64 } from "@/helpers/format/picture";
 import useFetch from "@/hooks/useFetch";
+import AlertPopUp from "@/components/AlertPopUp";
+import Checkbox from "@/components/Checkbox";
 
 const Page = () => {
-  const router = useRouter();
   const { profile, isAuthorized } = useAuthContext();
   const authorized = isAuthorized();
   console.log(authorized);
@@ -33,6 +32,7 @@ const Page = () => {
       lastName: "",
       phoneNumber: "",
       email: "",
+      isActive: true,
       password: "",
     },
     resolver: yupResolver(RegisterSchema),
@@ -45,6 +45,9 @@ const Page = () => {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { data: roles = [] } = useFetch(RetrieveRoles, {}, []);
+  const [error, setError] = useState(false);
+  const [toggleAlert, setToggleAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const onSubmitForm = async (data: IAuthRegister) => {
     try {
@@ -52,59 +55,40 @@ const Page = () => {
       if (file instanceof File) {
         fileBase64 = await convertFileToBase64(file);
       }
-
-      const roleArray = Array.isArray(data.role) ? data.role : [data.role];
+      const roleCodes =
+        roles.find((role) => role.name === data.role)?.codes ?? [];
 
       const userData = {
         ...data,
-        codes: roleArray,
+        codes: roleCodes,
         createdBy: profile?.firstName,
         pictures: fileBase64 || data.pictures, // Ensure the correct image is sent
       };
-      console.log(userData);
+
       const response = await SignUp(userData);
-      if (response.data) {
-        console.log(response.data);
+      if (response.message) {
+        setToggleAlert(true);
+        setAlertMessage(response.message);
+        setError(true);
+        return;
       }
-      // if (response.success) {
-      //   setToggleAlert(true);
-      //   setAlertMessage("Success!");
-      // } else {
-      //   setToggleAlert(false);
-      //   setAlertMessage(`Error: ${response.message}`);
-      // }
-      // if (!createId) {
-      //   setValue("name", "");
-      //   setValue("category", "");
-      //   setValue("price", 0);
-      //   setValue("importedPrice", 0);
-      //   setValue("barcode", "");
-      //   setValue("stock", 0);
-      //   setValue("isActive", true);
-      //   setValue("isDiscountable", true);
-      //   setValue("pictures", null as any);
-      //   setFile(null);
-      //   setPreviewUrl(null);
-      // } else if (fileBase64) {
-      //   // If updating, update preview with new image
-      //   setPreviewUrl(fileBase64);
-      // }
+      setToggleAlert(true);
+      setAlertMessage("Success!");
+      setError(false);
+      methods.setValue("firstName", "");
+      methods.setValue("lastName", "");
+      methods.setValue("role", "");
+      methods.setValue("email", "");
+      methods.setValue("password", "");
+      methods.setValue("phoneNumber", "");
+      methods.setValue("isActive", true);
+      setPreviewUrl(null);
+      setFile(null);
     } catch (error) {
       console.error("Error uploading:", error);
     }
   };
 
-  // useEffect(() => {
-  //   const fetchRoles = async () => {
-  //     try {
-  //       const response = await RetrieveRoles();
-  //       setRoles(response.data?.map((role: IRoleResponse) => role.name) ?? []);
-  //     } catch (error) {
-  //       console.error("Error uploading:", error);
-  //     }
-  //   };
-  //   fetchRoles();
-  // }, []);
   const handleRemoveImage = (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -114,6 +98,12 @@ const Page = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen w-full">
+      <AlertPopUp
+        open={toggleAlert}
+        error={error}
+        message={alertMessage}
+        onClose={() => setToggleAlert(false)}
+      />
       <div className="max-w-[500px] w-full">
         <h2 className="text-center font-bold text-xl mb-5">Create User</h2>
         <Form
@@ -128,20 +118,22 @@ const Page = () => {
           <InputField name="email" type="email" label="Email" />
           <InputField name="phoneNumber" type="text" label="Phone Number" />
           <InputField name="password" type="password" label="Password" />
+          <AutocompleteForm
+            options={roles.map((option) => ({
+              label: `${option.name}`,
+              value: `${option.name}`,
+            }))}
+            name="role"
+            label="Role"
+          />
+          <Checkbox name="isActive" label="Active" />
           <ImageUpload
             previewUrl={previewUrl}
             setFile={setFile}
             setPreviewUrl={setPreviewUrl}
             handleRemoveImage={handleRemoveImage}
           />
-          <AutocompleteForm
-            options={roles.map((option) => ({
-              label: `${option.name}`,
-              value: `${option.codes}`,
-            }))}
-            name="role"
-            label="Role"
-          />
+
           <CustomButton text="Create" type="submit" />
         </Form>
       </div>

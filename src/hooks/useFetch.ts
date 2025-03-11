@@ -1,21 +1,9 @@
-import { ILayout } from "@/app/(private)/admin/settings/roles/create/page";
+import { ILayout, queryParam } from "@/models/Layout";
 import { useState, useEffect } from "react";
 
-export interface QueryParam {
-  name?: string;
-  category?: string;
-  type?: string;
-  purchasedId?: string;
-  barcode?: string;
-  date?: string;
-  start?: string;
-  end?: string;
-  phoneNumber?: string;
-}
-
 const useFetch = <T>(
-  service: (param: QueryParam) => Promise<ILayout<T>>, // Ensure correct typing
-  params: QueryParam,
+  service: (param: queryParam) => Promise<ILayout<T>>, // Ensure correct typing
+  params: queryParam,
   effects?: Array<any>
 ) => {
   const [data, setData] = useState<T | []>([]);

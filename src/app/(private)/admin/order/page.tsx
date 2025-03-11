@@ -3,63 +3,52 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { VscClearAll } from "react-icons/vsc";
 import { TbShoppingCartPause } from "react-icons/tb";
-import { MdCurrencyExchange, MdDelete } from "react-icons/md";
-
-import AdminCard from "@/components/Card/Admin";
+import { CiReceipt } from "react-icons/ci";
+import { MdClose, MdDelete, MdDeselect } from "react-icons/md";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
-import OrderPanel from "@/components/OrderList";
 import AutocompleteForm from "@/components/Autocomplete";
 import CustomButton from "@/components/Button";
 import ToggleButton from "@/components/ToggleButton";
-
 import { categories } from "@/constants/AutoComplete";
-import { optionsCurrency, optionsMethod } from "@/constants/options";
+import { optionsMethod } from "@/constants/options";
 import { useAuthContext } from "@/context/AuthContext";
 import { getAllProducts } from "@/services/products";
 import { useCartItems } from "@/hooks/useCartItems";
-import { useExchangeRate } from "@/hooks/useExchangeRate";
-
-import { formattedKHR } from "@/helpers/format/currency";
 import { settlement, clearLocalStorage } from "@/helpers/addToCart";
 import generateNextOrderId from "@/helpers/generateOrderId";
-import { ShoppingCartProduct } from "@/components/ShoppingCart";
 import HorizontalLinearStepper from "@/components/Step";
 import BasicModal from "@/components/Modal";
 import Membership from "@/components/Modals/Membership";
 import { useMembership } from "@/hooks/useMembership";
-import { pointToAmount } from "@/helpers/calculation/getPoint";
-import { ProductResponse } from "@/schema/products";
+import { amountToPoint, pointToAmount } from "@/helpers/calculation/getPoint";
 import { useHeldCarts } from "@/hooks/useHeldCart";
 import useFetch from "@/hooks/useFetch";
-import { getDiscountValue } from "@/constants/membership";
+import { getDiscountValue, MembershipType } from "@/constants/membership";
 import ConfirmOrder from "@/components/Modals/ConfirOrder";
-import Image from "next/image";
-import API_URL from "@/lib/api";
-interface IHold {
-  orderId: string;
-  items: ShoppingCartProduct[];
-}
-
-const ITEMS_PER_PAGE = 8;
+import { updateMembershipPointById } from "@/services/membership";
+import PaymentQRCode from "@/components/Modals";
+import { useRouter } from "next/navigation";
+import { ProductResponse } from "@/models/Product";
+import Pagination from "@/components/Pagination";
+import ProfileComponent from "@/components/Profile";
 
 const Page = () => {
-  const { profile } = useAuthContext();
-  const exchangeRate = useExchangeRate();
-  const { items, amount } = useCartItems();
-
-  const [currentPage, setCurrentPage] = useState(1);
+  const router = useRouter();
   const [orderId, setOrderId] = useState<string>("PO-00001");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [calculatedDiscount, setCalculatedDiscount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
-  const [refresh, setRefresh] = useState(false);
-  const carts = useHeldCarts([refresh]);
   const [membershipPayment, setMembershipPayment] = useState("");
   const [toggleConfirmOrder, setToggleConfirmOrder] = useState(false);
   const [toggleMembership, setToggleMembership] = useState(false);
-  // const [converted, setConverted] = useState(0);
-  const { member } = useMembership();
+  const [toggleQRCode, setToggleQRCode] = useState(false);
+  const [refresh, setRefresh] = useState(false);
+  const [convertedPoints, setConvertedPoints] = useState<number>(0);
+  const [overallDiscount, setOverallDiscount] = useState<number>(0);
+  const [paidAmount, setPaidAmount] = useState<number>(0);
+  const [changeAmount, setChangeAmount] = useState<number>(0);
+
   const methods1 = useForm({ defaultValues: { barcode: "", category: "" } });
   const methods2 = useForm<{ heldCart: string }>({
     defaultValues: { heldCart: "" },
@@ -68,13 +57,17 @@ const Page = () => {
     defaultValues: { payment: "", paymentKHR: "", discount: "" },
   });
 
-  const barcode = methods1.watch("barcode");
-  const category = methods1.watch("category");
-  const heldCart = methods2.watch("heldCart");
-  const { payment, paymentKHR, discount } = methods3.watch();
-  const { data: products = [] } = useFetch(
+  const { barcode, category } = methods1.watch();
+  const { heldCart } = methods2.watch();
+  const { discount } = methods3.watch();
+
+  const { profile } = useAuthContext();
+  const { items, amount } = useCartItems();
+  const { member } = useMembership();
+  const carts = useHeldCarts([refresh]);
+  const { data: products = [] } = useFetch<ProductResponse[]>(
     getAllProducts,
-    { category, barcode },
+    { category, search: barcode },
     [refresh, category, barcode]
   );
 
@@ -86,6 +79,14 @@ const Page = () => {
   useEffect(() => {
     restoreHeldCart(heldCart);
   }, [heldCart]);
+
+  useEffect(() => {
+    const value = discountedValue();
+    const total = totalDiscountedPercentage();
+    setOverallDiscount(total);
+    setCalculatedDiscount(value);
+    setTotalAmount(amount - value);
+  }, [items]);
 
   useEffect(() => {
     const discountValue =
@@ -100,44 +101,81 @@ const Page = () => {
     methods3.setValue("discount", "");
     methods3.setValue("payment", "");
     methods3.setValue("paymentKHR", "");
-    methods3.setValue("discount", "0");
+    methods3.setValue("discount", "");
     setPaymentMethod("");
+    setCalculatedDiscount(0);
+    setConvertedPoints(0);
     setMembershipPayment("");
-    // setConverted(0);
-  };
-
-  useEffect(() => {
-    onRefresh();
-  }, [member]);
-
-  const handlePageChange = (direction: "next" | "prev") => {
-    setCurrentPage((prev) => (direction === "next" ? prev + 1 : prev - 1));
   };
 
   const handleSelect = (method: string) => {
     setPaymentMethod(method);
-    console.log(method);
+    if (method === "khqr") {
+      setToggleQRCode(true);
+    }
   };
 
-  const placeOrder = (orderId: string) => {
+  const placeOrder = async (orderId: string) => {
     settlement(
       items,
       amount,
       paymentMethod,
       profile?.firstName,
-      Number(discount),
+      member?._id as string,
+      paidAmount,
+      changeAmount,
+      overallDiscount,
       calculatedDiscount,
       totalAmount,
+      convertedPoints,
       orderId
     );
+
     const updatedHeldOrders = carts.filter(
       (cart: any) => cart.orderId !== orderId
     );
     setToggleConfirmOrder(false);
-
+    const points = amountToPoint(totalAmount);
+    const invoice = orderId;
+    if (member && membershipPayment === MembershipType.POINT) {
+      await updateMembershipPointById(member._id, {
+        points,
+        invoice,
+      });
+    }
     localStorage.setItem("heldOrders", JSON.stringify(updatedHeldOrders));
     setOrderId(generateNextOrderId());
     onRefresh();
+  };
+
+  const handleOrder = (orderId: string) => {
+    placeOrder(orderId);
+    router.replace("/order");
+  };
+  const discountedValue = () => {
+    // if (
+    //   membershipPayment &&
+    //   member?.type &&
+    //   membershipPayment !== member.type
+    // ) {
+    //   return 0;
+    // }
+    return items.reduce((acc, item) => {
+      const discount = Number(item.discount) || 0; // Ensure a valid number
+      const price = Number(item.price) || 0;
+      const quantity = Number(item.quantity) || 0;
+
+      return acc + (discount / 100) * price * quantity;
+    }, 0);
+  };
+  const totalDiscountedPercentage = () => {
+    const isDiscountableItems = items.filter((item) => item.isDiscountable);
+    const value = items.reduce((acc, item) => {
+      const discount = Number(item.discount) || 0;
+
+      return acc + discount; // Total price before discount
+    }, 0);
+    return value / isDiscountableItems.length || value / items.length;
   };
 
   useEffect(() => {
@@ -145,7 +183,7 @@ const Page = () => {
 
     const updatedItems = items.map((item) => ({
       ...item,
-      discount: discount,
+      discount: item.isDiscountable ? discount : item.discount, // Only update if isDiscountable
     }));
 
     localStorage.setItem("plants", JSON.stringify(updatedItems));
@@ -168,34 +206,33 @@ const Page = () => {
     setTotalAmount((prevTotal) =>
       prevTotal !== safeTotal ? safeTotal : prevTotal
     );
+    setOverallDiscount(Number(discount));
   }, [discount, amount, membershipPayment, refresh]); // ✅ Ensure dependencies don't trigger re-renders unnecessarily
-  // Add `items` to dependencies
 
-  const handleSelectMembershipPayment = (payment: string) => {
-    setMembershipPayment(payment);
-
-    if (payment === member?.type) {
-      const value = getDiscountValue(member.type);
-      methods3.setValue("discount", String(value));
+  const selectDiscount = (type: MembershipType) => {
+    const value = getDiscountValue(type);
+    setOverallDiscount(value);
+    setCalculatedDiscount(amount * (value / 100));
+    setConvertedPoints(0);
+    const discountedAmount = amount - amount * (value / 100);
+    setTotalAmount(discountedAmount);
+  };
+  const selectPoints = (points: number) => {
+    if (amount > 0) {
+      const convertedAmount = amount - pointToAmount(points);
+      const discountedAmount = pointToAmount(points);
+      setConvertedPoints(discountedAmount);
+      setCalculatedDiscount(0);
+      setTotalAmount(convertedAmount);
+      setMembershipPayment(MembershipType.POINT);
+    } else {
+      setTotalAmount(0);
+      setCalculatedDiscount(0);
     }
   };
-  const discountedValue = () => {
-    if (membershipPayment !== member?.type) {
-      return 0;
-    }
-    return items.reduce((acc, item) => {
-      const discount = Number(item.discount) || 0; // Ensure a valid number
-      const price = Number(item.price) || 0;
-      const quantity = Number(item.quantity) || 0;
-
-      return acc + (discount / 100) * price * quantity;
-    }, 0);
-  };
-
   const onRemoveAllItems = () => {
     clearLocalStorage();
-    setRefresh(!refresh);
-    setPaymentMethod("");
+    onRefresh();
   };
 
   const onRemoveHoldOrder = (orderId: string) => {
@@ -215,7 +252,6 @@ const Page = () => {
 
   const heldOrder = (orderId: string) => {
     if (items.length === 0) return;
-
     const heldOrders = JSON.parse(localStorage.getItem("heldOrders") || "[]");
 
     const orderExists = heldOrders.some(
@@ -235,8 +271,9 @@ const Page = () => {
     }
     localStorage.setItem("plants", JSON.stringify([]));
     window.dispatchEvent(new Event("cartUpdated"));
-    setMembershipPayment("");
+    onRefresh();
   };
+
   const restoreHeldCart = (selectedPurchaseId: string) => {
     const selectedCart = carts.filter(
       (cart: any) => cart.orderId === selectedPurchaseId
@@ -253,25 +290,24 @@ const Page = () => {
     }
   };
 
-  const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
-  const currentItems = products.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-  const onClear = () => {
+  const clearSearch = () => {
     methods1.setValue("barcode", "");
     methods1.setValue("category", "");
   };
-
+  const clearMembership = () => {
+    localStorage.removeItem("membership");
+    setTotalAmount(amount);
+    setCalculatedDiscount(0);
+    setConvertedPoints(0);
+    window.dispatchEvent(new Event("memberUpdated"));
+  };
+  const handlePaymentChange = (paid: number, changes: number) => {
+    setPaidAmount(paid);
+    setChangeAmount(changes);
+    // You can store these values in state if needed
+  };
   return (
     <div className="flex w-full justify-between gap-4">
-      <BasicModal
-        ContentComponent={ConfirmOrder}
-        onAction={() => placeOrder(orderId)}
-        onClose={() => setToggleConfirmOrder(false)}
-        open={toggleConfirmOrder}
-      />
-
       <div className="w-full">
         <div className="grid grid-cols-4 gap-4">
           <Form
@@ -279,87 +315,79 @@ const Page = () => {
             className="col-span-3 grid grid-cols-5 gap-4"
           >
             <div className="col-span-4 grid-cols-2 grid gap-4">
-              <InputField
-                label=""
-                name="barcode"
-                type="text"
-                placeholder="Search Barcode"
-              />
+              <InputField label="Search Product" name="barcode" type="text" />
               <AutocompleteForm
                 options={categories}
                 name="category"
                 label="Category"
               />
             </div>
-            <CustomButton text="Clear" theme="alarm" onHandleButton={onClear} />
+            <CustomButton
+              text="Clear"
+              theme="alarm"
+              onHandleButton={clearSearch}
+            />
           </Form>
           <Form
             methods={methods2}
             className={`${carts.length > 0 && "bg-yellow-500"} col-span-1`}
           >
             <AutocompleteForm
-              options={carts.map((option) => ({
-                label: `${option.orderId}`,
-                value: option.orderId,
+              options={carts.map(({ orderId }) => ({
+                label: `${orderId}`,
+                value: orderId,
               }))}
               name="heldCart"
               label={`On Hold (${carts.length})`}
             />
           </Form>
         </div>
-
-        <div className="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 py-4">
-          {currentItems.map((product) => (
-            <AdminCard product={product} key={product._id} />
-          ))}
-        </div>
-
-        <div className="flex justify-center items-center space-x-4 mt-4">
-          <button
-            onClick={() => handlePageChange("prev")}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-300 rounded-md disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span className="text-gray-600">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => handlePageChange("next")}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-300 rounded-md disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
+        <Pagination items={products} />
       </div>
       <div className="flex flex-col border items-start justify-between bg-white shadow-lg min-h-screen min-w-[530px] max-w-[530px] p-4 gap-4">
-        <p className="text-base flex justify-between items-center w-full">
-          <span className="border rounded px-4 py-2">{orderId}</span>
-          <span className="rounded border pl-2 pr-4 flex gap-2 items-center">
-            <Image
-              width={50}
-              height={50}
-              src={`${
-                profile?.pictures
-                  ? `${API_URL}${profile?.pictures}`
-                  : "/assets/default-profile.jpg"
-              }`}
-              alt={profile?.firstName as string}
-              className="w-[40px] h-[40px] object-cover shadow rounded-full p-1"
-            />
-
-            {profile?.firstName}
+        <p className="text-base  flex justify-between items-center w-full">
+          <span className="border flex items-center gap-2 rounded p-2">
+            <CiReceipt className="text-2xl" />
+            {orderId}
+          </span>
+          <span className="rounded-full flex gap-4 pl-6 border items-center">
+            <span>{profile?.firstName}</span>
+            <ProfileComponent profile={profile} />
           </span>
         </p>
-
+        {paymentMethod !== "cash" && (
+          <table className="w-full text-left text-sm text-gray-700">
+            <thead>
+              <tr className="grid grid-cols-6 bg-gray-100 px-2 gap-4 border-b first-line:items-center">
+                <th className="py-2">Qty</th>
+                <th className="py-2 col-span-2 ml-6">Item</th>
+                <th className="py-2">Price</th>
+                <th className="py-2">Disc (%)</th>
+                <th className="py-2 ">Subtotal</th>
+              </tr>
+            </thead>
+          </table>
+        )}
         <div className="flex flex-col w-full flex-grow overflow-y-auto items-start">
           <HorizontalLinearStepper
+            onPaymentChange={handlePaymentChange}
             step={paymentMethod}
             totalAmount={totalAmount}
           />
         </div>
+        <BasicModal
+          ContentComponent={PaymentQRCode}
+          onClose={() => setToggleQRCode(false)}
+          open={toggleQRCode}
+          text={totalAmount.toString()}
+        />
+        <BasicModal
+          ContentComponent={ConfirmOrder}
+          onAction={() => handleOrder(orderId)}
+          onClose={() => setToggleConfirmOrder(false)}
+          open={toggleConfirmOrder}
+          text="Are you sure you want to place the order?"
+        />
         <BasicModal
           ContentComponent={Membership}
           onClose={() => setToggleMembership(false)}
@@ -367,45 +395,61 @@ const Page = () => {
         />
         <Form
           methods={methods3}
-          className="w-full grid grid-cols-5 items-center gap-2 justify-between"
+          className={`${
+            member ? "grid-cols-8 " : "grid-cols-7"
+          } w-full grid items-center gap-2 justify-between`}
         >
-          <div className="col-span-3">
+          <div className="col-span-4">
             <CustomButton
               onHandleButton={() => setToggleMembership(true)}
               text={`${
                 member
-                  ? `${member.firstName} ${member.lastName}`
+                  ? `${member.firstName} (${member.type})`
                   : "Check Membership"
               }`}
               theme="general"
             />
           </div>
-          <div className="flex col-span-2 flex-col gap-4 w-full">
-            {member && member?.type !== "Point" && (
-              <ToggleButton
-                disabled={!member}
-                options={[
-                  { label: `${member?.type}`, value: `${member?.type}` },
-                  { label: `${member?.points}`, value: `${member?.points}` },
-                ]}
-                selectedValue={membershipPayment}
-                onSelect={handleSelectMembershipPayment}
-              />
+          <div className="flex col-span-3 justify-between items-center gap-2 w-full">
+            {member && member.type !== MembershipType.POINT && (
+              <div className="flex gap-2">
+                <CustomButton
+                  theme="general"
+                  text={`${getDiscountValue(member.type)}%`}
+                  onHandleButton={() =>
+                    selectDiscount(member.type as MembershipType)
+                  }
+                />
+                <CustomButton
+                  theme="general"
+                  text={`${String(member.points)}P`}
+                  onHandleButton={() => selectPoints(member.points)}
+                />
+              </div>
             )}
-            {member?.type === "Point" && (
-              <ToggleButton
-                options={[
-                  { label: `${member?.points}`, value: `${member?.points}` },
-                ]}
-                selectedValue={membershipPayment}
-                onSelect={handleSelectMembershipPayment}
-              />
+            {member && member.type === MembershipType.POINT && (
+              <div>
+                <CustomButton
+                  theme="general"
+                  text={`${String(member.points)}P`}
+                  onHandleButton={() => selectPoints(member.points)}
+                />
+              </div>
             )}
             {!member && (
               <InputField name="discount" label="Discount" type="text" />
             )}
           </div>
+          {member && (
+            <div className="pl-4 w-full flex justify-center">
+              <MdClose
+                onClick={clearMembership}
+                className="text-xl text-red-500 cursor-pointer text-center"
+              />
+            </div>
+          )}
         </Form>
+
         {paymentMethod !== "cash" && (
           <div className="flex flex-col w-full text-lg font-semibold border-t pt-2">
             <p className="flex justify-between items-center">
@@ -416,7 +460,10 @@ const Page = () => {
               <span>Subtotal:</span>${amount.toFixed(2)}
             </p>
             <p className="flex justify-between items-center">
-              <span>Discount:</span>${discountedValue().toFixed(2)}
+              <span>Discount:</span>${calculatedDiscount.toFixed(2)}
+            </p>
+            <p className="flex justify-between items-center">
+              <span>Points:</span>${convertedPoints.toFixed(2)}
             </p>
 
             <h2 className="flex justify-between text-2xl font-bold items-center">
@@ -424,6 +471,7 @@ const Page = () => {
             </h2>
           </div>
         )}
+
         <div className="flex flex-col gap-4 w-full">
           <ToggleButton
             disabled={items.length <= 0}
@@ -433,13 +481,16 @@ const Page = () => {
           />
         </div>
         <div className="grid grid-cols-4 gap-2 w-full mb-5">
-          <CustomButton
-            className="col-span-2"
-            theme={`${items.length <= 0 ? "dark" : ""}`}
-            disabled={items.length <= 0}
-            onHandleButton={() => setToggleConfirmOrder(true)}
-            text="Confirm Order"
-          />
+          <div className="col-span-2">
+            <CustomButton
+              theme={`${
+                items.length <= 0 || paymentMethod === "" ? "dark" : ""
+              }`}
+              disabled={items.length <= 0 || paymentMethod === ""}
+              onHandleButton={() => setToggleConfirmOrder(true)}
+              text="Confirm Order"
+            />
+          </div>
 
           {heldCart === orderId ? (
             <CustomButton
@@ -461,7 +512,7 @@ const Page = () => {
             onHandleButton={() => heldOrder(orderId)}
             icon={TbShoppingCartPause}
             disabled={items.length <= 0}
-            theme={items.length <= 0 ? "dark" : "general"}
+            theme={items.length <= 0 ? "dark" : "notice"}
           />
         </div>
       </div>

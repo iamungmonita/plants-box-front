@@ -47,7 +47,7 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
             padding: 1.5,
             borderColor: "#ccc",
             backgroundColor:
-              selectedValue === item.value ? "var(--medium-light)" : "white",
+              selectedValue === item.value ? "var(--muted-accent)" : "white",
             color: selectedValue === item.value ? "white" : "black",
             "&:hover": {
               backgroundColor:
@@ -68,7 +68,12 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
               />
             )}
             {item.label && (
-              <span style={{ fontFamily: "var(--text)" }}>{item.label}</span>
+              <span
+                className="capitalize"
+                style={{ fontFamily: "var(--text)" }}
+              >
+                {item.label}
+              </span>
             )}
           </span>
         </Button>

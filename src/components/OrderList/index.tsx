@@ -1,31 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import Button from "@mui/material/Button";
-import Image from "next/image";
-import { GoTrash } from "react-icons/go";
+
 import { useForm } from "react-hook-form";
 import {
-  addToCart,
   clearLocalStorage,
   handleDecrement,
-  handleQuantityChange,
   removeItem,
-  settlement,
-  updateCartItems,
 } from "@/helpers/addToCart";
 import CartCard from "../CartCard";
-import { ArrowRight } from "@mui/icons-material";
 import { useCartItems } from "@/hooks/useCartItems";
-import Form from "../Form";
-
-export interface ShoppingCartProduct {
-  _id: string;
-  price: number;
-  stock: number;
-  quantity: number;
-  picture: string[];
-  name: string;
-  size: string;
-}
 
 const OrderPanel = ({ onClose }: { onClose?: () => void }) => {
   const { items } = useCartItems();
@@ -40,22 +22,22 @@ const OrderPanel = ({ onClose }: { onClose?: () => void }) => {
   };
   return (
     <div className="w-full">
-      <div className="flex-grow max-h-[40vh] scroll-container space-y-2 py-2">
+      <div className="flex-grow max-h-[35vh] scroll-container ">
         <table className="w-full text-left text-gray-700">
-          <thead>
-            <tr className="grid grid-cols-6 gap-4 border-b items-center">
+          {/* <thead>
+            <tr className="grid grid-cols-6 gap-4 shadow-lg first-line:items-center">
               <th className="py-2">Qty</th>
               <th className="py-2 col-span-2 ml-4">Item</th>
               <th className="py-2">Price</th>
               <th className="py-2">Discount</th>
               <th className="py-2">Subtotal</th>
             </tr>
-          </thead>
+          </thead> */}
           <tbody>
             {items.map((item) => (
               <tr
                 key={item._id}
-                className="grid grid-cols-6 gap-4 border-b items-center"
+                className="grid grid-cols-6 gap-4 px-2 border-b items-center"
               >
                 <CartCard
                   onRetrieveDiscount={getDiscountedValue}

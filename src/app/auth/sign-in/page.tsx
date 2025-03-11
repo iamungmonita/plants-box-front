@@ -9,14 +9,12 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { IAuthLogIn, LogInSchema } from "@/schema/auth";
-import { Button, CircularProgress } from "@mui/material";
-import { getAdminProfile, SignIn } from "@/services/authentication";
+import { SignIn } from "@/services/authentication";
 import BasicModal from "@/components/Modal";
-import { createLog, countLog } from "@/services/log";
 import MoneyCounter from "@/components/Modals/MoneyCounter";
 
 const Page = () => {
-  const { signIn, onRefresh, profile, isAuthenticated } = useAuthContext();
+  const { signIn, onRefresh } = useAuthContext();
   const methods = useForm<IAuthLogIn>({
     defaultValues: {
       email: "",
@@ -28,16 +26,7 @@ const Page = () => {
   const router = useRouter();
 
   const [toggle, setToggle] = useState<boolean>(false);
-  // const [loading, setLoading] = useState<boolean>(true); // New loading state
-
-  // useEffect(() => {
-  //   // Check if the user is already authenticated
-  //   if (isAuthenticated) {
-  //     router.push("/admin/dashboard");
-  //     return;
-  //   }
-  //   setLoading(false); // Set loading to false when the auth status is checked
-  // }, [isAuthenticated, router]);
+  const [loading, setLoading] = useState<boolean>(true); // New loading state
 
   const onSubmitForm = async (data: IAuthLogIn) => {
     const response = await SignIn(data);
@@ -45,11 +34,7 @@ const Page = () => {
     if (response.data) {
       signIn();
       onRefresh();
-      const firstLog = await countLog({
-        userId: response.data._id,
-      });
-      console.log(!firstLog);
-      if (firstLog) {
+      if (response.data.count) {
         setToggle(true);
       } else {
         setToggle(false);
@@ -83,7 +68,7 @@ const Page = () => {
         <BasicModal
           ContentComponent={MoneyCounter}
           open={toggle}
-          // onClose={() => setToggle(false)}
+          onClose={() => setToggle(false)}
         />
         <Form
           methods={methods}

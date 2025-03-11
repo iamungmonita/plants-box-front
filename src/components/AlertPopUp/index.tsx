@@ -4,10 +4,12 @@ import SnackbarContent from "@mui/material/SnackbarContent";
 import { Alert } from "@mui/material";
 
 const AlertPopUp = ({
+  error,
   message,
   open,
   onClose,
 }: {
+  error?: boolean;
   message: string;
   open: boolean;
   onClose?: () => void;
@@ -22,10 +24,7 @@ const AlertPopUp = ({
       onClose={onClose}
       autoHideDuration={3000} // Automatically hides after 3 seconds
     >
-      <Alert
-        severity={message?.includes("Error") ? "error" : "success"}
-        sx={{ width: "100%" }}
-      >
+      <Alert severity={error ? "error" : "success"} sx={{ width: "100%" }}>
         {message}
       </Alert>
     </Snackbar>

@@ -10,9 +10,9 @@ const BarcodeGenerator = ({ barcodeValue }: { barcodeValue: string }) => {
     if (barcodeRef.current) {
       JsBarcode(barcodeRef.current, barcodeValue, {
         format: "CODE128", // You can change the barcode format if needed
-        width: 2, // Width of the bars
-        height: 100, // Height of the barcode
-        displayValue: true, // Show the value below the barcode
+        width: 1, // Width of the bars
+        height: 25, // Height of the barcode
+        displayValue: false, // Show the value below the barcode
       });
     }
   }, [barcodeValue]); // Re-run this effect when barcodeValue changes

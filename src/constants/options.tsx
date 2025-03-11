@@ -1,7 +1,3 @@
-import { AttachMoney, MoneySharp, QrCode2 } from "@mui/icons-material";
-import { PiMoneyFill } from "react-icons/pi";
-import { TbCurrencyDollar } from "react-icons/tb";
-
 export const optionsCurrency = [
   { value: "usd", label: "USD" },
   { value: "khr", label: "KHR" },
@@ -17,6 +13,6 @@ export const optionsMethod = [
   },
   {
     value: "cash",
-    label: "Cash",
+    label: "CASH",
   },
 ];

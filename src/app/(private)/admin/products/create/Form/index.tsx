@@ -5,7 +5,7 @@ import Form from "@/components/Form";
 import { useForm } from "react-hook-form";
 import InputField from "@/components/InputText";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Product, ProductSchema } from "@/schema/products";
+import { ProductSchema } from "@/schema/products";
 import { useAuthContext } from "@/context/AuthContext";
 import AutocompleteForm from "@/components/Autocomplete";
 import {
@@ -20,6 +20,7 @@ import CustomButton from "@/components/Button";
 import AlertPopUp from "@/components/AlertPopUp";
 import { convertFileToBase64 } from "@/helpers/format/picture";
 import ImageUpload from "@/components/Upload";
+import { Product } from "@/models/Product";
 
 export const CreateForm = ({ createId }: { createId: string }) => {
   const { profile } = useAuthContext();
@@ -91,31 +92,6 @@ export const CreateForm = ({ createId }: { createId: string }) => {
     }
   };
 
-  //   const handleFileChange = async (
-  //     event: React.ChangeEvent<HTMLInputElement>
-  //   ) => {
-  //     if (event.target.files && event.target.files.length > 0) {
-  //       const selectedFile = event.target.files[0];
-  //       setFile(selectedFile);
-  //       setPreviewUrl(URL.createObjectURL(selectedFile));
-  //     }
-  //   };
-  //   const handleDragOver = (e: React.DragEvent) => {
-  //     e.preventDefault();
-  //     e.stopPropagation();
-  //   };
-  //
-  //   const handleDrop = (e: React.DragEvent) => {
-  //     e.preventDefault();
-  //     e.stopPropagation();
-  //
-  //     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-  //       const selectedFile = e.dataTransfer.files[0];
-  //       setFile(selectedFile);
-  //       setPreviewUrl(URL.createObjectURL(selectedFile));
-  //     }
-  //   };
-
   const handleRemoveImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     setValue("pictures", "");
@@ -183,54 +159,19 @@ export const CreateForm = ({ createId }: { createId: string }) => {
         setPreviewUrl={setPreviewUrl}
         handleRemoveImage={handleRemoveImage}
       />
-
-      {/* <div className="col-span-2 w-full space-y-4">
-        <div
-          className="border-2 border-dashed p-4 flex justify-center items-center"
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-        >
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            style={{ display: "none" }}
-            id="file-input"
-          />
-          <label htmlFor="file-input" className="cursor-pointer">
-            {previewUrl ? (
-              <div className="relative h-56">
-                <img
-                  src={previewUrl}
-                  alt="Preview"
-                  className="w-56 h-full object-cover rounded shadow-md"
-                />
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="absolute top-0 right-0 bg-green-800/70 text-white px-3 py-1"
-                >
-                  X
-                </button>
-              </div>
-            ) : (
-              "Drag and drop an image here, or click to select or replace"
-            )}
-          </label>
-        </div>
-      </div> */}
-
       <AlertPopUp
         open={toggleAlert}
         message={alertMessage}
         onClose={() => setToggleAlert(false)}
       />
 
-      <CustomButton
-        type="submit"
-        className="col-span-2"
-        text={`${createId ? "Update" : "Create"}`}
-      />
+      <div className="col-span-2">
+        <CustomButton
+          type="submit"
+          className="col-span-2"
+          text={`${createId ? "Update" : "Create"}`}
+        />
+      </div>
     </Form>
   );
 };

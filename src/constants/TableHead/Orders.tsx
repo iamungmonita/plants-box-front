@@ -25,11 +25,18 @@ export const columns: Column<PurchasedOrderList>[] = [
       value !== undefined && value !== null ? `$${value.toFixed(2)}` : "$0.00",
   },
   {
-    id: "discount",
+    id: "overallDiscount",
     label: "Discount",
     minWidth: 100,
     format: (value: number) =>
       value !== undefined && value !== null ? `${value}%` : "0%",
+  },
+  {
+    id: "convertedPoints",
+    label: "Points",
+    minWidth: 100,
+    format: (value: number) =>
+      value !== undefined && value !== null ? `$${value.toFixed(2)}` : "$0.00",
   },
   {
     id: "totalAmount",

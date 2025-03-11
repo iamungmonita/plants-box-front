@@ -1,35 +1,27 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import OrderPanel from "../OrderList";
-import { ChevronLeft } from "@mui/icons-material";
 import InputField from "../InputText";
 import Form from "../Form";
 import { useForm } from "react-hook-form";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { formattedKHR } from "@/helpers/format/currency";
+import { useState, useEffect } from "react";
 
-const steps = ["Step 1", "Step 2"]; // Only 2 steps
+export interface Step {
+  step: string;
+  totalAmount: number;
+  onPaymentChange: (usd: number, khr: number) => void;
+}
 
 export default function HorizontalLinearStepper({
   step,
   totalAmount,
-}: {
-  step: string;
-  totalAmount: number;
-}) {
+  onPaymentChange,
+}: Step) {
   const exchangeRate = useExchangeRate();
-  const [activeStep, setActiveStep] = React.useState(0);
-  const [changeToKHR, setChangeKHR] = React.useState("");
-
-  // Trigger the step update only based on `step` change, not `activeStep`
-  React.useEffect(() => {
-    if (step === "cash") {
-      setActiveStep(1); // When `step` is "cash", move to the second step
-    } else {
-      setActiveStep(0); // Otherwise, set it back to the first step
-    }
-  }, [step]); // Only depend on `step`, not `activeStep`
+  const [activeStep, setActiveStep] = useState(0);
+  const [changeToKHR, setChangeKHR] = useState("");
 
   const methods = useForm({
     defaultValues: {
@@ -38,71 +30,57 @@ export default function HorizontalLinearStepper({
       change: "",
     },
   });
+
   const { watch } = methods;
-  const usd = watch("usd");
-  const khr = watch("khr");
-  const change = watch("change");
-  const returnAmount = () => {
-    const dollar = parseFloat(usd);
-    if (isNaN(dollar)) {
-      return 0;
-    }
-    const riel = parseFloat(khr) || 0;
+  const { usd, khr, change } = watch();
 
-    if (isNaN(riel)) {
-      return 0;
+  useEffect(() => {
+    if (step === "cash") {
+      setActiveStep(1);
+    } else {
+      setActiveStep(0);
     }
-    const total = dollar + riel / exchangeRate;
-    if (isNaN(total)) {
-      return 0;
-    }
-    const amount = total - totalAmount;
-    if (isNaN(amount)) {
-      return 0;
-    }
-    if (amount < 0) {
-      return 0;
-    }
-    return amount;
-  };
-  const convertChangeToKHR = () => {
-    const dollar = parseFloat(change);
-    if (isNaN(dollar)) {
-      setChangeKHR("");
-      return;
-    }
-    if (isNaN(returnAmount())) {
-      setChangeKHR("");
-      return;
-    }
-    const calculation = dollar - returnAmount();
-    const convert = calculation * exchangeRate;
+  }, [step]);
 
-    if (isNaN(convert)) {
-      setChangeKHR("");
-      return;
-    }
-    if (convert > 0) {
-      setChangeKHR("");
-      return;
-    }
-    setChangeKHR(`៛${formattedKHR(Math.abs(convert))}`);
-  };
-  React.useEffect(() => {
+  useEffect(() => {
     convertChangeToKHR();
   }, [change, exchangeRate]);
+
+  const returnAmount = () => {
+    const dollar = parseFloat(usd) || 0;
+    const riel = parseFloat(khr) || 0;
+    const total = dollar + riel / exchangeRate;
+    const returnChanges = Math.max(total - totalAmount, 0);
+    return { total, returnChanges };
+  };
+
+  useEffect(() => {
+    const { total, returnChanges } = returnAmount();
+    onPaymentChange(total, returnChanges);
+  }, [usd, khr, onPaymentChange]);
+
+  const convertChangeToKHR = () => {
+    const dollar = parseFloat(change) || 0;
+    const { returnChanges } = returnAmount();
+    const remaining = dollar - returnChanges;
+
+    if (remaining >= 0) {
+      setChangeKHR("");
+      return;
+    }
+
+    setChangeKHR(`៛${formattedKHR(Math.abs(remaining * exchangeRate))}`);
+  };
 
   return (
     <Box
       sx={{
-        marginTop: `${step === "cash" ? "100px" : 0}`,
         width: "100%",
       }}
     >
       {activeStep === 1 ? (
         <div className="flex flex-col gap-10 w-full">
-          {/* <h2 className="text-xl text-center font-bold">Cash Payment</h2> */}
-
+          <hr />
           <div>
             <Form methods={methods} className="space-y-10">
               <div className="flex flex-col gap-4 items-start justify-between">
@@ -124,13 +102,14 @@ export default function HorizontalLinearStepper({
               <div className="flex flex-col gap-4 items-start justify-between">
                 <h2 className="text-xl">Received Amount</h2>
                 <div className="grid grid-cols-2 items-center justify-between gap-4 w-full">
-                  <InputField type="text" label="dollar" name="usd" />
-                  <InputField type="text" label="riel" name="khr" />
+                  <InputField type="text" label="US Dollar" name="usd" />
+                  <InputField type="text" label="Cambodian Riel" name="khr" />
                 </div>
               </div>
               <div className="flex flex-col gap-4 items-start justify-between">
                 <h2 className="text-xl">
-                  Return Amount: <span>{`$${returnAmount().toFixed(2)}`}</span>
+                  Return Amount:
+                  <span>{`$${returnAmount().returnChanges?.toFixed(2)}`}</span>
                 </h2>
                 <div className="grid grid-cols-2 items-center justify-between gap-4 w-full">
                   <InputField type="text" label="US Dollar" name="change" />
@@ -143,6 +122,7 @@ export default function HorizontalLinearStepper({
               </div>
             </Form>
           </div>
+          <hr />
         </div>
       ) : (
         <OrderPanel />

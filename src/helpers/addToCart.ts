@@ -2,7 +2,7 @@ import API_URL from "@/lib/api";
 import { getProductById, updateProductStockById } from "@/services/products";
 import AlertPopUp from "@/components/AlertPopUp";
 import { useState } from "react";
-import { ShoppingCartProduct } from "@/components/ShoppingCart";
+import { ShoppingCartProduct } from "@/models/Cart";
 type CartItem = {
   _id: string;
   price: number;
@@ -30,9 +30,18 @@ export const addToCart = async <
   try {
     const productData = await getProductById(id);
     if (productData.data) {
-      const { _id, price, stock, pictures, name, discount } = productData.data;
+      const {
+        _id,
+        price,
+        stock,
+        pictures,
+        name,
+        discount,
+        convertedPoints,
+        isDiscountable,
+      } = productData.data;
       const imagePaths = `${API_URL}${pictures}`;
-      const storedItems: CartItem[] = JSON.parse(
+      const storedItems: ShoppingCartProduct[] = JSON.parse(
         localStorage.getItem(productType) || "[]"
       );
 
@@ -59,11 +68,13 @@ export const addToCart = async <
         // If it's a new item, add it to the cart
         storedItems.push({
           _id,
-          discount: 0,
+          discount: "0",
           price,
           stock: stock,
           quantity: 1,
           name,
+          isDiscountable,
+          convertedPoints: convertedPoints ?? "0",
         });
         setSnackbarMessage?.(`${name} has been added to cart`);
       }
@@ -135,9 +146,13 @@ export const handleOrder = async (
   amount: number,
   paymentMethod: string,
   profile: string | undefined,
-  discount: number,
+  id: string,
+  paidAmount: number,
+  changeAmount: number,
+  overallDiscount: number,
   calculatedDiscount: number,
   totalAmount: number,
+  convertedPoints: number,
   orderId: string
 ) => {
   await fetch(`${API_URL}/order/create`, {
@@ -151,8 +166,12 @@ export const handleOrder = async (
       amount,
       paymentMethod,
       profile,
-      discount,
+      id,
+      paidAmount,
+      changeAmount,
+      overallDiscount,
       calculatedDiscount,
+      convertedPoints,
       totalAmount,
       orderId,
     }),
@@ -178,9 +197,13 @@ export const settlement = async (
   amount: number,
   paymentMethod: string,
   profile: string | undefined,
-  discount: number,
+  id: string,
+  paidAmount: number,
+  changeAmount: number,
+  overallDiscount: number,
   calculatedDiscount: number,
   totalAmount: number,
+  convertedPoints: number,
   orderId: string
 ) => {
   try {
@@ -192,9 +215,13 @@ export const settlement = async (
       amount,
       paymentMethod,
       profile,
-      discount,
+      id,
+      paidAmount,
+      changeAmount,
+      overallDiscount,
       calculatedDiscount,
       totalAmount,
+      convertedPoints,
       orderId
     );
 

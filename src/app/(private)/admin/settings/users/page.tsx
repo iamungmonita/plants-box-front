@@ -31,6 +31,7 @@ const page = () => {
         <h2 className="text-xl font-semibold">Users</h2>
         <div className="w-42">
           <CustomButton
+            roleCodes={["1001"]}
             text="Create User"
             path="/admin/settings/users/create"
           />

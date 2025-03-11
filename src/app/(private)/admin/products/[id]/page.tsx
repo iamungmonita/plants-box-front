@@ -16,7 +16,7 @@ import { CreateForm } from "../create/Form";
 import { useAuthContext } from "@/context/AuthContext";
 import InputField from "@/components/InputText";
 import Form from "@/components/Form";
-import { ProductResponse } from "@/schema/products";
+import { ProductResponse } from "@/models/Product";
 
 const Page = () => {
   const { isAuthorized } = useAuthContext();
@@ -60,13 +60,7 @@ const Page = () => {
       label: "Added Stock",
       minWidth: 100,
     },
-    // {
-    //   id: "createdAt",
-    //   label: "Created At",
-    //   minWidth: 170,
-    //   formatString: (value: string) =>
-    //     formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
-    // },
+
     {
       id: "updatedAt",
       label: "Updated At",

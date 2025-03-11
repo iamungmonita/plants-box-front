@@ -6,49 +6,34 @@ import { getOrder } from "@/services/order";
 import { PurchasedOrderList } from "@/schema/order";
 import ReusableTable from "@/components/Table";
 import { columns } from "@/constants/TableHead/Dashboard";
-import { formattedTimeStamp } from "@/helpers/format/time";
+import { getBestSellingProducts } from "@/services/products";
+import BasicPie from "@/components/Chart";
+
 import {
   getMonthRange,
   getWeekRange,
   getYearRange,
 } from "@/helpers/calculation/getDate";
-import { TbCoin } from "react-icons/tb";
-import { getAllProducts, getBestSellingProducts } from "@/services/products";
-import BasicPie from "@/components/Chart";
-import { ProductResponse } from "@/schema/products";
+import { IChart, IRange } from "@/models/Product";
+
 const page = () => {
   const router = useRouter();
   const [amount, setAmount] = useState<number>(0);
   const [orders, setOrders] = useState<PurchasedOrderList[]>([]);
   const [transactions, setTransactions] = useState<number>(0);
-  const [weekly, setWeekly] = useState<{
-    total: number;
-    amount: number;
-  } | null>(null);
-  const [monthly, setMonthly] = useState<{
-    total: number;
-    amount: number;
-  } | null>(null);
-  const [yearly, setYearly] = useState<{
-    total: number;
-    amount: number;
-  } | null>(null);
-
+  const [weekly, setWeekly] = useState<IRange | null>(null);
+  const [monthly, setMonthly] = useState<IRange | null>(null);
+  const [yearly, setYearly] = useState<IRange | null>(null);
   const { isAuthenticated } = useAuthContext();
   const [selectedDate, setSelectedDate] = useState<string>("");
-  const today = new Date().toLocaleDateString("en-CA"); // Format: YYYY-MM-DD
-  const { start, end } = getWeekRange();
-  const [products, setProducts] = useState<
-    { id: string; value: number; label: string }[]
-  >([]);
-
-  // Function to get the start and end of the current week (Monday to Sunday)
+  const today = new Date().toLocaleDateString("en-CA"); // Format: YYYY-MM-DD\
+  const [products, setProducts] = useState<IChart[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/auth/sign-in");
     }
-    console.log(start, end);
+
     setSelectedDate(today);
   }, [isAuthenticated, router]);
 
@@ -86,7 +71,7 @@ const page = () => {
               }));
             setProducts(products);
           }
-          // Update states
+
           if (todayResponse.data) {
             setOrders(todayResponse.data.orders);
             setAmount(todayResponse.data.amount);
@@ -94,31 +79,29 @@ const page = () => {
           }
           if (weeklyResponse.data) {
             setWeekly({
-              total: weeklyResponse.data.amount,
-              amount: weeklyResponse.data.count,
+              amount: weeklyResponse.data.amount,
+              total: weeklyResponse.data.count,
             });
           }
           if (monthlyResponse.data) {
             setMonthly({
-              total: monthlyResponse.data.amount,
-              amount: monthlyResponse.data.count,
+              amount: monthlyResponse.data.amount,
+              total: monthlyResponse.data.count,
             });
           }
           if (yearlyResponse.data) {
             setYearly({
-              total: yearlyResponse.data.amount,
-              amount: yearlyResponse.data.count,
+              amount: yearlyResponse.data.amount,
+              total: yearlyResponse.data.count,
             });
           }
         } catch (error) {
           console.error("Error fetching orders:", error);
         }
       };
-
       fetch();
     }
   }, [selectedDate]);
-  // Run when selectedDate changes
 
   return (
     <div>
@@ -130,11 +113,11 @@ const page = () => {
               <div className="bg-gray-100 shadow-lg col-span-1 p-5 flex flex-col  justify-between rounded-lg">
                 <span className="flex text-xl font-semibold justify-between">
                   <span>This Week:</span>
-                  <span>${weekly?.total.toFixed(2)}</span>
+                  <span>${weekly?.amount.toFixed(2)}</span>
                 </span>
                 <span className="flex justify-between">
                   <span className="font-semibold"> Sales:</span>
-                  <span>{weekly?.amount}</span>
+                  <span>{weekly?.total}</span>
                 </span>
               </div>
             </div>
@@ -142,11 +125,11 @@ const page = () => {
               <div className="bg-gray-100 shadow-lg col-span-1 p-5 flex flex-col  justify-between rounded-lg">
                 <span className="flex text-xl font-semibold justify-between">
                   <span>This Month:</span>
-                  <span>${monthly?.total.toFixed(2)}</span>
+                  <span>${monthly?.amount.toFixed(2)}</span>
                 </span>
                 <span className="flex justify-between">
                   <span className="font-semibold"> Sales:</span>
-                  <span>{monthly?.amount}</span>
+                  <span>{monthly?.total}</span>
                 </span>
               </div>
             </div>
@@ -154,11 +137,11 @@ const page = () => {
               <div className="bg-gray-100 shadow-lg col-span-1 p-5 flex flex-col  justify-between rounded-lg">
                 <span className="flex text-xl font-semibold justify-between">
                   <span className="">This Year:</span>
-                  <span>${yearly?.total.toFixed(2)}</span>
+                  <span>${yearly?.amount.toFixed(2)}</span>
                 </span>
                 <span className="flex justify-between">
                   <span className="font-semibold">Sales:</span>
-                  <span>{yearly?.amount}</span>
+                  <span>{yearly?.total}</span>
                 </span>
               </div>
             </div>
@@ -182,7 +165,9 @@ const page = () => {
                 <ReusableTable
                   columns={columns}
                   data={orders}
-                  onRowClick={() => console.log(orders.map((order) => order))}
+                  onRowClick={(row) =>
+                    router.push(`/admin/sale/${row.purchasedId}`)
+                  }
                 />
               </div>
             </div>

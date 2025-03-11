@@ -9,8 +9,9 @@ import {
 } from "@/helpers/addToCart";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ShoppingCartProduct } from "@/components/ShoppingCart";
-import { ProductResponse } from "@/schema/products";
+import { ShoppingCartProduct } from "@/models/Cart";
+import { ProductResponse } from "@/models/Product";
+import BarcodeGenerator from "@/components/BarCode";
 
 const AdminCard = ({ product }: { product: ProductResponse }) => {
   const [toggleWidth, setToggleWidth] = React.useState(false);
@@ -71,6 +72,7 @@ const AdminCard = ({ product }: { product: ProductResponse }) => {
 
       <div className="p-4 flex flex-col justify-between h-[40%]">
         <h2 className="text-xl max-md:text-lg font-semibold">{product.name}</h2>
+
         <div className="flex items-center justify-between">
           <div>
             <p className="md:text-lg">
@@ -84,33 +86,7 @@ const AdminCard = ({ product }: { product: ProductResponse }) => {
               </p>
             )}
           </div>
-          {/* {product.stock > 0 && (
-            <div className="flex items-center gap-2 justify-end w-full">
-              <button
-                onClick={() =>
-                  handleDecrement(
-                    product._id,
-                    items[items.findIndex((index) => index._id === product._id)]
-                      ?.quantity
-                  )
-                }
-                className="text-xl px-4 py-2 border rounded"
-              >
-                -
-              </button>
-              <span>
-                {items[items.findIndex((index) => index._id === product._id)]
-                  ?.quantity ?? 0}
-              </span>
-              <button
-                disabled={product.stock <= 0}
-                onClick={() => handleAddToCart(product._id)}
-                className="text-xl px-4 py-2 border rounded"
-              >
-                +
-              </button>
-            </div>
-          )} */}
+
           <button
             disabled={product.stock <= 0}
             onClick={() => handleAddToCart(product._id)}

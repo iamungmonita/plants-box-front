@@ -12,7 +12,7 @@ import {
   usdFields,
 } from "@/constants/MoneyCounter";
 
-export const MoneyCounter = () => {
+const MoneyCounter = () => {
   const methods = useForm<ILog>({
     defaultValues: {
       ...generateDefaultValues(usdFields),
@@ -21,7 +21,7 @@ export const MoneyCounter = () => {
   });
 
   const { watch, trigger } = methods;
-  const { profile } = useAuthContext();
+  const { profile, signIn, isAuthenticated } = useAuthContext();
   const [canProceed, setCanProceed] = useState(false);
   const router = useRouter();
 
@@ -95,7 +95,7 @@ export const MoneyCounter = () => {
         <h2>Cambodian Riel Bills</h2>
         <div className="grid grid-cols-4 row-span-2 gap-4">
           {khrFields.map((field) => (
-            <InputField key={field} type="number" label={field} name={field} />
+            <InputField key={field} type="text" label={field} name={field} />
           ))}
         </div>
       </div>
@@ -104,7 +104,7 @@ export const MoneyCounter = () => {
         <h2>US Dollar Bills</h2>
         <div className="flex gap-4">
           {usdFields.map((field) => (
-            <InputField key={field} type="number" label={field} name={field} />
+            <InputField key={field} type="text" label={field} name={field} />
           ))}
         </div>
       </div>

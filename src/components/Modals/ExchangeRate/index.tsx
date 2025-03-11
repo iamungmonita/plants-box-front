@@ -11,9 +11,9 @@ import { useExchangeRate } from "@/hooks/useExchangeRate";
 export interface ExchangeRate {
   rate: string;
 }
-export const ExchangeRate = () => {
+export const ExchangeRate = ({ onClose }: { onClose: () => void }) => {
   const exchangeRate = useExchangeRate();
-  const [toggle, setToggle] = useState(false);
+  const [toggleAlert, setToggleAlert] = useState(false);
 
   const methods = useForm<ExchangeRate>({
     defaultValues: {
@@ -25,14 +25,13 @@ export const ExchangeRate = () => {
   const onSubmitForm = ({ rate }: ExchangeRate) => {
     localStorage.setItem("exchange-rate", rate);
     window.dispatchEvent(new Event("exchangeRateUpdated"));
-    setToggle(true);
+    setToggleAlert(true);
     setValue("rate", "");
   };
 
   const handleCloseAlert = () => {
-    setToggle(false);
+    setToggleAlert(false);
   };
-  // const { isAuthorized } = useAuthContext();
 
   return (
     <Form methods={methods} onSubmit={onSubmitForm} className="space-y-4 w-3/4">
@@ -40,14 +39,18 @@ export const ExchangeRate = () => {
         Your exchange rate is now ៛{formattedKHR(exchangeRate)}.
       </p>
       <InputField label="Exchange rate" type="text" name="rate" />
-      <CustomButton
-        type="submit"
-        text="Change"
-        disabled={rate === ""}
-        theme={`${rate === "" && "dark"}`}
-      />
+      <div className="grid grid-cols-2 gap-4">
+        <CustomButton
+          type="submit"
+          text="Change"
+          disabled={rate === ""}
+          theme={`${rate === "" && "dark"}`}
+        />
+        <CustomButton onHandleButton={onClose} text="Close" theme="alarm" />
+      </div>
+
       <AlertPopUp
-        open={toggle}
+        open={toggleAlert}
         onClose={handleCloseAlert}
         message={`Exchange rate has been changed to ៛${formattedKHR(
           exchangeRate

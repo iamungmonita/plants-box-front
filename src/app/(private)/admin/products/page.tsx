@@ -12,7 +12,7 @@ import { columns } from "@/constants/TableHead/Product";
 import { categories } from "@/constants/AutoComplete";
 import CustomButton from "@/components/Button";
 import InputField from "@/components/InputText";
-import { ProductResponse } from "@/schema/products";
+import { ProductResponse } from "@/models/Product";
 
 const page = () => {
   const { profile, isAuthorized } = useAuthContext();
@@ -31,7 +31,7 @@ const page = () => {
     const fetchProduct = async () => {
       try {
         const response = await getAllProducts({
-          name,
+          search: name,
           category,
         });
         if (response.data) {
@@ -56,7 +56,6 @@ const page = () => {
         <div className="w-52">
           <CustomButton
             roleCodes={["1001"]}
-            profileCodes={profile?.codes}
             path="/admin/products/create"
             text="Create Product"
           />
@@ -67,7 +66,7 @@ const page = () => {
         className="grid grid-cols-5 gap-4 w-1/2 max-md:w-full max-md:grid-cols-1"
       >
         <div className="col-span-4 grid grid-cols-2 gap-4">
-          <InputField label="Search Product Name" name="name" type="text" />
+          <InputField label="Search Product" name="name" type="text" />
           <AutocompleteForm
             label="Category"
             name="category"

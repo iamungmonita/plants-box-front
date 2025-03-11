@@ -4,4 +4,7 @@ export interface ShoppingCartProduct {
   stock: number;
   quantity: number;
   name: string;
+  discount: string;
+  isDiscountable: boolean;
+  convertedPoints: number;
 }

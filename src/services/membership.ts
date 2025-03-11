@@ -1,11 +1,9 @@
-import { IAuthRegister } from "@/app/(private)/admin/settings/users/create/page";
-import { GET, POST } from ".";
+import { GET, POST, PUT } from ".";
 import { FieldValues } from "react-hook-form";
-import { ILayout } from "@/app/(private)/admin/settings/roles/create/page";
-import { PurchasedOrderList, Response } from "@/schema/order";
+import { ILayout, Response } from "@/models/Layout";
 import API_URL from "@/lib/api";
 import query from "query-string";
-import { queryParam } from "./products";
+import { queryParam } from "@/models/Layout";
 
 export interface IMembership extends FieldValues {
   firstName: string;
@@ -13,7 +11,7 @@ export interface IMembership extends FieldValues {
   phoneNumber: string;
   type: string;
   isActive: boolean;
-  invoices: { purchasedId: string; totalAmount: number }[];
+  invoices: string[];
   points: number;
   createdBy: string;
 }
@@ -35,4 +33,15 @@ export function retrieveMembership(
 
   const url = `${API_URL}/membership/retrieve?${queryString}`;
   return GET<ILayout<IMembershipResponseList>>(url);
+}
+
+export function updateMembershipPointById(
+  id: string,
+  params?: { points: number; invoice: string }
+): Promise<ILayout<IMemberResponse>> {
+  const url = `${API_URL}/membership/update-points/` + id;
+  return PUT<ILayout<IMemberResponse>, { points: number; invoice: string }>(
+    url,
+    params
+  );
 }

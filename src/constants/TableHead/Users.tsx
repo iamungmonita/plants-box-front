@@ -1,5 +1,3 @@
-import { IRoleResponse } from "@/app/(private)/admin/settings/roles/create/page";
-
 import { formattedTimeStamp } from "@/helpers/format/time";
 import API_URL from "@/lib/api";
 import { Profile } from "@/schema/auth";

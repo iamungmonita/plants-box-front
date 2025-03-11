@@ -20,18 +20,24 @@ const style = {
   overflowY: "auto", // Enable vertical scrolling if content overflows
 };
 
-export default function BasicModal({
+export default function BasicModal<T>({
   ContentComponent,
   open,
   onClose,
   onAction,
+  text,
+  items,
 }: {
   open: boolean;
+  text?: string;
+  items?: T[];
   onClose?: () => void;
   onAction?: () => void; // New prop for action
   ContentComponent: React.ComponentType<{
     onClose?: () => void;
     onAction?: () => void;
+    text?: string;
+    items?: T[];
   }>;
 }) {
   const handleBackdropClick = (event: React.MouseEvent) => {
@@ -51,7 +57,12 @@ export default function BasicModal({
       >
         <Box sx={style}>
           <div className="flex justify-center items-center w-full h-full">
-            <ContentComponent onClose={onClose} onAction={onAction} />
+            <ContentComponent
+              items={items}
+              onClose={onClose}
+              onAction={onAction}
+              text={text}
+            />
           </div>
         </Box>
       </Modal>

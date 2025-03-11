@@ -4,8 +4,9 @@ import { Button } from "@mui/material";
 // @ts-ignore to bypass the TypeScript error (temporary solution)
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
 import { getAllProducts } from "@/services/products";
-import { ProductReturn, ProductReturnList } from "@/schema/products";
+
 import { addToCart } from "@/helpers/addToCart";
+import { ProductResponse } from "@/models/Product";
 
 // Define types for the product and cart
 export interface Product {
@@ -16,15 +17,17 @@ export interface Product {
 
 const CartPage: React.FC = () => {
   const [productId, setProductId] = useState<string>(""); // Store scanned barcode value
-  const [cart, setCart] = useState<ProductReturnList[]>([]); // Store cart items
+  const [cart, setCart] = useState<ProductResponse[]>([]); // Store cart items
   // const products = [{ name: "product 1", productId: "sku-00001", price: 2 }];
-  const [products, setProducts] = useState<ProductReturnList[]>([]);
+  const [products, setProducts] = useState<ProductResponse[]>([]);
 
   // Simulated product data for demonstration
   useEffect(() => {
     const fetch = async () => {
       const response = await getAllProducts();
-      setProducts(response);
+      if (response.data) {
+        setProducts(response.data);
+      }
     };
     fetch();
   }, []);
@@ -35,18 +38,6 @@ const CartPage: React.FC = () => {
     }
   };
 
-  //   const addto = () => {
-  //     // Find the product based on the scanned barcode value
-  //     const product = products.find((product) => product.barcode === productId);
-  //
-  //     if (product) {
-  //       setCart((prevCart) => [...prevCart, product]); // Add the product to the cart
-  //       alert(`${product.name} added to cart!`);
-  //       setProductId(""); // Clear the barcode after adding
-  //     } else {
-  //       alert("Product not found!");
-  //     }
-  //   };
   useEffect(() => {
     const product = products.find((product) => product.barcode === productId);
     if (product) {

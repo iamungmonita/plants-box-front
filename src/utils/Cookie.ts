@@ -10,5 +10,5 @@ const getCookie = (name: string): string | null => {
 };
 
 export const getAccessToken = (): string | null => {
-  return getCookie("f1ee97b19e11145c6fba1be1f8204e00");
+  return getCookie(process.env.NEXT_PUBLIC_AUTH_TOKEN as string);
 };

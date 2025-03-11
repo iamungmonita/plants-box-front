@@ -10,29 +10,30 @@ export interface IButton {
   theme?: string;
   className?: string;
   disabled?: boolean;
-  profileCodes?: string[];
   roleCodes?: string[];
   type?: "button" | "submit" | "reset"; // Ensure proper typing for HTML button types
   onHandleButton?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onHandleDoubleClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   icon?: OverridableComponent<SvgIconTypeMap<{}, "svg">>;
 }
 
 export const CustomButton = (props: IButton) => {
-  const { isAuthorized } = useAuthContext();
+  const { isAuthorized, profile } = useAuthContext();
   const {
     disabled,
     className,
     onHandleButton,
+    onHandleDoubleClick,
     icon: Icon,
     text,
     path,
     theme,
     type = "button",
-    profileCodes,
+
     roleCodes,
   } = props;
 
-  const authorized = isAuthorized(roleCodes, profileCodes);
+  const authorized = isAuthorized(roleCodes, profile?.codes);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!authorized) {
@@ -40,6 +41,9 @@ export const CustomButton = (props: IButton) => {
       return;
     }
     onHandleButton?.(event); // Only call if authorized
+  };
+  const handleDoubleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    onHandleDoubleClick?.(event); // Only call if authorized
   };
 
   return (
@@ -50,8 +54,11 @@ export const CustomButton = (props: IButton) => {
           variant="outlined"
           className={className}
           onClick={handleClick}
+          onDoubleClick={handleDoubleClick}
           sx={{
             width: "100%",
+            height: "100%",
+            maxHeight: "100%",
             backgroundColor:
               theme === "general"
                 ? "white"
@@ -59,6 +66,8 @@ export const CustomButton = (props: IButton) => {
                 ? "lightgray"
                 : theme === "alarm"
                 ? "#D50000"
+                : theme === "notice"
+                ? "#eab308"
                 : "var(--medium-light)",
             borderColor: theme === "general" ? "lightgray" : "transparent",
             fontFamily: "var(--text)",
@@ -80,7 +89,7 @@ export const CustomButton = (props: IButton) => {
               style={{ textDecoration: "none" }}
               className="w-full"
             >
-              <span className="flex justify-center items-center gap-4">
+              <span className="flex justify-center items-center  gap-4">
                 <span
                   style={{
                     color: `${
@@ -96,7 +105,7 @@ export const CustomButton = (props: IButton) => {
                 >
                   {text}
                 </span>
-                {Icon && <Icon className="text-3xl w-full" />}
+                {Icon && <Icon className=" text-2xl w-full" />}
               </span>
             </Link>
           ) : (
@@ -110,12 +119,14 @@ export const CustomButton = (props: IButton) => {
                     ? "black"
                     : theme === "alarm "
                     ? "#D50000"
+                    : theme === "notice"
+                    ? "black"
                     : "white"
                 }`,
               }}
             >
               {text}
-              {Icon && <Icon className="text-3xl w-full" />}
+              {Icon && <Icon className="text-2xl w-full" />}
             </span>
           )}
         </Button>

@@ -1,7 +1,6 @@
+import { Response } from "@/models/Layout";
 import { FieldValues } from "react-hook-form";
 import * as yup from "yup";
-import { Response } from "./order";
-import { IRoleResponse } from "@/app/(private)/admin/settings/roles/create/page";
 
 export interface IAuthRegister extends FieldValues {
   firstName: string;
@@ -24,7 +23,7 @@ export const RegisterSchema = yup.object().shape({
 
   phoneNumber: yup.string().required("Phone Number is required"),
   email: yup.string().required("Email is required").email("invalid email"),
-  isActive: yup.boolean().default(true),
+  isActive: yup.boolean().required(),
   pictures: yup.string().optional(), // Validate as string (base64)
   password: yup
     .string()
@@ -56,4 +55,8 @@ export interface Profile extends Response {
   isActive: boolean;
   createdBy: string;
   pictures?: string; // Array of image URLs
+}
+export interface ProfileWithCount {
+  admin: Profile;
+  count: boolean;
 }

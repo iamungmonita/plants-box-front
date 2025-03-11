@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { GoTrash } from "react-icons/go";
-import { ShoppingCartProduct } from "../ShoppingCart";
 import { addToCart, handleDecrement } from "@/helpers/addToCart";
 import { useCartItems } from "@/hooks/useCartItems";
 import Form from "../Form";
 import { useForm, useFormContext } from "react-hook-form";
+import { ShoppingCartProduct } from "@/models/Cart";
 
 interface CartCardProps<ShoppingCartProduct> {
   item: ShoppingCartProduct;
@@ -50,7 +50,7 @@ const CartCard = <T extends ShoppingCartProduct>({
 
   return (
     <>
-      <td className="py-3 flex items-center justify-between">
+      <td className="py-2 flex items-center justify-between">
         <button
           onClick={() =>
             handleDecrement(
@@ -74,22 +74,30 @@ const CartCard = <T extends ShoppingCartProduct>({
           +
         </button>
       </td>
-      <td className="py-3 col-span-2 ml-4">{item.name}</td>
+      <td className="py-3 col-span-2 ml-6">{item.name}</td>
       <td className="py-3">${(item.price * item.quantity).toFixed(2)}</td>
       <td>
         <input
-          value={inputValue || item.discount}
+          disabled={!item.isDiscountable}
+          value={item.isDiscountable ? inputValue || item.discount : "None"}
           type="text"
-          placeholder="%"
+          placeholder={item.isDiscountable ? "%" : "None"}
           onChange={(e) => onHandleDiscountChange(e, item._id)}
-          className="p-2 w-16"
+          className={`p-2 w-16
+            ${
+              item.isDiscountable
+                ? " hover:ring-2 hover:ring-gray-100"
+                : "cursor-not-allowed opacity-60"
+            }`}
         />
       </td>
 
-      <td className="py-3">${(item.price * item.quantity).toFixed(2)}</td>
-      {/* <td className="py-3">
-        <GoTrash />
-      </td> */}
+      <td className="py-3 ">
+        <span className="">${(item.price * item.quantity).toFixed(2)}</span>
+        {/* <span onClick={() => onRemove(item._id)} className="">
+          <GoTrash className="hover:text-red-500" />
+        </span> */}
+      </td>
     </>
   );
 };

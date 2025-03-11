@@ -1,21 +1,10 @@
-import { Product, ProductResponse } from "@/schema/products";
 import API_URL from "@/lib/api";
 import { GET, POST, PUT } from ".";
 import query from "query-string";
-import { ILayout } from "@/app/(private)/admin/settings/roles/create/page";
+import { ILayout, queryParam } from "@/models/Layout";
+import { Product, ProductResponse } from "@/models/Product";
 
 // GET
-export interface queryParam {
-  name?: string;
-  category?: string;
-  type?: string;
-  purchasedId?: string;
-  barcode?: string;
-  date?: string;
-  start?: string;
-  end?: string;
-  phoneNumber?: string;
-}
 
 export function getAllProducts(
   params: queryParam = {}

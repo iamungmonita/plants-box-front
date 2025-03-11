@@ -6,15 +6,7 @@ import {
   updateCartItems,
 } from "@/helpers/addToCart";
 import CartCard from "../CartCard";
-
-export interface ShoppingCartProduct {
-  _id: string;
-  price: number;
-  stock: number;
-  quantity: number;
-  name: string;
-  discount: string;
-}
+import { ShoppingCartProduct } from "@/models/Cart";
 
 const ShoppingCart = ({ onClose }: { onClose?: () => void }) => {
   const [items, setItems] = useState<ShoppingCartProduct[]>([]);
@@ -36,7 +28,7 @@ const ShoppingCart = ({ onClose }: { onClose?: () => void }) => {
   return (
     <div className="w-full h-full flex flex-col">
       {/* Scrollable Items Container */}
-      <div className="flex-grow max-h-[70vh] scroll-container space-y-4 pr-2">
+      {/* <div className="flex-grow max-h-[70vh] scroll-container space-y-4 pr-2">
         {items.length > 0 ? (
           items.map((item) => (
             <CartCard
@@ -49,7 +41,7 @@ const ShoppingCart = ({ onClose }: { onClose?: () => void }) => {
         ) : (
           <p className="text-center text-gray-500">Your cart is empty.</p>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };

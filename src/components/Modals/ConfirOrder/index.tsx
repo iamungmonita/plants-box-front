@@ -10,13 +10,15 @@ import { IMembership, retrieveMembership } from "@/services/membership";
 const ConfirmOrder = ({
   onClose,
   onAction,
+  text,
 }: {
   onClose?: () => void;
   onAction?: () => void;
+  text?: string;
 }) => {
   return (
     <div className="flex flex-col min-h-full w-3/4 gap-4">
-      <p className="text-2xl">Are you sure you want to make an order?</p>
+      <p className="text-2xl">{text}</p>
       <div className="grid grid-cols-2 gap-4">
         <CustomButton text="Place Order" onHandleButton={onAction} />
         <CustomButton text="Not Yet" theme="alarm" onHandleButton={onClose} />

@@ -6,12 +6,17 @@ import CustomButton from "@/components/Button";
 import Form from "@/components/Form";
 import AutocompleteForm from "@/components/Autocomplete";
 import { IMembership, retrieveMembership } from "@/services/membership";
+import BasicModal from "@/components/Modal";
+import CreateForm from "@/app/(private)/admin/settings/membership/create/Form";
+import { useMembership } from "@/hooks/useMembership";
 
 const Membership = ({ onClose }: { onClose?: () => void }) => {
   const [membership, setMembership] = useState<IMembership[]>([]);
+  const [toggle, setToggle] = useState<boolean>(false);
   const methods = useForm({ defaultValues: { phoneNumber: "" } });
-  const { watch } = methods;
+  const { watch, setValue } = methods;
   const phoneNumber = watch("phoneNumber");
+  const { member } = useMembership();
 
   useEffect(() => {
     const fetchMembership = async () => {
@@ -32,14 +37,25 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
     localStorage.setItem("membership", JSON.stringify(member));
     window.dispatchEvent(new Event("memberUpdated"));
   };
+  const handleClose = () => {
+    setToggle(false);
+    if (onClose) {
+      onClose(); // Ensure onClose is actually called
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-full w-3/4 gap-4">
-      <Form methods={methods} className="w-full gap-4 grid grid-cols-5">
+      <BasicModal
+        ContentComponent={CreateForm}
+        onClose={handleClose}
+        open={toggle}
+      />
+      <Form methods={methods} className="w-full gap-4 grid grid-cols-4">
         <div className="col-span-4">
           <AutocompleteForm
             name="phoneNumber"
-            label="Check membership"
+            label="Name or Phone Number"
             options={membership.map((member) => ({
               label: `${member.firstName} ${member.lastName} (${member.phoneNumber})`, // Show both name and phone number
               value: member.phoneNumber, // Use phone number as value
@@ -55,7 +71,13 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
             }}
           />
         </div>
-        <CustomButton text="close" theme="alarm" onHandleButton={onClose} />
+        <div className="col-span-4 grid grid-cols-2 gap-4">
+          <CustomButton
+            text="Create New Membership"
+            onHandleButton={() => setToggle(true)}
+          />
+          <CustomButton text="close" theme="alarm" onHandleButton={onClose} />
+        </div>
       </Form>
     </div>
   );

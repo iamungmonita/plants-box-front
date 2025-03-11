@@ -1,13 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-import BasicModal from "@/components/Modal";
+
 import ReceiptPrinter from "@/components/Print";
 import { getOrder } from "@/services/order";
 import query from "query-string";
+
+import { useCartItems } from "@/hooks/useCartItems";
 const page = () => {
   const [base, setBase] = useState<string | null>(null);
-
+  const { items } = useCartItems();
   const convertFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -51,9 +52,7 @@ const page = () => {
   return (
     <div>
       <div>
-        <ReceiptPrinter />
-        {/* <h2>base64</h2>
-        <input type="file" name="" id="" onChange={handleFileChange} /> */}
+        <ReceiptPrinter items={items} />
       </div>
     </div>
   );

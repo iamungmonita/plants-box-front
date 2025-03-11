@@ -1,6 +1,6 @@
 import { formattedTimeStamp } from "@/helpers/format/time";
 import API_URL from "@/lib/api";
-import { ProductResponse } from "@/schema/products";
+import { ProductResponse } from "@/models/Product";
 
 export interface Column<T> {
   id: keyof T; // id should be a key of T, which is ProductReturnList in this case

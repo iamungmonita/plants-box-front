@@ -3,13 +3,13 @@ import { PurchasedOrderList } from "@/schema/order";
 import { getProductById } from "@/services/products";
 import { MdClose, MdEditDocument } from "react-icons/md";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { formattedTimeStamp } from "@/helpers/format/time";
 import BasicModal from "@/components/Modal";
 import dynamic from "next/dynamic";
 import API_URL from "@/lib/api";
-import { getOrder, getPurchasedOrderByProductId } from "@/services/order";
+import { getOrder } from "@/services/order";
 import ReusableTable from "@/components/Table";
 import { useForm } from "react-hook-form";
 import { Column } from "@/constants/TableHead/Product";
@@ -31,7 +31,11 @@ const Page = () => {
   );
   const [selectedEndDate, setSelectedEndDate] = useState<string | null>(null);
 
-  const methods = useForm();
+  const methods = useForm({
+    defaultValues: {
+      purchasedId: "",
+    },
+  });
   const [id, setId] = useState("");
 
   useEffect(() => {
@@ -40,6 +44,7 @@ const Page = () => {
   }, [params]);
 
   const purchasedId = methods.watch("purchasedId");
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -72,6 +77,12 @@ const Page = () => {
     setSelectedEndDate(newDate || null); // This triggers the second useEffect hook
   };
 
+  const clearAll = () => {
+    methods.setValue("purchasedId", "");
+    setSelectedStartDate(null);
+    setSelectedEndDate(null);
+  };
+
   return (
     <div>
       <div className="flex flex-col gap-4">
@@ -89,7 +100,11 @@ const Page = () => {
                 placeholder="PO-00001"
               />
             </div>
-            <CustomButton text="Clear" theme="alarm" />
+            <CustomButton
+              text="Clear"
+              theme="alarm"
+              onHandleButton={clearAll}
+            />
           </div>
           <input
             className="border rounded p-3.5 bg-gray-100"
@@ -120,7 +135,7 @@ const Page = () => {
           <ReusableTable
             columns={columns}
             data={orders}
-            onRowClick={() => console.log(orders.map((order) => order))}
+            onRowClick={(row) => router.push(`/admin/sale/${row.purchasedId}`)}
           />
         ) : (
           <div>No orders have been recorded for this product.</div>

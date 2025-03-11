@@ -8,20 +8,20 @@ export const columns: Column<PurchasedOrderList>[] = [
     label: "Purchased ID",
     minWidth: 130,
   },
+
   {
-    id: "orders",
-    label: "Sold Items",
-    minWidth: 100,
-    render: (_: any, row: PurchasedOrderList) => {
-      return row.orders.length || "N/A";
-    },
-  },
-  {
-    id: "discount",
+    id: "overallDiscount",
     label: "Discount",
     minWidth: 100,
     format: (value: number) =>
       value !== undefined && value !== null ? `${value}%` : "0%",
+  },
+  {
+    id: "convertedPoints",
+    label: "Points",
+    minWidth: 100,
+    format: (value: number) =>
+      value !== undefined && value !== null ? `$${value.toFixed(2)}` : "$0.00",
   },
   {
     id: "totalAmount",
