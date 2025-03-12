@@ -5,9 +5,9 @@ import ReusableTable from "@/components/Table";
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "@/constants/TableHead/Users";
-import { getUsers, RetrieveRoles } from "@/services/system";
+import { getUsers, getRoles } from "@/services/system";
 import CustomButton from "@/components/Button";
-import { Profile } from "@/schema/auth";
+import { Profile } from "@/models/Auth";
 
 const page = () => {
   const [users, setUsers] = useState<Profile[]>([]);

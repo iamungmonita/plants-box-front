@@ -1,13 +1,14 @@
 import API_URL from "@/lib/api";
+
+import { GET, POST } from ".";
+import query from "query-string";
+import { ILayout, queryParam } from "@/models/Layout";
+import { ICheckout } from "@/models/Order";
 import {
   IOrderResponse,
   ISelectedOrder,
-  orderResponse,
   PurchasedOrderList,
-} from "@/schema/order";
-import { GET } from ".";
-import query from "query-string";
-import { ILayout, queryParam } from "@/models/Layout";
+} from "@/models/Order";
 
 //GET
 export function getOrder(
@@ -26,7 +27,9 @@ export function getPurchasedOrderByPurchasedId(
   return GET<ILayout<ISelectedOrder>, {}>(url, {});
 }
 
-export function getOrderByPurchasedId(id: string): Promise<orderResponse> {
-  const url = `${API_URL}/order/` + id;
-  return GET<orderResponse, {}>(url, {});
+export function CreateOrder(
+  data: ICheckout
+): Promise<ILayout<PurchasedOrderList>> {
+  const url = `${API_URL}/order/create`;
+  return POST<ILayout<PurchasedOrderList>, ICheckout>(url, data);
 }

@@ -1,5 +1,5 @@
-import { ShoppingCartProduct } from "@/components/ShoppingCart";
 import { updateCartItems } from "@/helpers/addToCart";
+import { ShoppingCartProduct } from "@/models/Cart";
 import { useEffect, useState } from "react";
 
 export const useCartItems = () => {

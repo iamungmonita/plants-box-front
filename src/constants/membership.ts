@@ -1,4 +1,3 @@
-// Define an enum for Membership Types
 export enum MembershipType {
   SILVER = "Silver",
   GOLD = "Gold",
@@ -6,14 +5,12 @@ export enum MembershipType {
   POINT = "Point",
 }
 
-// Define an enum for Discount Values
 export enum DiscountValue {
   SILVER = 5,
   GOLD = 7,
   PLATINUM = 10,
 }
 
-// Define the membership options using enums
 export const optionsMembership = [
   {
     value: MembershipType.SILVER,
@@ -30,7 +27,6 @@ export const optionsMembership = [
   { value: MembershipType.POINT, label: MembershipType.POINT },
 ];
 
-// Updated getDiscountValue function
 export const getDiscountValue = (value: string): number => {
   switch (value) {
     case MembershipType.SILVER:

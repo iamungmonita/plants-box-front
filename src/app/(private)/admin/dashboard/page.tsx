@@ -3,7 +3,7 @@ import { useAuthContext } from "@/context/AuthContext";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getOrder } from "@/services/order";
-import { PurchasedOrderList } from "@/schema/order";
+
 import ReusableTable from "@/components/Table";
 import { columns } from "@/constants/TableHead/Dashboard";
 import { getBestSellingProducts } from "@/services/products";
@@ -15,6 +15,7 @@ import {
   getYearRange,
 } from "@/helpers/calculation/getDate";
 import { IChart, IRange } from "@/models/Product";
+import { PurchasedOrderList } from "@/models/Order";
 
 const page = () => {
   const router = useRouter();

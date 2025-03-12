@@ -1,15 +1,14 @@
-import { IRoleResponse } from "@/app/(private)/admin/settings/roles/create/page";
 import { formattedTimeStamp } from "@/helpers/format/time";
-import API_URL from "@/lib/api";
+import { IRoleResponse } from "@/models/Roles";
 
 export interface Column<T> {
-  id: keyof T; // id should be a key of T, which is ProductReturnList in this case
+  id: keyof T;
   label: string;
   minWidth?: number;
   align?: "right";
   format?: (value: number) => string;
   formatString?: (value: string) => string;
-  render?: (value: any, row: T) => React.ReactNode; // Render method for custom columns like image
+  render?: (value: any, row: T) => React.ReactNode;
 }
 
 export const columns: Column<IRoleResponse>[] = [

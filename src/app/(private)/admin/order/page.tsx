@@ -4,18 +4,18 @@ import { useForm } from "react-hook-form";
 import { VscClearAll } from "react-icons/vsc";
 import { TbShoppingCartPause } from "react-icons/tb";
 import { CiReceipt } from "react-icons/ci";
-import { MdClose, MdDelete, MdDeselect } from "react-icons/md";
+import { MdClose, MdDelete } from "react-icons/md";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
 import AutocompleteForm from "@/components/Autocomplete";
 import CustomButton from "@/components/Button";
 import ToggleButton from "@/components/ToggleButton";
 import { categories } from "@/constants/AutoComplete";
-import { optionsMethod } from "@/constants/options";
+import { PaymentOptions } from "@/constants/Options";
 import { useAuthContext } from "@/context/AuthContext";
 import { getAllProducts } from "@/services/products";
 import { useCartItems } from "@/hooks/useCartItems";
-import { settlement, clearLocalStorage } from "@/helpers/addToCart";
+import { clearLocalStorage, placeOrder } from "@/helpers/addToCart";
 import generateNextOrderId from "@/helpers/generateOrderId";
 import HorizontalLinearStepper from "@/components/Step";
 import BasicModal from "@/components/Modal";
@@ -24,30 +24,31 @@ import { useMembership } from "@/hooks/useMembership";
 import { amountToPoint, pointToAmount } from "@/helpers/calculation/getPoint";
 import { useHeldCarts } from "@/hooks/useHeldCart";
 import useFetch from "@/hooks/useFetch";
-import { getDiscountValue, MembershipType } from "@/constants/membership";
+import { getDiscountValue, MembershipType } from "@/constants/Membership";
 import ConfirmOrder from "@/components/Modals/ConfirOrder";
 import { updateMembershipPointById } from "@/services/membership";
-import PaymentQRCode from "@/components/Modals";
-import { useRouter } from "next/navigation";
+import PaymentQRCode from "@/components/Modals/QRcode";
 import { ProductResponse } from "@/models/Product";
 import Pagination from "@/components/Pagination";
 import ProfileComponent from "@/components/Profile";
+import { useDiscount } from "@/hooks/useDiscount";
 
 const Page = () => {
-  const router = useRouter();
   const [orderId, setOrderId] = useState<string>("PO-00001");
   const [paymentMethod, setPaymentMethod] = useState("");
-  const [calculatedDiscount, setCalculatedDiscount] = useState(0);
+  const [totalDiscountValue, setTotalDiscountValue] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [membershipPayment, setMembershipPayment] = useState("");
   const [toggleConfirmOrder, setToggleConfirmOrder] = useState(false);
   const [toggleMembership, setToggleMembership] = useState(false);
   const [toggleQRCode, setToggleQRCode] = useState(false);
   const [refresh, setRefresh] = useState(false);
-  const [convertedPoints, setConvertedPoints] = useState<number>(0);
-  const [overallDiscount, setOverallDiscount] = useState<number>(0);
+  const [totalPoints, setTotalPoints] = useState<number>(0);
+  const [totalDiscountPercentage, setTotalDiscountPercentage] =
+    useState<number>(0);
   const [paidAmount, setPaidAmount] = useState<number>(0);
   const [changeAmount, setChangeAmount] = useState<number>(0);
+  const { value, percentage } = useDiscount();
 
   const methods1 = useForm({ defaultValues: { barcode: "", category: "" } });
   const methods2 = useForm<{ heldCart: string }>({
@@ -65,6 +66,10 @@ const Page = () => {
   const { items, amount } = useCartItems();
   const { member } = useMembership();
   const carts = useHeldCarts([refresh]);
+  const updatedHeldOrders = carts.filter(
+    (cart: any) => cart.orderId !== orderId
+  );
+
   const { data: products = [] } = useFetch<ProductResponse[]>(
     getAllProducts,
     { category, search: barcode },
@@ -81,20 +86,29 @@ const Page = () => {
   }, [heldCart]);
 
   useEffect(() => {
-    const value = discountedValue();
-    const total = totalDiscountedPercentage();
-    setOverallDiscount(total);
-    setCalculatedDiscount(value);
+    setTotalDiscountPercentage(percentage);
+    setTotalDiscountValue(value);
     setTotalAmount(amount - value);
+    console.log("this happen");
   }, [items]);
 
   useEffect(() => {
     const discountValue =
       Number(discount) !== 0 ? (amount * Number(discount)) / 100 : 0;
     const newTotal = amount - discountValue;
-    setCalculatedDiscount(discountValue);
-    setTotalAmount(newTotal - discountedValue());
+    setTotalDiscountValue(discountValue);
+    setTotalAmount(newTotal - value);
   }, [discount, amount]);
+
+  useEffect(() => {
+    if (!items || items.length === 0) return; // Prevent overwriting with empty data
+    const updatedItems = items.map((item) => ({
+      ...item,
+      discount: item.isDiscountable ? discount : item.discount, // Only update if isDiscountable
+    }));
+    localStorage.setItem("plants", JSON.stringify(updatedItems));
+    window.dispatchEvent(new Event("cartUpdated"));
+  }, [discount, amount, membershipPayment, refresh]);
 
   const onRefresh = () => {
     setRefresh((prev) => !prev);
@@ -103,44 +117,44 @@ const Page = () => {
     methods3.setValue("paymentKHR", "");
     methods3.setValue("discount", "");
     setPaymentMethod("");
-    setCalculatedDiscount(0);
-    setConvertedPoints(0);
+    setTotalDiscountValue(0);
+    setTotalPoints(0);
     setMembershipPayment("");
   };
 
-  const handleSelect = (method: string) => {
+  const handleSelectPaymentMethod = (method: string) => {
     setPaymentMethod(method);
     if (method === "khqr") {
       setToggleQRCode(true);
     }
+    return;
   };
 
-  const placeOrder = async (orderId: string) => {
-    settlement(
+  const handleOrder = async (orderId: string) => {
+    const data = {
       items,
       amount,
       paymentMethod,
-      profile?.firstName,
-      member?._id as string,
+      profile: profile?.firstName,
+      id: member?._id as string,
       paidAmount,
       changeAmount,
-      overallDiscount,
-      calculatedDiscount,
+      totalDiscountPercentage,
+      totalDiscountValue,
       totalAmount,
-      convertedPoints,
-      orderId
-    );
-
-    const updatedHeldOrders = carts.filter(
-      (cart: any) => cart.orderId !== orderId
-    );
+      totalPoints,
+    };
+    const newData = Object.assign({}, data, { orderId });
+    const response = await placeOrder(newData);
+    if (response === false) {
+      alert("cannot make order");
+      return;
+    }
     setToggleConfirmOrder(false);
-    const points = amountToPoint(totalAmount);
-    const invoice = orderId;
     if (member && membershipPayment === MembershipType.POINT) {
       await updateMembershipPointById(member._id, {
-        points,
-        invoice,
+        points: amountToPoint(totalAmount),
+        invoice: orderId,
       });
     }
     localStorage.setItem("heldOrders", JSON.stringify(updatedHeldOrders));
@@ -148,122 +162,45 @@ const Page = () => {
     onRefresh();
   };
 
-  const handleOrder = (orderId: string) => {
-    placeOrder(orderId);
-    router.replace("/order");
-  };
-  const discountedValue = () => {
-    // if (
-    //   membershipPayment &&
-    //   member?.type &&
-    //   membershipPayment !== member.type
-    // ) {
-    //   return 0;
-    // }
-    return items.reduce((acc, item) => {
-      const discount = Number(item.discount) || 0; // Ensure a valid number
-      const price = Number(item.price) || 0;
-      const quantity = Number(item.quantity) || 0;
-
-      return acc + (discount / 100) * price * quantity;
-    }, 0);
-  };
-  const totalDiscountedPercentage = () => {
-    const isDiscountableItems = items.filter((item) => item.isDiscountable);
-    const value = items.reduce((acc, item) => {
-      const discount = Number(item.discount) || 0;
-
-      return acc + discount; // Total price before discount
-    }, 0);
-    return value / isDiscountableItems.length || value / items.length;
-  };
-
-  useEffect(() => {
-    if (!items || items.length === 0) return; // Prevent overwriting with empty data
-
-    const updatedItems = items.map((item) => ({
-      ...item,
-      discount: item.isDiscountable ? discount : item.discount, // Only update if isDiscountable
-    }));
-
-    localStorage.setItem("plants", JSON.stringify(updatedItems));
-    window.dispatchEvent(new Event("cartUpdated"));
-
-    let discountValue =
-      Number(discount) !== 0 ? (amount * Number(discount)) / 100 : 0;
-
-    let newTotal = amount - discountValue;
-
-    if (membershipPayment && membershipPayment !== member?.type) {
-      const convertedAmount = pointToAmount(Number(member?.points));
-      discountedValue();
-      newTotal = amount - convertedAmount;
-    }
-
-    const safeTotal = Number.isFinite(newTotal) ? newTotal : 0;
-
-    // ✅ Update state only if necessary to prevent re-renders
-    setTotalAmount((prevTotal) =>
-      prevTotal !== safeTotal ? safeTotal : prevTotal
-    );
-    setOverallDiscount(Number(discount));
-  }, [discount, amount, membershipPayment, refresh]); // ✅ Ensure dependencies don't trigger re-renders unnecessarily
-
   const selectDiscount = (type: MembershipType) => {
     const value = getDiscountValue(type);
-    setOverallDiscount(value);
-    setCalculatedDiscount(amount * (value / 100));
-    setConvertedPoints(0);
+    setTotalDiscountPercentage(value);
+    setTotalDiscountValue(amount * (value / 100));
+    setTotalPoints(0);
     const discountedAmount = amount - amount * (value / 100);
     setTotalAmount(discountedAmount);
   };
+
+  const handlePaymentChange = (paid: number, changes: number) => {
+    setPaidAmount(paid);
+    setChangeAmount(changes);
+  };
+
   const selectPoints = (points: number) => {
     if (amount > 0) {
+      setTotalAmount(amount);
       const convertedAmount = amount - pointToAmount(points);
       const discountedAmount = pointToAmount(points);
-      setConvertedPoints(discountedAmount);
-      setCalculatedDiscount(0);
-      setTotalAmount(convertedAmount);
       setMembershipPayment(MembershipType.POINT);
+      setTotalPoints(discountedAmount);
+      setTotalDiscountValue(0);
+      setTotalAmount(convertedAmount);
     } else {
       setTotalAmount(0);
-      setCalculatedDiscount(0);
+      setTotalDiscountValue(0);
     }
-  };
-  const onRemoveAllItems = () => {
-    clearLocalStorage();
-    onRefresh();
-  };
-
-  const onRemoveHoldOrder = (orderId: string) => {
-    clearLocalStorage();
-    onRefresh();
-    const updatedHeldOrders = carts.filter(
-      (cart: any) => cart.orderId !== orderId
-    );
-    localStorage.setItem("heldOrders", JSON.stringify(updatedHeldOrders));
-    const lastOrderId = localStorage.getItem("lastOrderId");
-    if (lastOrderId) {
-      localStorage.setItem("currentOrderId", lastOrderId as string);
-    }
-
-    setOrderId(generateNextOrderId());
   };
 
   const heldOrder = (orderId: string) => {
     if (items.length === 0) return;
     const heldOrders = JSON.parse(localStorage.getItem("heldOrders") || "[]");
-
     const orderExists = heldOrders.some(
       (order: { orderId: string }) => order.orderId === orderId
     );
-
     if (!orderExists) {
       const newOrder = { orderId, items };
       heldOrders.push(newOrder);
-
       localStorage.setItem("heldOrders", JSON.stringify(heldOrders));
-
       setOrderId(generateNextOrderId());
     } else {
       setOrderId(generateNextOrderId());
@@ -283,29 +220,41 @@ const Page = () => {
       console.log(selectedCart[0].orderId);
       setOrderId(selectedCart[0].orderId);
       localStorage.setItem("plants", JSON.stringify(selectedCart[0].items));
-
       window.dispatchEvent(new Event("cartUpdated"));
       const lastOrderId = localStorage.getItem("lastOrderId");
       localStorage.setItem("currentOrderId", lastOrderId as string);
     }
   };
 
+  const onRemoveAllItems = () => {
+    clearLocalStorage();
+    onRefresh();
+  };
+
+  const onRemoveHoldOrder = () => {
+    clearLocalStorage();
+    onRefresh();
+    localStorage.setItem("heldOrders", JSON.stringify(updatedHeldOrders));
+    const lastOrderId = localStorage.getItem("lastOrderId");
+    if (lastOrderId) {
+      localStorage.setItem("currentOrderId", lastOrderId as string);
+    }
+    setOrderId(generateNextOrderId());
+  };
+
   const clearSearch = () => {
     methods1.setValue("barcode", "");
     methods1.setValue("category", "");
   };
+
   const clearMembership = () => {
     localStorage.removeItem("membership");
     setTotalAmount(amount);
-    setCalculatedDiscount(0);
-    setConvertedPoints(0);
+    setTotalDiscountValue(0);
+    setTotalPoints(0);
     window.dispatchEvent(new Event("memberUpdated"));
   };
-  const handlePaymentChange = (paid: number, changes: number) => {
-    setPaidAmount(paid);
-    setChangeAmount(changes);
-    // You can store these values in state if needed
-  };
+
   return (
     <div className="flex w-full justify-between gap-4">
       <div className="w-full">
@@ -344,7 +293,7 @@ const Page = () => {
         </div>
         <Pagination items={products} />
       </div>
-      <div className="flex flex-col border items-start justify-between bg-white shadow-lg min-h-screen min-w-[530px] max-w-[530px] p-4 gap-4">
+      <div className="flex flex-col border items-start justify-between bg-white shadow-lg min-h-screen min-w-[540px] max-w-[540px] p-4 gap-4">
         <p className="text-base  flex justify-between items-center w-full">
           <span className="border flex items-center gap-2 rounded p-2">
             <CiReceipt className="text-2xl" />
@@ -358,18 +307,19 @@ const Page = () => {
         {paymentMethod !== "cash" && (
           <table className="w-full text-left text-sm text-gray-700">
             <thead>
-              <tr className="grid grid-cols-6 bg-gray-100 px-2 gap-4 border-b first-line:items-center">
-                <th className="py-2">Qty</th>
-                <th className="py-2 col-span-2 ml-6">Item</th>
-                <th className="py-2">Price</th>
-                <th className="py-2">Disc (%)</th>
-                <th className="py-2 ">Subtotal</th>
+              <tr className="grid grid-cols-6 py-2 bg-gray-100 px-2 gap-4 border-b first-line:items-center">
+                <th>Qty</th>
+                <th className="col-span-2 ml-6">Item</th>
+                <th>Price</th>
+                <th>Disc (%)</th>
+                <th>Subtotal</th>
               </tr>
             </thead>
           </table>
         )}
         <div className="flex flex-col w-full flex-grow overflow-y-auto items-start">
           <HorizontalLinearStepper
+            onRemoveAll={paymentMethod === ""}
             onPaymentChange={handlePaymentChange}
             step={paymentMethod}
             totalAmount={totalAmount}
@@ -437,7 +387,7 @@ const Page = () => {
               </div>
             )}
             {!member && (
-              <InputField name="discount" label="Discount" type="text" />
+              <InputField name="discount" label="Discount" type="number" />
             )}
           </div>
           {member && (
@@ -460,10 +410,10 @@ const Page = () => {
               <span>Subtotal:</span>${amount.toFixed(2)}
             </p>
             <p className="flex justify-between items-center">
-              <span>Discount:</span>${calculatedDiscount.toFixed(2)}
+              <span>Discount:</span>${totalDiscountValue.toFixed(2)}
             </p>
             <p className="flex justify-between items-center">
-              <span>Points:</span>${convertedPoints.toFixed(2)}
+              <span>Points:</span>${totalPoints.toFixed(2)}
             </p>
 
             <h2 className="flex justify-between text-2xl font-bold items-center">
@@ -475,9 +425,9 @@ const Page = () => {
         <div className="flex flex-col gap-4 w-full">
           <ToggleButton
             disabled={items.length <= 0}
-            options={optionsMethod}
+            options={PaymentOptions}
             selectedValue={paymentMethod}
-            onSelect={handleSelect}
+            onSelect={handleSelectPaymentMethod}
           />
         </div>
         <div className="grid grid-cols-4 gap-2 w-full mb-5">
@@ -494,7 +444,7 @@ const Page = () => {
 
           {heldCart === orderId ? (
             <CustomButton
-              onHandleButton={() => onRemoveHoldOrder(orderId)}
+              onHandleButton={onRemoveHoldOrder}
               icon={MdDelete}
               disabled={items.length <= 0}
               theme={`${items.length <= 0 ? "dark" : "alarm"}`}

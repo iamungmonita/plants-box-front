@@ -1,11 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import React from "react";
 import CustomButton from "@/components/Button";
-import Form from "@/components/Form";
-import AutocompleteForm from "@/components/Autocomplete";
-import { IMembership, retrieveMembership } from "@/services/membership";
 
 const ConfirmOrder = ({
   onClose,

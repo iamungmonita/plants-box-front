@@ -1,4 +1,4 @@
-import { PurchasedOrderList } from "@/schema/order";
+import { PurchasedOrderList } from "@/schema/Order";
 import { Column } from "./Product";
 import { formattedTimeStamp } from "@/helpers/format/time";
 

@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { CloseSharp } from "@mui/icons-material";
 import Image from "next/image";
-import CustomButton from "../Button";
+import CustomButton from "../../Button";
 
 const PaymentQRCode = ({
   onClose,
-  text = "0.00", // Default value to avoid undefined errors
+  text = "0.00",
 }: {
   onClose?: () => void;
   text?: string;
@@ -22,8 +21,8 @@ const PaymentQRCode = ({
   const [toggle, setToggle] = useState(true);
 
   useEffect(() => {
-    setCountdown(30); // Reset countdown on `text` change
-    setToggle(true); // Ensure QR is visible
+    setCountdown(30);
+    setToggle(true);
 
     const interval = setInterval(() => {
       setCountdown((prevCountdown) => {
@@ -31,7 +30,7 @@ const PaymentQRCode = ({
           clearInterval(interval);
           setToggle(false);
           if (onClose) {
-            onClose(); // Close when countdown reaches 0
+            onClose();
           }
           return 0;
         }
@@ -39,8 +38,8 @@ const PaymentQRCode = ({
       });
     }, 1000);
 
-    return () => clearInterval(interval); // Cleanup interval on unmount or rerun
-  }, [text]); // ✅ Runs when `text` changes
+    return () => clearInterval(interval);
+  }, [text]);
 
   return (
     <div className="w-2/4">
@@ -54,7 +53,6 @@ const PaymentQRCode = ({
               alt={"/assets/khqr.png"}
             />
           </div>
-
           <QRCodeSVG value={paymentUrl} size={256} />
           <p>{countdown} seconds remaining</p>
           <CustomButton theme="alarm" text="Close" onHandleButton={onClose} />

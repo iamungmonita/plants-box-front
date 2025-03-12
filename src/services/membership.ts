@@ -4,17 +4,8 @@ import { ILayout, Response } from "@/models/Layout";
 import API_URL from "@/lib/api";
 import query from "query-string";
 import { queryParam } from "@/models/Layout";
+import { IMembership } from "@/models/Membership";
 
-export interface IMembership extends FieldValues {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  type: string;
-  isActive: boolean;
-  invoices: string[];
-  points: number;
-  createdBy: string;
-}
 export interface IMemberResponse extends IMembership, Response {}
 export interface IMembershipResponseList {
   member: IMemberResponse[];
@@ -26,13 +17,18 @@ export function CreateMembership(
   const url = `${API_URL}/membership/create`;
   return POST<ILayout<IMemberResponse>, IMembership>(url, form);
 }
-export function retrieveMembership(
+export function getAllMembership(
   params: queryParam = {}
 ): Promise<ILayout<IMembershipResponseList>> {
   const queryString = query.stringify(params);
-
   const url = `${API_URL}/membership/retrieve?${queryString}`;
   return GET<ILayout<IMembershipResponseList>>(url);
+}
+export function getMembershipById(
+  id: string
+): Promise<ILayout<IMemberResponse>> {
+  const url = `${API_URL}/membership/retrieve/` + id;
+  return GET<ILayout<IMemberResponse>>(url);
 }
 
 export function updateMembershipPointById(

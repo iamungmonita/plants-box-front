@@ -1,21 +1,8 @@
 import React from "react";
-import { Button, Link, SvgIconTypeMap } from "@mui/material";
-import { OverridableComponent } from "@mui/material/OverridableComponent";
+import { Button, Link } from "@mui/material";
 import NextLink from "next/link";
 import { useAuthContext } from "@/context/AuthContext";
-
-export interface IButton {
-  text?: string;
-  path?: string;
-  theme?: string;
-  className?: string;
-  disabled?: boolean;
-  roleCodes?: string[];
-  type?: "button" | "submit" | "reset"; // Ensure proper typing for HTML button types
-  onHandleButton?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  onHandleDoubleClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  icon?: OverridableComponent<SvgIconTypeMap<{}, "svg">>;
-}
+import { IButton } from "@/models/Button";
 
 export const CustomButton = (props: IButton) => {
   const { isAuthorized, profile } = useAuthContext();
@@ -29,7 +16,6 @@ export const CustomButton = (props: IButton) => {
     path,
     theme,
     type = "button",
-
     roleCodes,
   } = props;
 
@@ -40,10 +26,10 @@ export const CustomButton = (props: IButton) => {
       alert("You are not authorized to perform this action.");
       return;
     }
-    onHandleButton?.(event); // Only call if authorized
+    onHandleButton?.(event);
   };
   const handleDoubleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onHandleDoubleClick?.(event); // Only call if authorized
+    onHandleDoubleClick?.(event);
   };
 
   return (
@@ -77,7 +63,7 @@ export const CustomButton = (props: IButton) => {
             paddingRight: 4,
             outline: "none",
             "&:hover": {
-              boxShadow: 1, // Hover color (light lightgray)
+              boxShadow: 1,
             },
           }}
           type={type}

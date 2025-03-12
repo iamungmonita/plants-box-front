@@ -1,18 +1,4 @@
-import { Response } from "@/models/Layout";
-import { FieldValues } from "react-hook-form";
 import * as yup from "yup";
-
-export interface IAuthRegister extends FieldValues {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  email: string;
-  role: string;
-  isActive: boolean;
-  password: string;
-  pictures?: string; // Array of image URLs
-}
-// export interface IAuthRegisterResponse extends IAuthRegister, Response {}
 
 export const RegisterSchema = yup.object().shape({
   firstName: yup.string().required("First Name is required"),
@@ -31,11 +17,6 @@ export const RegisterSchema = yup.object().shape({
     .min(6, "password must be at least 6 characters"),
 });
 
-export interface IAuthLogIn {
-  email: string;
-  password: string;
-}
-
 export const LogInSchema = yup.object().shape({
   email: yup.string().required("email is required").email("invalid email"),
   password: yup
@@ -43,20 +24,3 @@ export const LogInSchema = yup.object().shape({
     .required("password is required")
     .min(6, "password must be at least 6 characters"),
 });
-
-export interface Profile extends Response {
-  email: string;
-  password: string;
-  role: string;
-  codes: string[];
-  phoneNumber: string;
-  lastName: string;
-  firstName: string;
-  isActive: boolean;
-  createdBy: string;
-  pictures?: string; // Array of image URLs
-}
-export interface ProfileWithCount {
-  admin: Profile;
-  count: boolean;
-}

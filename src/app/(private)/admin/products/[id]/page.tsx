@@ -1,21 +1,13 @@
 "use client";
-import { PurchasedOrderList } from "@/schema/order";
-import { getAllProducts, getProductById } from "@/services/products";
-import { MdClose, MdEditDocument } from "react-icons/md";
-import Image from "next/image";
+import { getProductById } from "@/services/products";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { formattedTimeStamp } from "@/helpers/format/time";
-
-import API_URL from "@/lib/api";
 import ReusableTable from "@/components/Table";
 import { useForm } from "react-hook-form";
 import { Column } from "@/constants/TableHead/Product";
-import { Button, TextField } from "@mui/material";
-import { CreateForm } from "../create/Form";
+import { CreateForm } from "../../../../../components/Form/Product";
 import { useAuthContext } from "@/context/AuthContext";
-import InputField from "@/components/InputText";
-import Form from "@/components/Form";
 import { ProductResponse } from "@/models/Product";
 
 const Page = () => {
@@ -70,7 +62,6 @@ const Page = () => {
     },
   ];
 
-  // const purchasedId = methods.watch("purchasedId");
   useEffect(() => {
     if (!id) return;
     const fetchProduct = async () => {
@@ -92,9 +83,7 @@ const Page = () => {
     }
   }, [product]);
   if (!product) return <div>Loading product...</div>;
-  // if (!isAuthorized(["seller"])) {
-  //   return <div>You do not have permission to view this page.</div>;
-  // }
+
   return (
     <div>
       <div className="grid grid-cols-2 p-4 gap-4 max-xl:grid-cols-1">
@@ -105,25 +94,8 @@ const Page = () => {
           <CreateForm createId={product._id} />
         </div>
         <div className="space-y-4">
-          {/* <Form methods={methods}>
-            <InputField
-              // className="w-1/2"
-              // {...methods.register("purchasedId")}
-              type="text"
-              name="purchasedId"
-              label="Search Purchased ID"
-              placeholder="PO-00001"
-            />
-          </Form> */}
-
           {product.updatedCount.length > 0 ? (
-            <ReusableTable
-              columns={columns}
-              data={product.updatedCount}
-              onRowClick={() =>
-                console.log(purchasedOrders.map((order) => order))
-              }
-            />
+            <ReusableTable columns={columns} data={product.updatedCount} />
           ) : (
             <div>No orders have been recorded for this product.</div>
           )}

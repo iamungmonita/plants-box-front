@@ -4,12 +4,13 @@ import { Controller, useFormContext } from "react-hook-form";
 
 interface InputFieldProps {
   name: string;
-  type: string;
+  type: "text" | "number" | "email" | "password";
   label: string;
   multiline?: boolean;
   minRows?: number;
   placeholder?: string;
-  step?: string; // Step for numeric inputs
+  step?: string;
+  allowDecimals?: boolean; // New prop to control decimals
   onBlur?: () => void;
 }
 
@@ -20,7 +21,8 @@ const InputField: React.FC<InputFieldProps> = ({
   multiline = false,
   minRows = 1,
   placeholder,
-  step = "0.01",
+  step = "1", // Default step for whole numbers
+  allowDecimals = true, // Default to whole numbers
   onBlur,
 }) => {
   const { control } = useFormContext();
@@ -37,7 +39,7 @@ const InputField: React.FC<InputFieldProps> = ({
             "& .MuiFormHelperText-root": { fontFamily: "var(--text)" },
           }}
           {...field}
-          type={type}
+          type={type === "number" ? "text" : type} // Keep type="text" for manual control
           label={label}
           fullWidth
           placeholder={placeholder}
@@ -48,16 +50,28 @@ const InputField: React.FC<InputFieldProps> = ({
           helperText={fieldState.error?.message}
           InputLabelProps={{ shrink: true }}
           inputProps={{
-            min: type === "number" ? 0 : undefined, // Apply min only for numeric fields
-            step: type === "number" ? step : undefined, // Apply step only for numeric fields
+            min: type === "number" ? 0 : undefined,
+            step: allowDecimals ? "0.01" : "1", // Dynamic step
+          }}
+          onChange={(e) => {
+            let value = e.target.value;
+
+            if (type === "number") {
+              const regex = allowDecimals ? /^\d*\.?\d*$/ : /^\d*$/; // Allow decimals if enabled
+              if (!regex.test(value)) return;
+            }
+
+            field.onChange(value);
           }}
           onBlur={(e) => {
             if (type === "number") {
-              const value = parseFloat(e.target.value) || 0; // Normalize numeric value
-              field.onChange(value); // Update form state
+              const numericValue = allowDecimals
+                ? parseFloat(e.target.value) || 0
+                : parseInt(e.target.value, 10) || 0; // Convert to int or float
+              field.onChange(numericValue);
             }
-            field.onBlur(); // Trigger React Hook Form's onBlur
-            if (onBlur) onBlur(); // Call additional onBlur logic
+            field.onBlur();
+            if (onBlur) onBlur();
           }}
         />
       )}

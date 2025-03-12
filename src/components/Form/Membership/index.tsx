@@ -1,27 +1,29 @@
-import AutocompleteForm from "@/components/Autocomplete";
 import CustomButton from "@/components/Button";
 import Checkbox from "@/components/Checkbox";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
-import { optionsMembership } from "@/constants/membership";
 import { useAuthContext } from "@/context/AuthContext";
 import {
   amountToPoint,
   getMembershipType,
 } from "@/helpers/calculation/getPoint";
-import { PurchasedOrderList } from "@/schema/order";
-import { CreateMembership, IMembership } from "@/services/membership";
-import { getPurchasedOrderByPurchasedId } from "@/services/order";
-import { useMembership } from "@/hooks/useMembership";
+import {
+  CreateMembership,
+  getAllMembership,
+  getMembershipById,
+} from "@/services/membership";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useCartItems } from "@/hooks/useCartItems";
-import { ShoppingCartProduct } from "@/models/Cart";
+import { IMembership } from "@/models/Membership";
+import useFetch from "@/hooks/useFetch";
 
 const CreateForm = ({
   onClose,
   onAction,
+  memberId,
 }: {
+  memberId?: string;
   onClose?: () => void;
   onAction?: () => void;
 }) => {
@@ -35,12 +37,21 @@ const CreateForm = ({
       purchasedId: "",
     },
   });
-  const { watch, setValue, handleSubmit, register } = methods;
+  const { setValue, handleSubmit } = methods;
   const { profile } = useAuthContext();
   const [invoices, setInvoices] = useState<string[]>([]);
-  const [orders, setOrders] = useState<ShoppingCartProduct[]>([]);
   const [purchasedOrderId, setPurchasedOrderId] = useState<string>("");
   const { items, amount } = useCartItems();
+  useEffect(() => {
+    if (!memberId) return;
+    const fetch = async () => {
+      const response = await getMembershipById(memberId);
+      if (response.data) {
+        console.log(response.data);
+      }
+    };
+    fetch();
+  }, [memberId]);
   useEffect(() => {
     const orderId = localStorage.getItem("lastOrderId") ?? "";
     if (orderId) {
@@ -66,36 +77,16 @@ const CreateForm = ({
 
       const response = await CreateMembership(updatedData);
       if (response.data) {
-        console.log(response.data);
+        if (onClose) {
+          onClose();
+        }
       } else {
-        console.log(response.message);
+        //aerlt message
       }
     } else {
       console.log("not found");
     }
   };
-  //   useEffect(() => {
-  //     const fetchMembership = async () => {
-  //       try {
-  //         const response = await getPurchasedOrderByPurchasedId(purchasedId);
-  //
-  //         if (Array.isArray(response.data) && response.data.length > 0) {
-  //           setOrders(response.data[0]); // ✅ Safely extract the first object
-  //         } else {
-  //           console.warn(
-  //             "No orders found or invalid response format:",
-  //             response.data
-  //           );
-  //           setOrders({} as PurchasedOrderList); // Fallback to an empty object
-  //         }
-  //       } catch (error) {
-  //         console.error("Error fetching membership:", error);
-  //       }
-  //     };
-  //
-  //     fetchMembership();
-  //   }, [purchasedId, member]);
-  const [toggle, setToggle] = useState<boolean>(false);
 
   return (
     <>

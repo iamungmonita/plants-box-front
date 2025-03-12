@@ -1,4 +1,4 @@
-import { IMemberResponse, IMembership } from "@/services/membership";
+import { IMemberResponse } from "@/services/membership";
 import { useEffect, useState } from "react";
 
 export const updateMember = (): IMemberResponse | null => {

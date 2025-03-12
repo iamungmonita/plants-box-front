@@ -1,5 +1,5 @@
 "use client";
-import { PurchasedOrderList } from "@/schema/order";
+import { PurchasedOrderList } from "@/schema/Order";
 import { getProductById } from "@/services/products";
 import { MdClose, MdEditDocument } from "react-icons/md";
 import Image from "next/image";

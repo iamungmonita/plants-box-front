@@ -3,9 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getPurchasedOrderByPurchasedId } from "@/services/order";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
-import { PurchasedOrderList } from "@/schema/order";
 import { formattedTimeStamp } from "@/helpers/format/time";
 import { formattedKHR } from "@/helpers/format/currency";
+import { PurchasedOrderList } from "@/models/Order";
 
 const Invoice = () => {
   const params = useParams();
@@ -130,7 +130,7 @@ const Invoice = () => {
                     <td className="text-left">{item.quantity}</td>
                     <td className="text-left">${item.price.toFixed(2)}</td>
                     <td className="text-right">
-                      {item.discount || order.overallDiscount || 0}%
+                      {item.discount || order.totalDiscountValue || 0}%
                     </td>
 
                     <td className="text-right">
@@ -163,11 +163,11 @@ const Invoice = () => {
                 </tr>
                 <tr className="flex items-center justify-between w-full">
                   <td className="font-semibold">Discount:</td>
-                  <td>{order.overallDiscount ?? 0}%</td>
+                  <td>{order.totalDiscountPercentage ?? 0}%</td>
                 </tr>
                 <tr className="flex items-center justify-between w-full">
                   <td className="font-semibold">Points:</td>
-                  <td>${(order.convertedPoints ?? 0).toFixed(2)} </td>
+                  <td>${(order.totalPoints ?? 0).toFixed(2)} </td>
                 </tr>
                 <tr
                   id="header"

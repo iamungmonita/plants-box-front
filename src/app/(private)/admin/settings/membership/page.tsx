@@ -6,20 +6,21 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "@/constants/TableHead/Membership";
 import CustomButton from "@/components/Button";
-import { IMemberResponse, retrieveMembership } from "@/services/membership";
+import { IMemberResponse, getAllMembership } from "@/services/membership";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
 import AutocompleteForm from "@/components/Autocomplete";
-import { optionsMembership } from "@/constants/membership";
-
+import { optionsMembership } from "@/constants/Membership";
+import { useRouter } from "next/navigation";
 const page = () => {
+  const router = useRouter();
   const [membership, setMembership] = useState<IMemberResponse[]>([]);
   const methods = useForm({ defaultValues: { phoneNumber: "", type: "" } });
   const { phoneNumber, type } = methods.watch();
   useEffect(() => {
     const fetchMembership = async () => {
       try {
-        const response = await retrieveMembership({
+        const response = await getAllMembership({
           search: phoneNumber,
           type,
         });

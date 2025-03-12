@@ -1,4 +1,4 @@
-import { PurchasedOrderList } from "@/schema/order";
+import { PurchasedOrderList } from "./Order";
 import { FieldValues } from "react-hook-form";
 import { Response } from "./Layout";
 
@@ -25,6 +25,7 @@ export interface ProductResponse extends Response {
   stock: number; // Number of plants available in stock
   barcode: string;
   discount?: number;
+  convertedPoints?: number;
   stockUpdateCount?: number;
   updatedCount: ProductUpdateCount[];
   createdBy?: string;

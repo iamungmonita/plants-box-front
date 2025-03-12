@@ -47,7 +47,11 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
             padding: 1.5,
             borderColor: "#ccc",
             backgroundColor:
-              selectedValue === item.value ? "var(--muted-accent)" : "white",
+              selectedValue === item.value
+                ? "var(--muted-accent)"
+                : disabled
+                ? "lightgray"
+                : "white",
             color: selectedValue === item.value ? "white" : "black",
             "&:hover": {
               backgroundColor:

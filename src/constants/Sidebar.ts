@@ -5,3 +5,9 @@ export const sidebar = [
   { name: "Sale Records", path: "/admin/sale" },
   { name: "Log", path: "/admin/log" },
 ];
+
+export const settingPaths = [
+  { path: "users" },
+  { path: "roles" },
+  { path: "membership" },
+];

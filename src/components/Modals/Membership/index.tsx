@@ -5,23 +5,22 @@ import { useForm } from "react-hook-form";
 import CustomButton from "@/components/Button";
 import Form from "@/components/Form";
 import AutocompleteForm from "@/components/Autocomplete";
-import { IMembership, retrieveMembership } from "@/services/membership";
+import { getAllMembership } from "@/services/membership";
 import BasicModal from "@/components/Modal";
-import CreateForm from "@/app/(private)/admin/settings/membership/create/Form";
-import { useMembership } from "@/hooks/useMembership";
+import { IMembership } from "@/models/Membership";
+import CreateForm from "@/components/Form/Membership";
 
 const Membership = ({ onClose }: { onClose?: () => void }) => {
   const [membership, setMembership] = useState<IMembership[]>([]);
   const [toggle, setToggle] = useState<boolean>(false);
   const methods = useForm({ defaultValues: { phoneNumber: "" } });
-  const { watch, setValue } = methods;
+  const { watch } = methods;
   const phoneNumber = watch("phoneNumber");
-  const { member } = useMembership();
 
   useEffect(() => {
     const fetchMembership = async () => {
       try {
-        const response = await retrieveMembership({ phoneNumber });
+        const response = await getAllMembership({ phoneNumber });
         if (response.data?.member) {
           setMembership(response.data.member);
         }
@@ -40,7 +39,7 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
   const handleClose = () => {
     setToggle(false);
     if (onClose) {
-      onClose(); // Ensure onClose is actually called
+      onClose();
     }
   };
 
@@ -57,16 +56,15 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
             name="phoneNumber"
             label="Name or Phone Number"
             options={membership.map((member) => ({
-              label: `${member.firstName} ${member.lastName} (${member.phoneNumber})`, // Show both name and phone number
-              value: member.phoneNumber, // Use phone number as value
+              label: `${member.firstName} ${member.lastName} (${member.phoneNumber})`,
+              value: member.phoneNumber,
             }))}
             onChange={(value) => {
-              // Find the member using the phone number and then pass its id to selectMembership
               const selectedMember = membership.find(
                 (member) => member.phoneNumber === value
               );
               if (selectedMember) {
-                selectMembership(selectedMember._id); // Pass the id of the selected member
+                selectMembership(selectedMember._id);
               }
             }}
           />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AdminCard from "../Card/Admin";
+import AdminCard from "../Card";
 import { ProductResponse } from "@/models/Product";
 
 export const ITEMS_PER_PAGE = 8;
@@ -25,7 +25,6 @@ const Pagination = <T extends ProductResponse>({ items }: { items: T[] }) => {
         ))}
       </div>
 
-      {/* Pagination Controls */}
       <div className="flex justify-center gap-2 mt-4">
         <button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}

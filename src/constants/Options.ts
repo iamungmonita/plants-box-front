@@ -1,8 +1,4 @@
-export const optionsCurrency = [
-  { value: "usd", label: "USD" },
-  { value: "khr", label: "KHR" },
-];
-export const optionsMethod = [
+export const PaymentOptions = [
   {
     value: "khqr",
     image: "/assets/KHQR.png",

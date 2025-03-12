@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import React, { useState } from "react";
 import Image from "next/image";
-import { sidebar } from "@/constants/sidebar";
+import { settingPaths, sidebar } from "@/constants/Sidebar";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import {
   MdCurrencyExchange,
@@ -56,7 +56,6 @@ function ProfileSidebar() {
       />
 
       <div className={` flex flex-col h-full`}>
-        {/* Logo Section */}
         <div className="h-[140px] justify-center py-4 px-6 flex items-center max-md:hidden -mt-2 -ml-2 w-[calc(100%+1.125rem)] mb-4">
           <Image
             src="/assets/plant.jpg"
@@ -66,8 +65,6 @@ function ProfileSidebar() {
             height={120}
           />
         </div>
-
-        {/* Sidebar Items (Takes Up Remaining Space) */}
         <ul className="flex flex-col flex-grow">
           {sidebar.map((item, index) => (
             <Link
@@ -100,25 +97,23 @@ function ProfileSidebar() {
             </button>
             {openDropdowns.has("settings") && (
               <ul className="flex flex-col">
-                {[
-                  { path: "users" },
-                  { path: "roles" },
-                  { path: "membership" },
-                ].map((item) => (
+                {settingPaths.map((setting) => (
                   <Link
-                    key={item.path}
+                    key={setting.path}
                     style={{
-                      backgroundColor: isActive(`/admin/settings/${item.path}`)
+                      backgroundColor: isActive(
+                        `/admin/settings/${setting.path}`
+                      )
                         ? "var(--medium-light)"
                         : "",
-                      color: isActive(`/admin/settings/${item.path}`)
+                      color: isActive(`/admin/settings/${setting.path}`)
                         ? "white"
                         : "",
                     }}
                     className="py-3 !pl-6 capitalize border-t px-4 cursor-pointer hover:bg-gray-100"
-                    href={`/admin/settings/${item.path}`}
+                    href={`/admin/settings/${setting.path}`}
                   >
-                    {item.path}
+                    {setting.path}
                   </Link>
                 ))}
               </ul>

@@ -11,7 +11,7 @@ import { useExchangeRate } from "@/hooks/useExchangeRate";
 export interface ExchangeRate {
   rate: string;
 }
-export const ExchangeRate = ({ onClose }: { onClose: () => void }) => {
+export const ExchangeRate = ({ onClose }: { onClose?: () => void }) => {
   const exchangeRate = useExchangeRate();
   const [toggleAlert, setToggleAlert] = useState(false);
 

@@ -45,6 +45,7 @@ export const CreateForm = ({ createId }: { createId: string }) => {
   const [_, setLoading] = useState<boolean>(false);
   const [toggleAlert, setToggleAlert] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>("");
+  const [error, setError] = useState<boolean>(false);
 
   const onSubmit = async (data: Product) => {
     try {
@@ -58,17 +59,17 @@ export const CreateForm = ({ createId }: { createId: string }) => {
         createdBy: createdBy,
         pictures: fileBase64 || data.pictures, // Ensure the correct image is sent
       };
-      console.log(productData);
-
       const response = createId
         ? await updateProductDetailsById(createId, productData)
         : await AddNewProduct(productData);
 
-      if (response.success) {
+      if (response.data) {
         setToggleAlert(true);
+        setError(false);
         setAlertMessage("Success!");
       } else {
-        setToggleAlert(false);
+        setToggleAlert(true);
+        setError(true);
         setAlertMessage(`Error: ${response.message}`);
       }
       if (!createId) {
@@ -159,9 +160,11 @@ export const CreateForm = ({ createId }: { createId: string }) => {
         setPreviewUrl={setPreviewUrl}
         handleRemoveImage={handleRemoveImage}
       />
+
       <AlertPopUp
         open={toggleAlert}
         message={alertMessage}
+        error={error}
         onClose={() => setToggleAlert(false)}
       />
 

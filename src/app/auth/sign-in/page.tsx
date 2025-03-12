@@ -4,14 +4,15 @@ import Form from "@/components/Form";
 import { CustomButton } from "@/components/Button";
 import InputField from "@/components/InputText";
 import { useAuthContext } from "@/context/AuthContext";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { IAuthLogIn, LogInSchema } from "@/schema/auth";
+import { LogInSchema } from "@/schema/auth";
 import { SignIn } from "@/services/authentication";
 import BasicModal from "@/components/Modal";
 import MoneyCounter from "@/components/Modals/MoneyCounter";
+import { IAuthLogIn } from "@/models/Auth";
 
 const Page = () => {
   const { signIn, onRefresh } = useAuthContext();
@@ -24,9 +25,7 @@ const Page = () => {
   });
   const { setError } = methods;
   const router = useRouter();
-
   const [toggle, setToggle] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true); // New loading state
 
   const onSubmitForm = async (data: IAuthLogIn) => {
     const response = await SignIn(data);
@@ -48,18 +47,6 @@ const Page = () => {
       console.log(response.message);
     }
   };
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     router.push("/admin/dashboard");
-  //   }
-  // }, []);
-  // if (loading) {
-  //   return (
-  //     <div>
-  //       <CircularProgress size="30px" />
-  //     </div>
-  //   ); // Optionally show a loading spinner or animation
-  // }
   return (
     <div className="flex justify-center items-center min-h-screen w-full">
       <div className="max-w-[400px] w-full">

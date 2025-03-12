@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useParams } from "next/navigation";
-import { CreateForm } from "./Form";
+import { CreateForm } from "../../../../../components/Form/Product";
 const Page: React.FC = () => {
   const searchParam = useParams();
   const createId = searchParam.id as string;

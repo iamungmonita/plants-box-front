@@ -1,46 +1,13 @@
-import API_URL from "@/lib/api";
 import { getProductById, updateProductStockById } from "@/services/products";
-import AlertPopUp from "@/components/AlertPopUp";
-import { useState } from "react";
 import { ShoppingCartProduct } from "@/models/Cart";
-type CartItem = {
-  _id: string;
-  price: number;
-  stock: number;
-  quantity: number;
-  name: string;
-  discount: number | string | undefined;
-};
+import { CreateOrder } from "@/services/order";
+import { ICheckout } from "@/models/Order";
 
-export const addToCart = async <
-  T extends {
-    _id: string;
-    price: number;
-    stock: number;
-    pictures: string;
-    name: string;
-    size: string;
-    discount: number | string;
-  }
->(
-  id: string,
-  productType: string = "default",
-  setSnackbarMessage?: (message: string) => void // Pass a function to update Snackbar
-) => {
+export const addToCart = async (id: string, productType: string = "plants") => {
   try {
     const productData = await getProductById(id);
     if (productData.data) {
-      const {
-        _id,
-        price,
-        stock,
-        pictures,
-        name,
-        discount,
-        convertedPoints,
-        isDiscountable,
-      } = productData.data;
-      const imagePaths = `${API_URL}${pictures}`;
+      const { _id, price, stock, name, isDiscountable } = productData.data;
       const storedItems: ShoppingCartProduct[] = JSON.parse(
         localStorage.getItem(productType) || "[]"
       );
@@ -49,23 +16,17 @@ export const addToCart = async <
       const existingItemIndex = storedItems.findIndex(
         (item) => item._id === id
       );
-
       if (existingItemIndex !== -1) {
+        console.log(storedItems[existingItemIndex].quantity, stock);
+
         // If the item exists, update the quantity and price
         if (storedItems[existingItemIndex].quantity >= stock) {
-          setSnackbarMessage?.(
-            `Sorry, we only have ${stock} of ${name} in stock.`
-          );
           return;
         } else {
-          storedItems[existingItemIndex].quantity *
-            storedItems[existingItemIndex].price;
           storedItems[existingItemIndex].quantity += 1;
           storedItems[existingItemIndex].stock = stock;
-          setSnackbarMessage?.(`Another one of ${name} has been added to cart`);
         }
       } else {
-        // If it's a new item, add it to the cart
         storedItems.push({
           _id,
           discount: "0",
@@ -74,13 +35,10 @@ export const addToCart = async <
           quantity: 1,
           name,
           isDiscountable,
-          convertedPoints: convertedPoints ?? "0",
+          convertedPoints: 0,
         });
-        setSnackbarMessage?.(`${name} has been added to cart`);
       }
       localStorage.setItem(productType, JSON.stringify(storedItems));
-
-      // Dispatch custom event to notify other components about the cart update
       window.dispatchEvent(new Event("cartUpdated"));
     }
   } catch (err) {
@@ -98,11 +56,9 @@ export const updateCartItems = () => {
       (acc, item) => acc + item.price * item.quantity,
       0
     );
-
     return { items: storedItems, total: amount };
   }
-
-  return { items: [], total: 0 }; // Return empty items and 0 if cart is empty
+  return { items: [], total: 0 };
 };
 
 export const clearLocalStorage = () => {
@@ -141,95 +97,57 @@ export const handleDecrement = (id: string, currentQty: number) => {
   }
 };
 
-export const handleOrder = async (
-  orders: ShoppingCartProduct[],
-  amount: number,
-  paymentMethod: string,
-  profile: string | undefined,
-  id: string,
-  paidAmount: number,
-  changeAmount: number,
-  overallDiscount: number,
-  calculatedDiscount: number,
-  totalAmount: number,
-  convertedPoints: number,
-  orderId: string
-) => {
-  await fetch(`${API_URL}/order/create`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify({
-      orders,
-      amount,
-      paymentMethod,
-      profile,
-      id,
-      paidAmount,
-      changeAmount,
-      overallDiscount,
-      calculatedDiscount,
-      convertedPoints,
-      totalAmount,
-      orderId,
-    }),
-  })
-    .then((result) => result.json())
-    .then((a) => console.log(a))
-    .catch((err) => console.log(err));
-};
-
 export const handleQuantityChange = (id: string, quantity: number) => {
   const { items } = updateCartItems();
   const updatedItems = items.map((item) =>
     item._id === id ? { ...item, quantity } : item
   );
-
   localStorage.setItem("plants", JSON.stringify(updatedItems));
   window.dispatchEvent(new Event("cartUpdated"));
   return { items: updatedItems };
 };
 
-export const settlement = async (
-  items: ShoppingCartProduct[],
-  amount: number,
-  paymentMethod: string,
-  profile: string | undefined,
-  id: string,
-  paidAmount: number,
-  changeAmount: number,
-  overallDiscount: number,
-  calculatedDiscount: number,
-  totalAmount: number,
-  convertedPoints: number,
-  orderId: string
-) => {
+export const settlement = async (data: ICheckout) => {
+  const { items = [], ...param } = data;
+  if (!items || !Array.isArray(items)) {
+    console.error("Items are missing or not an array");
+    return;
+  }
+
   try {
     await Promise.all(
-      items.map(({ _id, quantity }) => handleCheckout(_id, quantity))
-    );
-    handleOrder(
-      items,
-      amount,
-      paymentMethod,
-      profile,
-      id,
-      paidAmount,
-      changeAmount,
-      overallDiscount,
-      calculatedDiscount,
-      totalAmount,
-      convertedPoints,
-      orderId
+      items.map(({ _id, quantity }) => {
+        handleCheckout(_id, quantity);
+        return { _id, quantity };
+      })
     );
 
+    const response = await handleOrder(data);
     return {
+      response,
       items: clearLocalStorage().items,
       total: clearLocalStorage().total,
     };
   } catch (error) {
     console.error("Checkout failed:", error);
   }
+};
+
+export const handleOrder = async (data: ICheckout) => {
+  const response = await CreateOrder(data);
+  if (response.message) {
+    console.log(response.message);
+    return false;
+  } else {
+    return true;
+  }
+};
+
+export const placeOrder = async (data: ICheckout) => {
+  const response = await settlement(data);
+  return response?.response;
+};
+
+export const filterCartsByOrderId = (carts: any[], orderId: string) => {
+  return carts.filter((cart: any) => cart.orderId !== orderId);
 };

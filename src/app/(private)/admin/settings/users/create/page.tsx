@@ -5,21 +5,19 @@ import CustomButton from "@/components/Button";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
 import { useAuthContext } from "@/context/AuthContext";
-import API_URL from "@/lib/api";
-import { IAuthRegister, RegisterSchema } from "@/schema/auth";
+
+import { RegisterSchema } from "@/schema/auth";
 import { SignUp } from "@/services/authentication";
-import { RetrieveRoles } from "@/services/system";
+import { getRoles } from "@/services/system";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button } from "@mui/material";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { FieldValues, useForm } from "react-hook-form";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import ImageUpload from "@/components/Upload";
 import { convertFileToBase64 } from "@/helpers/format/picture";
 import useFetch from "@/hooks/useFetch";
 import AlertPopUp from "@/components/AlertPopUp";
 import Checkbox from "@/components/Checkbox";
+import { IAuthRegister } from "@/models/Auth";
 
 const Page = () => {
   const { profile, isAuthorized } = useAuthContext();
@@ -37,14 +35,14 @@ const Page = () => {
     },
     resolver: yupResolver(RegisterSchema),
   });
-  // const [roles, setRoles] = useState<string[]>([]);
+
   const {
     formState: { errors },
   } = methods;
   console.log(errors);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const { data: roles = [] } = useFetch(RetrieveRoles, {}, []);
+  const { data: roles = [] } = useFetch(getRoles, {}, []);
   const [error, setError] = useState(false);
   const [toggleAlert, setToggleAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");

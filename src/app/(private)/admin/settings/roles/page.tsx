@@ -5,9 +5,9 @@ import ReusableTable from "@/components/Table";
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "@/constants/TableHead/Role";
-import { RetrieveRoles } from "@/services/system";
+import { getRoles } from "@/services/system";
 import CustomButton from "@/components/Button";
-import { IRoleResponse } from "./create/page";
+import { IRoleResponse } from "@/models/Roles";
 
 const page = () => {
   const [roles, setRoles] = useState<IRoleResponse[]>([]);
@@ -16,7 +16,7 @@ const page = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await RetrieveRoles();
+        const response = await getRoles();
         setRoles(response.data ?? []);
       } catch (error) {
         console.error("Error uploading:", error);

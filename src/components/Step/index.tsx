@@ -12,12 +12,14 @@ export interface Step {
   step: string;
   totalAmount: number;
   onPaymentChange: (usd: number, khr: number) => void;
+  onRemoveAll: boolean; // Listening for reset signal from parent
 }
 
 export default function HorizontalLinearStepper({
   step,
   totalAmount,
   onPaymentChange,
+  onRemoveAll,
 }: Step) {
   const exchangeRate = useExchangeRate();
   const [activeStep, setActiveStep] = useState(0);
@@ -31,7 +33,7 @@ export default function HorizontalLinearStepper({
     },
   });
 
-  const { watch } = methods;
+  const { watch, setValue } = methods;
   const { usd, khr, change } = watch();
 
   useEffect(() => {
@@ -41,6 +43,14 @@ export default function HorizontalLinearStepper({
       setActiveStep(0);
     }
   }, [step]);
+
+  useEffect(() => {
+    if (onRemoveAll) {
+      setValue("usd", "");
+      setValue("khr", "");
+      setValue("change", "");
+    }
+  }, [onRemoveAll, setValue]);
 
   useEffect(() => {
     convertChangeToKHR();
@@ -102,17 +112,19 @@ export default function HorizontalLinearStepper({
               <div className="flex flex-col gap-4 items-start justify-between">
                 <h2 className="text-xl">Received Amount</h2>
                 <div className="grid grid-cols-2 items-center justify-between gap-4 w-full">
-                  <InputField type="text" label="US Dollar" name="usd" />
-                  <InputField type="text" label="Cambodian Riel" name="khr" />
+                  <InputField type="number" label="US Dollar" name="usd" />
+                  <InputField type="number" label="Cambodian Riel" name="khr" />
                 </div>
               </div>
               <div className="flex flex-col gap-4 items-start justify-between">
                 <h2 className="text-xl">
                   Return Amount:
-                  <span>{`$${returnAmount().returnChanges?.toFixed(2)}`}</span>
+                  <span className="text-red-500">{` $${returnAmount().returnChanges?.toFixed(
+                    2
+                  )}`}</span>
                 </h2>
                 <div className="grid grid-cols-2 items-center justify-between gap-4 w-full">
-                  <InputField type="text" label="US Dollar" name="change" />
+                  <InputField type="number" label="US Dollar" name="change" />
                   <input
                     className="text-2xl p-2 rounded bg-gray-100"
                     value={`${changeToKHR || ""}`}

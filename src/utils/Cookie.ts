@@ -1,5 +1,3 @@
-import { EmptyObject } from "react-hook-form";
-
 const getCookie = (name: string): string | null => {
   const cookies = document.cookie.split("; ");
   for (let cookie of cookies) {

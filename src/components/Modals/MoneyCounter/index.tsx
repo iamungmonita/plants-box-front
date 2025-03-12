@@ -95,7 +95,13 @@ const MoneyCounter = () => {
         <h2>Cambodian Riel Bills</h2>
         <div className="grid grid-cols-4 row-span-2 gap-4">
           {khrFields.map((field) => (
-            <InputField key={field} type="text" label={field} name={field} />
+            <InputField
+              key={field}
+              type="number"
+              allowDecimals={false}
+              label={field}
+              name={field}
+            />
           ))}
         </div>
       </div>
@@ -104,7 +110,13 @@ const MoneyCounter = () => {
         <h2>US Dollar Bills</h2>
         <div className="flex gap-4">
           {usdFields.map((field) => (
-            <InputField key={field} type="text" label={field} name={field} />
+            <InputField
+              key={field}
+              type="number"
+              allowDecimals={false}
+              label={field}
+              name={field}
+            />
           ))}
         </div>
       </div>

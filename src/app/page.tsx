@@ -7,7 +7,7 @@ const page = () => {
   useEffect(() => {
     router.push("/auth/sign-in");
   }, []);
-  return <div></div>;
+  return <></>;
 };
 
 export default page;

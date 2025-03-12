@@ -1,8 +1,6 @@
-import { Nanum_Gothic } from "next/font/google";
 import "./globals.scss";
 import AuthProvider from "@/context/AuthContext";
 import Footer from "@/components/Footer";
-import ShoppingCart from "@/components/ShoppingCart";
 
 export const metadata = {
   title: "Plants Box",
@@ -16,7 +14,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      {/* This ensures the class is applied */}
       <body className="flex flex-col min-h-screen">
         <main className="flex-1 flex items-center justify-center">
           <AuthProvider>{children}</AuthProvider>
