@@ -1,5 +1,4 @@
 import { GET, POST, PUT } from ".";
-import { FieldValues } from "react-hook-form";
 import { ILayout, Response } from "@/models/Layout";
 import API_URL from "@/lib/api";
 import query from "query-string";

@@ -1,5 +1,5 @@
 import API_URL from "@/lib/api";
-import { Profile } from "@/schema/auth";
+import { Profile } from "@/models/Auth";
 import Image from "next/image";
 const ProfileComponent = ({ profile }: { profile: Profile | null }) => {
   return (

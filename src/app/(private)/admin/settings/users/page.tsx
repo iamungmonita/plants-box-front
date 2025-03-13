@@ -5,14 +5,13 @@ import ReusableTable from "@/components/Table";
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "@/constants/TableHead/Users";
-import { getUsers, getRoles } from "@/services/system";
+import { getUsers } from "@/services/system";
 import CustomButton from "@/components/Button";
 import { Profile } from "@/models/Auth";
 
-const page = () => {
+const Page = () => {
   const [users, setUsers] = useState<Profile[]>([]);
-  const methods = useForm();
-  const { watch } = methods;
+
   useEffect(() => {
     const fetchRoles = async () => {
       try {
@@ -44,4 +43,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

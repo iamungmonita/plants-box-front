@@ -7,15 +7,12 @@ import ReusableTable from "@/components/Table";
 import { useForm } from "react-hook-form";
 import { Column } from "@/constants/TableHead/Product";
 import { CreateForm } from "../../../../../components/Form/Product";
-import { useAuthContext } from "@/context/AuthContext";
 import { ProductResponse } from "@/models/Product";
 
 const Page = () => {
-  const { isAuthorized } = useAuthContext();
   const [title, setTitle] = useState("");
   const params = useParams();
   const [product, setProduct] = useState<ProductResponse | null>(null);
-  const [purchasedOrders, setPurchasedOrders] = useState<ProductResponse[]>([]);
   const methods = useForm({
     defaultValues: {
       purchasedId: "",

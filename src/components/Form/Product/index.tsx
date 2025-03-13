@@ -24,7 +24,7 @@ import { Product } from "@/models/Product";
 
 export const CreateForm = ({ createId }: { createId: string }) => {
   const { profile } = useAuthContext();
-  const [createdBy, setCreatedBy] = useState(profile?.firstName as string);
+  const [createdBy] = useState(profile?.firstName as string);
   const methods = useForm<Product>({
     defaultValues: {
       name: "",

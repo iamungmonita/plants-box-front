@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useEffect } from "react";
-const page = () => {
+const Page = () => {
   const router = useRouter();
   useEffect(() => {
     router.push("/auth/sign-in");
@@ -10,4 +10,4 @@ const page = () => {
   return <></>;
 };
 
-export default page;
+export default Page;

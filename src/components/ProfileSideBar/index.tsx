@@ -19,10 +19,10 @@ import { formattedKHR } from "@/helpers/format/currency";
 function ProfileSidebar() {
   const router = useRouter();
   const pathname = usePathname();
-  const [isCollapse, setIsCollapse] = useState(false);
+  const [isCollapse] = useState(false);
   const [openDropdowns, setOpenDropdowns] = useState<Set<string>>(new Set()); // Track multiple open dropdowns
   const [toggleModal, setToggleModal] = useState<boolean>(false);
-  const { signOut, profile } = useAuthContext();
+  const { signOut } = useAuthContext();
   const exchangeRate = useExchangeRate();
   const collapsibleCtx = classNames({
     "max-w-20 ": isCollapse,

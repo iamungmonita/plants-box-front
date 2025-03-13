@@ -1,10 +1,8 @@
 "use client";
 
-import API_URL from "@/lib/api";
-import { Profile } from "@/schema/auth";
+import { Profile } from "@/models/Auth";
 import { getAdminProfile, SignOut } from "@/services/authentication";
 import { getAccessToken } from "@/utils/Cookie";
-import { useRouter } from "next/navigation";
 import React, {
   createContext,
   useCallback,
@@ -36,7 +34,6 @@ export const useAuthContext = () => {
 };
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [message, setMessage] = useState<string | null>(null);

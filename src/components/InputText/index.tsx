@@ -21,7 +21,6 @@ const InputField: React.FC<InputFieldProps> = ({
   multiline = false,
   minRows = 1,
   placeholder,
-  step = "1", // Default step for whole numbers
   allowDecimals = true, // Default to whole numbers
   onBlur,
 }) => {
@@ -54,7 +53,7 @@ const InputField: React.FC<InputFieldProps> = ({
             step: allowDecimals ? "0.01" : "1", // Dynamic step
           }}
           onChange={(e) => {
-            let value = e.target.value;
+            const value = e.target.value;
 
             if (type === "number") {
               const regex = allowDecimals ? /^\d*\.?\d*$/ : /^\d*$/; // Allow decimals if enabled

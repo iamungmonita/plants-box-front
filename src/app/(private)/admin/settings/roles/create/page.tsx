@@ -6,18 +6,9 @@ import CheckboxGroup from "@/components/CheckboxGroup";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
 import { useAuthContext } from "@/context/AuthContext";
-import API_URL from "@/lib/api";
-import { RegisterSchema } from "@/schema/auth";
-import { SignUp } from "@/services/authentication";
-import { CreateRole, RetrieveRoles } from "@/services/system";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { Button } from "@mui/material";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { CreateRole } from "@/services/system";
 import React, { useState } from "react";
-import { FieldValue, FieldValues, useForm } from "react-hook-form";
-import useFetch from "@/hooks/useFetch";
-import AutocompleteForm from "@/components/Autocomplete";
+import { useForm } from "react-hook-form";
 import AlertPopUp from "@/components/AlertPopUp";
 import { IRole } from "@/models/Roles";
 
@@ -75,7 +66,7 @@ const Page = () => {
           >
             <InputField name="name" type="text" label="Role" />
             <Checkbox name="isActive" label="Is Active" />
-            <InputField name="remarks" type="remarks" label="Remark" />
+            <InputField name="remarks" type="text" label="Remark" />
 
             <CheckboxGroup />
             <CustomButton text="Create" type="submit" />

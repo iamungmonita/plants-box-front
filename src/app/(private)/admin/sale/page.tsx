@@ -1,28 +1,19 @@
 "use client";
-import { PurchasedOrderList } from "@/schema/Order";
-import { getProductById } from "@/services/products";
-import { MdClose, MdEditDocument } from "react-icons/md";
-import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { formattedTimeStamp } from "@/helpers/format/time";
-import BasicModal from "@/components/Modal";
-import dynamic from "next/dynamic";
-import API_URL from "@/lib/api";
+
 import { getOrder } from "@/services/order";
 import ReusableTable from "@/components/Table";
 import { useForm } from "react-hook-form";
-import { Column } from "@/constants/TableHead/Product";
-import { Button, TextField } from "@mui/material";
-import Head from "next/head"; // Use next/head for title
+
 import { columns } from "@/constants/TableHead/Orders";
 import InputField from "@/components/InputText";
 import Form from "@/components/Form";
 import CustomButton from "@/components/Button";
+import { PurchasedOrderList } from "@/models/Order";
 
 const Page = () => {
-  const [title, setTitle] = useState("");
-  const params = useParams();
   const [orders, setOrders] = useState<PurchasedOrderList[]>([]);
   const [amount, setAmount] = useState<number>(0);
   const [transactions, setTransactions] = useState<number>(0);
@@ -36,12 +27,6 @@ const Page = () => {
       purchasedId: "",
     },
   });
-  const [id, setId] = useState("");
-
-  useEffect(() => {
-    if (!params?.id) return; // Ensure params are available
-    setId(params.id as string); // Extract id safely
-  }, [params]);
 
   const purchasedId = methods.watch("purchasedId");
   const router = useRouter();

@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import Snackbar from "@mui/material/Snackbar";
-import SnackbarContent from "@mui/material/SnackbarContent";
 import { Alert } from "@mui/material";
 
 const AlertPopUp = ({

@@ -1,4 +1,4 @@
-import { PurchasedOrderList } from "@/schema/Order";
+import { PurchasedOrderList } from "@/models/Order";
 import { Column } from "./Product";
 import { formattedTimeStamp } from "@/helpers/format/time";
 
@@ -25,14 +25,14 @@ export const columns: Column<PurchasedOrderList>[] = [
       value !== undefined && value !== null ? `$${value.toFixed(2)}` : "$0.00",
   },
   {
-    id: "overallDiscount",
+    id: "totalDiscountPercentage",
     label: "Discount",
     minWidth: 100,
     format: (value: number) =>
       value !== undefined && value !== null ? `${value}%` : "0%",
   },
   {
-    id: "convertedPoints",
+    id: "totalPoints",
     label: "Points",
     minWidth: 100,
     format: (value: number) =>

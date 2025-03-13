@@ -1,6 +1,6 @@
 const generateNextOrderId = (): string => {
   let lastOrderId = localStorage.getItem("lastOrderId");
-  let currentOrderId = localStorage.getItem("currentOrderId");
+  const currentOrderId = localStorage.getItem("currentOrderId");
 
   if (!lastOrderId) {
     lastOrderId = "PO-00001";

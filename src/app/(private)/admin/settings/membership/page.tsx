@@ -11,9 +11,7 @@ import Form from "@/components/Form";
 import InputField from "@/components/InputText";
 import AutocompleteForm from "@/components/Autocomplete";
 import { optionsMembership } from "@/constants/Membership";
-import { useRouter } from "next/navigation";
-const page = () => {
-  const router = useRouter();
+const Page = () => {
   const [membership, setMembership] = useState<IMemberResponse[]>([]);
   const methods = useForm({ defaultValues: { phoneNumber: "", type: "" } });
   const { phoneNumber, type } = methods.watch();
@@ -72,4 +70,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

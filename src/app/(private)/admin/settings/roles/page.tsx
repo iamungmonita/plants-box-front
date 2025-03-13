@@ -9,7 +9,7 @@ import { getRoles } from "@/services/system";
 import CustomButton from "@/components/Button";
 import { IRoleResponse } from "@/models/Roles";
 
-const page = () => {
+const Page = () => {
   const [roles, setRoles] = useState<IRoleResponse[]>([]);
   const methods = useForm();
   const { watch } = methods;
@@ -47,4 +47,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

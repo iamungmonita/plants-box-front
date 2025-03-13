@@ -7,7 +7,7 @@ import { formattedTimeStamp } from "@/helpers/format/time";
 import { formattedKHR } from "@/helpers/format/currency";
 import { PurchasedOrderList } from "@/models/Order";
 
-const Invoice = () => {
+const Page = () => {
   const params = useParams();
   const [purchasedId, setPurchasedId] = useState<string>("");
   const [order, setOrder] = useState<PurchasedOrderList | null>(null);
@@ -129,9 +129,7 @@ const Invoice = () => {
                     <td className="">{item.name}</td>
                     <td className="text-left">{item.quantity}</td>
                     <td className="text-left">${item.price.toFixed(2)}</td>
-                    <td className="text-right">
-                      {item.discount || order.totalDiscountValue || 0}%
-                    </td>
+                    <td className="text-right">{item.discount || 0}%</td>
 
                     <td className="text-right">
                       ${(item.price * item.quantity).toFixed(2)}
@@ -199,4 +197,4 @@ const Invoice = () => {
   );
 };
 
-export default Invoice;
+export default Page;

@@ -5,7 +5,7 @@ import { ILogResponse, getLogs } from "@/services/log";
 import useFetch from "@/hooks/useFetch";
 import { columns } from "@/constants/TableHead/Log";
 
-const page = () => {
+const Page = () => {
   const { data: log } = useFetch<ILogResponse[]>(getLogs, {}, []);
 
   return (
@@ -20,4 +20,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

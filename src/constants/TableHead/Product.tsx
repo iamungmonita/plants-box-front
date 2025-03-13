@@ -1,6 +1,7 @@
 import { formattedTimeStamp } from "@/helpers/format/time";
 import API_URL from "@/lib/api";
 import { ProductResponse } from "@/models/Product";
+import Image from "next/image";
 
 export interface Column<T> {
   id: keyof T; // id should be a key of T, which is ProductReturnList in this case
@@ -19,13 +20,17 @@ export const columns: Column<ProductResponse>[] = [
     minWidth: 100,
     render: (_: any, row: ProductResponse) =>
       row.pictures ? (
-        <img
+        <Image
+          width={50}
+          height={50}
           src={`${API_URL}${row.pictures}`}
           alt={`${API_URL}${row.pictures}`}
           style={{ width: 50, height: 50, objectFit: "cover" }}
         />
       ) : (
-        <img
+        <Image
+          width={50}
+          height={50}
           src={`/assets/default.png`}
           alt={`/assets/plant.jpg`}
           style={{ width: 50, height: 50, objectFit: "cover" }}

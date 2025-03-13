@@ -32,8 +32,11 @@ import { ProductResponse } from "@/models/Product";
 import Pagination from "@/components/Pagination";
 import ProfileComponent from "@/components/Profile";
 import { useDiscount } from "@/hooks/useDiscount";
+import { useRouter } from "next/navigation";
+import { useExchangeRate } from "@/hooks/useExchangeRate";
 
 const Page = () => {
+  const router = useRouter();
   const [orderId, setOrderId] = useState<string>("PO-00001");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [totalDiscountValue, setTotalDiscountValue] = useState(0);
@@ -89,7 +92,6 @@ const Page = () => {
     setTotalDiscountPercentage(percentage);
     setTotalDiscountValue(value);
     setTotalAmount(amount - value);
-    console.log("this happen");
   }, [items]);
 
   useEffect(() => {
@@ -151,6 +153,7 @@ const Page = () => {
       return;
     }
     setToggleConfirmOrder(false);
+    window.open(`/print/${orderId}`, "_blank", "width=800,height=600");
     if (member && membershipPayment === MembershipType.POINT) {
       await updateMembershipPointById(member._id, {
         points: amountToPoint(totalAmount),
@@ -165,6 +168,7 @@ const Page = () => {
   const selectDiscount = (type: MembershipType) => {
     const value = getDiscountValue(type);
     setTotalDiscountPercentage(value);
+    methods3.setValue("discount", String(value));
     setTotalDiscountValue(amount * (value / 100));
     setTotalPoints(0);
     const discountedAmount = amount - amount * (value / 100);
@@ -354,7 +358,7 @@ const Page = () => {
               onHandleButton={() => setToggleMembership(true)}
               text={`${
                 member
-                  ? `${member.firstName} (${member.type})`
+                  ? `${member.phoneNumber} (${member.type})`
                   : "Check Membership"
               }`}
               theme="general"

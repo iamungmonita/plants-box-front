@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 export const optionsUsers = [
   { value: "Owner", label: "Silver (5%)" },
   { value: "Staff", label: "Gold (7%)" },

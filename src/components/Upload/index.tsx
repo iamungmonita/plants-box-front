@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import Image from "next/image";
+import React from "react";
 
 interface ImageUploadProps {
   previewUrl: string | null;
@@ -56,7 +57,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         <label htmlFor="file-input" className="cursor-pointer">
           {previewUrl ? (
             <div className="relative h-56">
-              <img
+              <Image
+                width={300}
+                height={300}
                 src={previewUrl}
                 alt="Preview"
                 className="w-56 h-full object-cover rounded shadow-md"

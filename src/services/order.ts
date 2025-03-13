@@ -11,20 +11,18 @@ import {
 } from "@/models/Order";
 
 //GET
-export function getOrder(
-  params: queryParam = {}
-): Promise<ILayout<IOrderResponse>> {
+export function getOrder(params: queryParam): Promise<ILayout<IOrderResponse>> {
   const queryString = query.stringify(params);
   const url = `${API_URL}/order/retrieve?${queryString}`;
   console.log(url);
-  return GET<ILayout<IOrderResponse>, {}>(url, {});
+  return GET<ILayout<IOrderResponse>>(url);
 }
 
 export function getPurchasedOrderByPurchasedId(
   purchasedId: string
 ): Promise<ILayout<ISelectedOrder>> {
   const url = `${API_URL}/order/retrieve/` + purchasedId;
-  return GET<ILayout<ISelectedOrder>, {}>(url, {});
+  return GET<ILayout<ISelectedOrder>>(url);
 }
 
 export function CreateOrder(

@@ -10,7 +10,7 @@ export interface RootLayoutProps {
 }
 
 const PrivateLayout = ({ children }: Readonly<RootLayoutProps>) => {
-  const { isAuthenticated, profile } = useAuthContext();
+  const { isAuthenticated } = useAuthContext();
   const [toggle, setToggle] = useState<boolean>(false);
   const router = useRouter();
 

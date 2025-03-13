@@ -1,6 +1,7 @@
 import { formattedTimeStamp } from "@/helpers/format/time";
 import API_URL from "@/lib/api";
 import { Profile } from "@/models/Auth";
+import Image from "next/image";
 
 export interface Column<T> {
   id: keyof T; // id should be a key of T, which is ProductReturnList in this case
@@ -19,7 +20,9 @@ export const columns: Column<Profile>[] = [
     minWidth: 100,
     render: (_: any, row: Profile) =>
       row.pictures ? (
-        <img
+        <Image
+          width={50}
+          height={50}
           src={`${API_URL}${row.pictures}`}
           alt={`${API_URL}${row.pictures}`}
           style={{
@@ -30,9 +33,11 @@ export const columns: Column<Profile>[] = [
           }}
         />
       ) : (
-        <img
+        <Image
           src={`/assets/default-profile.jpg`}
           alt={`/assets/default-profile.jpg`}
+          width={50}
+          height={50}
           style={{
             width: 50,
             height: 50,

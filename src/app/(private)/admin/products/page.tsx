@@ -4,7 +4,6 @@ import Form from "@/components/Form";
 import ReusableTable from "@/components/Table";
 import { useAuthContext } from "@/context/AuthContext";
 import { getAllProducts } from "@/services/products";
-import { TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -14,8 +13,8 @@ import CustomButton from "@/components/Button";
 import InputField from "@/components/InputText";
 import { ProductResponse } from "@/models/Product";
 
-const page = () => {
-  const { profile, isAuthorized } = useAuthContext();
+const Page = () => {
+  const { profile } = useAuthContext();
   const [products, setProducts] = useState<ProductResponse[]>([]);
 
   const methods = useForm({
@@ -86,4 +85,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

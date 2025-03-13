@@ -1,5 +1,5 @@
 import { useAuthContext } from "@/context/AuthContext";
-import { createLog, ILog, countLog } from "@/services/log";
+import { createLog, ILog } from "@/services/log";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -21,7 +21,7 @@ const MoneyCounter = () => {
   });
 
   const { watch, trigger } = methods;
-  const { profile, signIn, isAuthenticated } = useAuthContext();
+  const { profile } = useAuthContext();
   const [canProceed, setCanProceed] = useState(false);
   const router = useRouter();
 

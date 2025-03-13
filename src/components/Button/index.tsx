@@ -91,7 +91,7 @@ export const CustomButton = (props: IButton) => {
                 >
                   {text}
                 </span>
-                {Icon && <Icon className=" text-2xl w-full" />}
+                {Icon && <Icon className="text-2xl w-full" />}
               </span>
             </Link>
           ) : (

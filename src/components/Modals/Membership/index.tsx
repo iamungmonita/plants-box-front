@@ -12,7 +12,9 @@ import CreateForm from "@/components/Form/Membership";
 
 const Membership = ({ onClose }: { onClose?: () => void }) => {
   const [membership, setMembership] = useState<IMembership[]>([]);
+  const [invoices, setInvoices] = useState<string[]>([]);
   const [toggle, setToggle] = useState<boolean>(false);
+  const [exist, setExist] = useState<boolean>(false);
   const methods = useForm({ defaultValues: { phoneNumber: "" } });
   const { watch } = methods;
   const phoneNumber = watch("phoneNumber");
@@ -23,6 +25,10 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
         const response = await getAllMembership({ phoneNumber });
         if (response.data?.member) {
           setMembership(response.data.member);
+          const invoices = response.data.member.flatMap(
+            (member) => member.invoices
+          );
+          setInvoices(invoices);
         }
       } catch (error) {
         console.error("Error fetching membership:", error);
@@ -30,7 +36,19 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
     };
     fetchMembership();
   }, [phoneNumber]);
-
+  const orderId = localStorage.getItem("lastOrderId") ?? "";
+  useEffect(() => {
+    if (invoices && orderId) {
+      const orderExists = invoices.includes(orderId);
+      if (orderExists) {
+        console.log("Order ID already exists in invoices.");
+        setExist(true); // Set to true when order exists
+      } else {
+        console.log("Order ID does not exist in invoices.");
+        setExist(false); // Set to false only when order doesn't exist
+      }
+    }
+  }, [invoices, orderId]);
   const selectMembership = (id: string) => {
     const member = membership.find((member) => member._id === id);
     localStorage.setItem("membership", JSON.stringify(member));
@@ -44,7 +62,7 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
   };
 
   return (
-    <div className="flex flex-col min-h-full w-3/4 gap-4">
+    <div className="flex flex-col min-h-full w-full gap-4">
       <BasicModal
         ContentComponent={CreateForm}
         onClose={handleClose}
@@ -56,7 +74,7 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
             name="phoneNumber"
             label="Name or Phone Number"
             options={membership.map((member) => ({
-              label: `${member.firstName} ${member.lastName} (${member.phoneNumber})`,
+              label: `${member.phoneNumber} (${member.type})`,
               value: member.phoneNumber,
             }))}
             onChange={(value) => {
@@ -71,6 +89,8 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
         </div>
         <div className="col-span-4 grid grid-cols-2 gap-4">
           <CustomButton
+            theme={exist ? "dark" : ""}
+            disabled={exist}
             text="Create New Membership"
             onHandleButton={() => setToggle(true)}
           />

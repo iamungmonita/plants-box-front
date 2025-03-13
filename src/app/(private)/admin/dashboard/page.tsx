@@ -17,7 +17,7 @@ import {
 import { IChart, IRange } from "@/models/Product";
 import { PurchasedOrderList } from "@/models/Order";
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const [amount, setAmount] = useState<number>(0);
   const [orders, setOrders] = useState<PurchasedOrderList[]>([]);
@@ -185,4 +185,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

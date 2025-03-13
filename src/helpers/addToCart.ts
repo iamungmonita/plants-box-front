@@ -121,8 +121,8 @@ export const settlement = async (data: ICheckout) => {
         return { _id, quantity };
       })
     );
-
-    const response = await handleOrder(data);
+    const updatedData = { ...param, items };
+    const response = await handleOrder(updatedData);
     return {
       response,
       items: clearLocalStorage().items,
