@@ -42,7 +42,7 @@ export const CreateForm = ({ createId }: { createId: string }) => {
   const { handleSubmit, setValue } = methods;
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [_, setLoading] = useState<boolean>(false);
+  const [, setLoading] = useState<boolean>(false);
   const [toggleAlert, setToggleAlert] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>("");
   const [error, setError] = useState<boolean>(false);
@@ -81,7 +81,7 @@ export const CreateForm = ({ createId }: { createId: string }) => {
         setValue("stock", 0);
         setValue("isActive", true);
         setValue("isDiscountable", true);
-        setValue("pictures", null as any);
+        setValue("pictures", "");
         setFile(null);
         setPreviewUrl(null);
       } else if (fileBase64) {

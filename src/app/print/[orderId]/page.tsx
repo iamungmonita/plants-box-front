@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import { formattedKHR } from "@/helpers/format/currency";
 import { formattedTimeStamp } from "@/helpers/format/time";
 import { PurchasedOrderList } from "@/models/Order";
@@ -8,12 +7,7 @@ import { getPurchasedOrderByPurchasedId } from "@/services/order";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { useParams } from "next/navigation";
 
-interface ReceiptPageProps {
-  order: PurchasedOrderList | null;
-  exchangeRate: number;
-}
-
-const ReceiptPage: React.FC<ReceiptPageProps> = () => {
+const ReceiptPage = () => {
   const params = useParams();
   const [purchasedId, setPurchasedId] = useState<string>("");
   const [order, setOrder] = useState<PurchasedOrderList | null>(null);

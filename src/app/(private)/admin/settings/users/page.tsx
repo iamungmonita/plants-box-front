@@ -1,9 +1,8 @@
 "use client";
 
 import ReusableTable from "@/components/Table";
-
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { columns } from "@/constants/TableHead/Users";
 import { getUsers } from "@/services/system";
 import CustomButton from "@/components/Button";
@@ -11,7 +10,7 @@ import { Profile } from "@/models/Auth";
 
 const Page = () => {
   const [users, setUsers] = useState<Profile[]>([]);
-
+  const router = useRouter();
   useEffect(() => {
     const fetchRoles = async () => {
       try {
@@ -37,7 +36,11 @@ const Page = () => {
         </div>
       </div>
       <div>
-        <ReusableTable columns={columns} data={users} />
+        <ReusableTable
+          columns={columns}
+          data={users}
+          onRowClick={(row) => router.push(`/admin/settings/users/${row._id}`)}
+        />
       </div>
     </div>
   );

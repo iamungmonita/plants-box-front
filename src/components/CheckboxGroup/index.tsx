@@ -18,10 +18,7 @@ const options: Option[] = [
 ];
 
 export default function CheckboxGroup() {
-  const { control, watch } = useFormContext<FormValues>();
-
-  const watchSelected = watch("codes", []);
-
+  const { control } = useFormContext<FormValues>();
   return (
     <div className="p-4">
       <h2 className="text-xl font-semibold mb-3">Select Permissions</h2>

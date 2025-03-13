@@ -34,7 +34,6 @@ const Page = () => {
     if (!isAuthenticated) {
       router.push("/auth/sign-in");
     }
-
     setSelectedDate(today);
   }, [isAuthenticated, router]);
 

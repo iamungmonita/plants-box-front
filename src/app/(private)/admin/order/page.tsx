@@ -32,11 +32,9 @@ import { ProductResponse } from "@/models/Product";
 import Pagination from "@/components/Pagination";
 import ProfileComponent from "@/components/Profile";
 import { useDiscount } from "@/hooks/useDiscount";
-import { useRouter } from "next/navigation";
-import { useExchangeRate } from "@/hooks/useExchangeRate";
+import { IHold } from "@/models/Order";
 
 const Page = () => {
-  const router = useRouter();
   const [orderId, setOrderId] = useState<string>("PO-00001");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [totalDiscountValue, setTotalDiscountValue] = useState(0);
@@ -70,7 +68,7 @@ const Page = () => {
   const { member } = useMembership();
   const carts = useHeldCarts([refresh]);
   const updatedHeldOrders = carts.filter(
-    (cart: any) => cart.orderId !== orderId
+    (cart: IHold) => cart.orderId !== orderId
   );
 
   const { data: products = [] } = useFetch<ProductResponse[]>(

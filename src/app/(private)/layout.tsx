@@ -32,7 +32,7 @@ const PrivateLayout = ({ children }: Readonly<RootLayoutProps>) => {
     if (!isAuthenticated) {
       router.push("/auth/sign-in");
     }
-  }, []);
+  }, [isAuthenticated, router]);
 
   return (
     <>

@@ -9,7 +9,7 @@ export interface IAuthRegister extends FieldValues {
   role: string;
   isActive: boolean;
   password: string;
-  pictures?: string; // Array of image URLs
+  pictures?: string;
 }
 
 export interface Profile extends Response {
@@ -22,8 +22,10 @@ export interface Profile extends Response {
   firstName: string;
   isActive: boolean;
   createdBy: string;
+  updatedBy?: string;
   pictures?: string; // Array of image URLs
 }
+
 export interface ProfileWithCount {
   admin: Profile;
   count: boolean;

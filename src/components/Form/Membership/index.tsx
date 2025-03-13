@@ -7,7 +7,7 @@ import {
   amountToPoint,
   getMembershipType,
 } from "@/helpers/calculation/getPoint";
-import { CreateMembership, getMembershipById } from "@/services/membership";
+import { CreateMembership } from "@/services/membership";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useCartItems } from "@/hooks/useCartItems";
