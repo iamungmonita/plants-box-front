@@ -18,8 +18,17 @@ import AlertPopUp from "@/components/AlertPopUp";
 import Checkbox from "@/components/Checkbox";
 import { IAuthRegister } from "@/models/Auth";
 import API_URL from "@/lib/api";
+import { useParams } from "next/navigation";
 
-const Page = ({ userId }: { userId: string }) => {
+const Page = () => {
+  const params = useParams();
+  const [userId, setUserId] = useState<string>("");
+
+  useEffect(() => {
+    if (!params?.id) return;
+    setUserId(params.id as string);
+  }, [params]);
+
   const { profile } = useAuthContext();
   const methods = useForm<IAuthRegister>({
     defaultValues: {
