@@ -137,10 +137,13 @@ const Page = () => {
     };
     fetchUser();
   }, [userId, roles]);
+
   const handleRemoveImage = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setFile(null);
     setPreviewUrl(null);
+    methods.setValue("pictures", "");
   };
 
   return (

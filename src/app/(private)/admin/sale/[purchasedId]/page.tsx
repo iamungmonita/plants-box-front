@@ -41,9 +41,7 @@ const Page = () => {
 
   return (
     <div>
-      <button onClick={() => window.print()} className="">
-        Print Receipt
-      </button>
+      <button onClick={() => window.print()}>Print Receipt</button>
       <div id="receipt">
         {order?.orders && order?.orders.length > 0 && (
           <div className="max-w-md mx-auto p-4 border rounded-lg shadow-lg bg-white">
