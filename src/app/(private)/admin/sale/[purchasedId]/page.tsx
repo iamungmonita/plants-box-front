@@ -6,6 +6,7 @@ import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { formattedTimeStamp } from "@/helpers/format/time";
 import { formattedKHR } from "@/helpers/format/currency";
 import { PurchasedOrderList } from "@/models/Order";
+import PrintButton from "@/components/Receipt";
 
 const Page = () => {
   const params = useParams();
@@ -41,8 +42,7 @@ const Page = () => {
 
   return (
     <div>
-      <button onClick={() => window.print()}>Print Receipt</button>
-      <div id="receipt">
+      <div>
         {order?.orders && order?.orders.length > 0 && (
           <div className="max-w-md mx-auto p-4 border rounded-lg shadow-lg bg-white">
             <p
@@ -78,14 +78,11 @@ const Page = () => {
                     <td className="font-semibold">Customer:</td>
                     <td>
                       {order.member
-                        ? `${order.member.fullname}  (${order.member.type})`
+                        ? `${order.member.phoneNumber}  (${order.member.type})`
                         : "Walk-in Customer"}
                     </td>
                   </tr>
-                  <tr className="flex items-center justify-between w-full">
-                    <td className="font-semibold">Mobile Number:</td>
-                    <td>{order.member ? order.member.phoneNumber : "-"}</td>
-                  </tr>
+
                   <tr className="flex items-center justify-between w-full">
                     <td className="font-semibold">Payment Method:</td>
                     <td>{order.paymentMethod.toUpperCase()}</td>
@@ -165,6 +162,10 @@ const Page = () => {
                   <td className="font-semibold">Points:</td>
                   <td>${(order.totalPoints ?? 0).toFixed(2)} </td>
                 </tr>
+                <tr className="flex items-center justify-between w-full">
+                  <td className="font-semibold">Voucher:</td>
+                  <td>{order.others || "N/A"} </td>
+                </tr>
                 <tr
                   id="header"
                   className="flex text-xl font-bold items-center justify-between w-full"
@@ -190,6 +191,9 @@ const Page = () => {
             </p>
           </div>
         )}
+      </div>
+      <div className="max-w-full mx-auto items-center justify-between w-1/5 mt-5">
+        <PrintButton order={order} exchangeRate={exchangeRate} />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { formattedKHR } from "@/helpers/format/currency";
 import { formattedTimeStamp } from "@/helpers/format/time";
 import { PurchasedOrderList } from "@/models/Order";
 import React from "react";
+import CustomButton from "../Button";
 
 interface PrintButtonProps {
   order: PurchasedOrderList | null;
@@ -54,13 +55,9 @@ const PrintButton: React.FC<PrintButtonProps> = ({ order, exchangeRate }) => {
                   <td class="font-semibold">Customer:</td>
                   <td>${
                     order?.member
-                      ? `${order?.member.fullname} (${order?.member.type})`
+                      ? `${order?.member.phoneNumber} (${order?.member.type})`
                       : "Walk-in Customer"
                   }</td>
-                </tr>
-                <tr class="flex items-center justify-between w-full">
-                  <td class="font-semibold">Mobile Number:</td>
-                  <td>${order?.member ? order?.member.phoneNumber : "-"}</td>
                 </tr>
                 <tr class="flex items-center justify-between w-full">
                   <td class="font-semibold">Payment Method:</td>
@@ -145,6 +142,10 @@ const PrintButton: React.FC<PrintButtonProps> = ({ order, exchangeRate }) => {
                 <td class="font-semibold">Points:</td>
                 <td>$${(order?.totalPoints ?? 0).toFixed(2)}</td>
               </tr>
+              <tr class="flex items-center justify-between w-full">
+                <td class="font-semibold">Voucher:</td>
+                <td>${order?.others || "N/A"}</td>
+              </tr>
               <tr class="flex text-xl font-bold items-center justify-between w-full">
                 <td class="font-bold">Total:</td>
                 <td>$${order?.totalAmount.toFixed(2)}</td>
@@ -168,12 +169,20 @@ const PrintButton: React.FC<PrintButtonProps> = ({ order, exchangeRate }) => {
     `);
 
     // Close the HTML tags and initiate the print command
-    printWindow?.document.write("</body></html>");
-    printWindow?.document.close(); // Close document to load the content
-    printWindow?.print(); // Initiates the print dialog
+
+    printWindow?.addEventListener("load", () => {
+      try {
+        printWindow?.print(); // Automatically opens the print dialog
+        printWindow?.close(); // Automatically closes the print window
+        window.close();
+        window.dispatchEvent(new Event("windowClosed"));
+      } catch (error) {
+        console.error("Error during printing:", error);
+      }
+    });
   };
 
-  return <button onClick={handlePrint}>Print Receipt</button>;
+  return <CustomButton onHandleButton={handlePrint} text="Print Receipt" />;
 };
 
 export default PrintButton;

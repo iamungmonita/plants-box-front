@@ -32,10 +32,10 @@ export function getMembershipById(
 
 export function updateMembershipPointById(
   id: string,
-  params?: { points: number; invoice: string }
+  params?: { points: number; invoice: string[] }
 ): Promise<ILayout<IMemberResponse>> {
   const url = `${API_URL}/membership/update-points/` + id;
-  return PUT<ILayout<IMemberResponse>, { points: number; invoice: string }>(
+  return PUT<ILayout<IMemberResponse>, { points: number; invoice: string[] }>(
     url,
     params
   );

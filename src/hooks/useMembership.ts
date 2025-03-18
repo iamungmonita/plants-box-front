@@ -1,7 +1,11 @@
 import { IMemberResponse } from "@/services/membership";
 import { useEffect, useState } from "react";
 
-export const updateMember = (): IMemberResponse | null => {
+export const updateMember = (): {
+  phone: string;
+  points?: number;
+  discount?: number;
+} | null => {
   try {
     const storedMember = localStorage.getItem("membership");
     if (storedMember) {
@@ -15,7 +19,11 @@ export const updateMember = (): IMemberResponse | null => {
 };
 
 export const useMembership = () => {
-  const [member, setMember] = useState<IMemberResponse | null>(null);
+  const [member, setMember] = useState<{
+    phone: string;
+    point?: number;
+    discount?: number;
+  } | null>(null);
 
   useEffect(() => {
     const storedMember = updateMember();

@@ -55,11 +55,9 @@ const CartCard = <T extends ShoppingCartProduct>({
       <td>
         <input
           disabled={!item.isDiscountable}
-          value={item.isDiscountable ? inputValue || item.discount : "None"}
           type="number"
-          step={item.isDiscountable ? 0.01 : 1}
-          placeholder={item.isDiscountable ? "%" : "None"}
-          onChange={(e) => onHandleDiscountChange(e, item._id)}
+          readOnly
+          placeholder={item.isDiscountable ? `${item.discount || 0}%` : "None"}
           className={`p-2 w-16
             ${
               item.isDiscountable

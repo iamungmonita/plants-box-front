@@ -239,6 +239,10 @@ const ReceiptPage = () => {
                   <td class="font-semibold">Points:</td>
                   <td>$${(order?.totalPoints ?? 0).toFixed(2)}</td>
                 </tr>
+                <tr class="flex items-center justify-between w-full">
+                  <td class="font-semibold">Points:</td>
+                  <td>${order?.others || "N/A"}</td>
+                </tr>
                 <tr class="flex text-xl font-bold items-center justify-between w-full">
                   <td class="font-bold">Total:</td>
                   <td>$${order?.totalAmount.toFixed(2)}</td>

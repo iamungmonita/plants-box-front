@@ -76,7 +76,7 @@ function ProfileSidebar() {
                   : "",
                 color: isActive(item.path) ? "white" : "",
               }}
-              className="py-3 border-t px-4 hover:bg-gray-100"
+              className="py-2 border-t px-4 hover:bg-gray-100"
             >
               {item.name}
             </Link>
@@ -86,7 +86,7 @@ function ProfileSidebar() {
             <button
               type="button"
               onClick={() => toggleDropdown("settings")}
-              className="flex items-center border-t justify-between w-full px-4 py-3  text-base text-gray-900 transition duration-300 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+              className="flex items-center border-t justify-between w-full px-4 py-2 text-base text-gray-900 transition duration-300 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
             >
               Settings
               <MdOutlineKeyboardArrowRight
@@ -110,7 +110,7 @@ function ProfileSidebar() {
                         ? "white"
                         : "",
                     }}
-                    className="py-3 !pl-6 capitalize border-t px-4 cursor-pointer hover:bg-gray-100"
+                    className="py-2 !pl-6 capitalize border-t px-4 cursor-pointer hover:bg-gray-100"
                     href={`/admin/settings/${setting.path}`}
                   >
                     {setting.path}

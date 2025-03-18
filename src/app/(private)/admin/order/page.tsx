@@ -10,6 +10,8 @@ import InputField from "@/components/InputText";
 import AutocompleteForm from "@/components/Autocomplete";
 import CustomButton from "@/components/Button";
 import ToggleButton from "@/components/ToggleButton";
+import { RiCoupon3Line } from "react-icons/ri";
+
 import { categories } from "@/constants/AutoComplete";
 import { PaymentOptions } from "@/constants/Options";
 import { useAuthContext } from "@/context/AuthContext";
@@ -24,7 +26,7 @@ import { useMembership } from "@/hooks/useMembership";
 import { amountToPoint, pointToAmount } from "@/helpers/calculation/getPoint";
 import { useHeldCarts } from "@/hooks/useHeldCart";
 import useFetch from "@/hooks/useFetch";
-import { getDiscountValue, MembershipType } from "@/constants/Membership";
+
 import ConfirmOrder from "@/components/Modals/ConfirOrder";
 import { updateMembershipPointById } from "@/services/membership";
 import PaymentQRCode from "@/components/Modals/QRcode";
@@ -33,16 +35,25 @@ import Pagination from "@/components/Pagination";
 import ProfileComponent from "@/components/Profile";
 import { useDiscount } from "@/hooks/useDiscount";
 import { IHold } from "@/models/Order";
+import { LuUserRoundSearch } from "react-icons/lu";
+import Voucher from "@/components/Modals/Voucher";
+// import { useVoucher } from "@/hooks/useVoucher";
+import { updateVoucherByBarcode } from "@/services/system";
+import { MembershipType } from "@/constants/Membership";
+import { useVoucher } from "@/hooks/useVoucher";
 
 const Page = () => {
   const [orderId, setOrderId] = useState<string>("PO-00001");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [totalDiscountValue, setTotalDiscountValue] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
-  const [membershipPayment, setMembershipPayment] = useState("");
+  // const [products, setProducts] = useState<ProductResponse[]>([])
+  const [payment, setPayment] = useState("");
   const [toggleConfirmOrder, setToggleConfirmOrder] = useState(false);
   const [toggleMembership, setToggleMembership] = useState(false);
   const [toggleQRCode, setToggleQRCode] = useState(false);
+  const [toggleVoucher, setToggleVoucher] = useState(false);
+
   const [refresh, setRefresh] = useState(false);
   const [totalPoints, setTotalPoints] = useState<number>(0);
   const [totalDiscountPercentage, setTotalDiscountPercentage] =
@@ -56,16 +67,29 @@ const Page = () => {
     defaultValues: { heldCart: "" },
   });
   const methods3 = useForm({
-    defaultValues: { payment: "", paymentKHR: "", discount: "" },
+    defaultValues: { points: "", voucher: "", discount: "" },
   });
 
   const { barcode, category } = methods1.watch();
   const { heldCart } = methods2.watch();
-  const { discount } = methods3.watch();
+
+  const { discount, points, voucher } = methods3.watch();
 
   const { profile } = useAuthContext();
+
+  useEffect(() => {
+    const orderId = localStorage.getItem("lastOrderId") ?? "PO-00001";
+    setOrderId(orderId);
+  }, []);
+
+  useEffect(() => {
+    restoreHeldCart(heldCart);
+  }, [heldCart]);
+
   const { items, amount } = useCartItems();
   const { member } = useMembership();
+
+  const { voucher: storedVoucher } = useVoucher();
   const carts = useHeldCarts([refresh]);
   const updatedHeldOrders = carts.filter(
     (cart: IHold) => cart.orderId !== orderId
@@ -89,37 +113,72 @@ const Page = () => {
   useEffect(() => {
     setTotalDiscountPercentage(percentage);
     setTotalDiscountValue(value);
-    setTotalAmount(amount - value);
-  }, [items]);
-
-  useEffect(() => {
-    const discountValue =
-      Number(discount) !== 0 ? (amount * Number(discount)) / 100 : 0;
-    const newTotal = amount - discountValue;
-    setTotalDiscountValue(discountValue);
-    setTotalAmount(newTotal - value);
-  }, [discount, amount]);
+    const point = pointToAmount(member?.point ? member.point : 0);
+    setTotalPoints(point);
+    setTotalAmount(amount - (point !== 0 ? point : value));
+  }, [items, points]);
 
   useEffect(() => {
     if (!items || items.length === 0) return; // Prevent overwriting with empty data
     const updatedItems = items.map((item) => ({
       ...item,
-      discount: item.isDiscountable ? discount : item.discount, // Only update if isDiscountable
+      discount: item.isDiscountable ? discount : "", // Only update if isDiscountable
     }));
     localStorage.setItem("plants", JSON.stringify(updatedItems));
     window.dispatchEvent(new Event("cartUpdated"));
-  }, [discount, amount, membershipPayment, refresh]);
+  }, [discount, amount, payment, refresh]);
 
   const onRefresh = () => {
     setRefresh((prev) => !prev);
     methods3.setValue("discount", "");
-    methods3.setValue("payment", "");
-    methods3.setValue("paymentKHR", "");
-    methods3.setValue("discount", "");
+    methods3.setValue("points", "");
     setPaymentMethod("");
     setTotalDiscountValue(0);
     setTotalPoints(0);
-    setMembershipPayment("");
+    setPayment("");
+    localStorage.removeItem("voucher");
+    window.dispatchEvent(new Event("voucherUpdated"));
+    localStorage.removeItem("membership");
+    window.dispatchEvent(new Event("memberUpdated"));
+  };
+  //
+  // useEffect(() => {
+  //   const fetchProduct = async () => {
+  //     try {
+  //       const response = await getAllProducts({ category, barcode });
+  //       if (response) {
+  //         setProducts(response);
+  //       } else {
+  //         console.error("No products found in response");
+  //         setProducts([]);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error uploading:", error);
+  //     }
+  //   };
+  //   fetchProduct();
+  // }, [category, barcode, refresh]);
+
+  //   const generateNextOrderId = (): string => {
+  //     let lastOrderId = localStorage.getItem("lastOrderId");
+  //     let currentOrderId = localStorage.getItem("currentOrderId");
+  //
+  //     if (!lastOrderId) {
+  //       lastOrderId = "PO-00001"; // Start from 0, next will be PO-00001
+  //     }
+  //
+  //     if (currentOrderId === lastOrderId) {
+  //       localStorage.removeItem("currentOrderId");
+  //       return currentOrderId;
+  //     }
+  //
+  //     const orderNumber = parseInt(lastOrderId.split("-")[1]) + 1;
+  //     const nextOrderId = `PO-${orderNumber.toString().padStart(5, "0")}`;
+  //     localStorage.setItem("lastOrderId", nextOrderId);
+  //     return nextOrderId;
+  //   };
+  const handlePrint = () => {
+    window.open(`/print/${orderId}`, "_blank", "width=800,height=600");
   };
 
   const handleSelectPaymentMethod = (method: string) => {
@@ -136,14 +195,16 @@ const Page = () => {
       amount,
       paymentMethod,
       profile: profile?.firstName,
-      id: member?._id as string,
+      phoneNumber: member?.phone as string,
       paidAmount,
       changeAmount,
       totalDiscountPercentage,
       totalDiscountValue,
       totalAmount,
       totalPoints,
+      others: storedVoucher ? storedVoucher.barcode : "",
     };
+
     const newData = Object.assign({}, data, { orderId });
     const response = await placeOrder(newData);
     if (response === false) {
@@ -152,46 +213,52 @@ const Page = () => {
     }
     setToggleConfirmOrder(false);
     window.open(`/print/${orderId}`, "_blank", "width=800,height=600");
-    if (member && membershipPayment === MembershipType.POINT) {
-      await updateMembershipPointById(member._id, {
+    window.addEventListener("windowClosed", () => {
+      window.close();
+    });
+    if (member && payment === MembershipType.POINT) {
+      await updateMembershipPointById(member.phone, {
         points: amountToPoint(totalAmount),
-        invoice: orderId,
+        invoice: [orderId],
       });
     }
-    localStorage.setItem("heldOrders", JSON.stringify(updatedHeldOrders));
+    if (payment === "voucher") {
+      await updateVoucherByBarcode(storedVoucher?.barcode as string);
+    }
+    await localStorage.setItem("heldOrders", JSON.stringify(updatedHeldOrders));
     setOrderId(generateNextOrderId());
     onRefresh();
   };
 
-  const selectDiscount = (type: MembershipType) => {
-    const value = getDiscountValue(type);
-    setTotalDiscountPercentage(value);
-    methods3.setValue("discount", String(value));
-    setTotalDiscountValue(amount * (value / 100));
-    setTotalPoints(0);
-    const discountedAmount = amount - amount * (value / 100);
-    setTotalAmount(discountedAmount);
-  };
+  // const selectDiscount = (type: MembershipType) => {
+  //   const value = getDiscountValue(type);
+  //   setTotalDiscountPercentage(value);
+  //   methods3.setValue("discount", String(value));
+  //   setTotalDiscountValue(amount * (value / 100));
+  //   setTotalPoints(0);
+  //   const discountedAmount = amount - amount * (value / 100);
+  //   setTotalAmount(discountedAmount);
+  // };
 
   const handlePaymentChange = (paid: number, changes: number) => {
     setPaidAmount(paid);
     setChangeAmount(changes);
   };
 
-  const selectPoints = (points: number) => {
-    if (amount > 0) {
-      setTotalAmount(amount);
-      const convertedAmount = amount - pointToAmount(points);
-      const discountedAmount = pointToAmount(points);
-      setMembershipPayment(MembershipType.POINT);
-      setTotalPoints(discountedAmount);
-      setTotalDiscountValue(0);
-      setTotalAmount(convertedAmount);
-    } else {
-      setTotalAmount(0);
-      setTotalDiscountValue(0);
-    }
-  };
+  // const selectPoints = (points: number) => {
+  //   if (amount > 0) {
+  //     setTotalAmount(amount);
+  //     const convertedAmount = amount - pointToAmount(points);
+  //     const discountedAmount = pointToAmount(points);
+  //     setPayment(MembershipType.POINT);
+  //     setTotalPoints(discountedAmount);
+  //     setTotalDiscountValue(0);
+  //     setTotalAmount(convertedAmount);
+  //   } else {
+  //     setTotalAmount(0);
+  //     setTotalDiscountValue(0);
+  //   }
+  // };
 
   const heldOrder = (orderId: string) => {
     if (items.length === 0) return;
@@ -226,8 +293,9 @@ const Page = () => {
       const lastOrderId = localStorage.getItem("lastOrderId");
       localStorage.setItem("currentOrderId", lastOrderId as string);
     }
-  };
 
+    setRefresh(!refresh);
+  };
   const onRemoveAllItems = () => {
     clearLocalStorage();
     onRefresh();
@@ -251,12 +319,40 @@ const Page = () => {
 
   const clearMembership = () => {
     localStorage.removeItem("membership");
-    setTotalAmount(amount);
-    setTotalDiscountValue(0);
+
+    localStorage.removeItem("voucher");
+    methods3.setValue("discount", "0");
+    methods3.setValue("points", "0");
     setTotalPoints(0);
     window.dispatchEvent(new Event("memberUpdated"));
+    window.dispatchEvent(new Event("voucherUpdated"));
   };
 
+  useEffect(() => {
+    if (member) {
+      if (member.discount) {
+        methods3.setValue("discount", member.discount?.toString() ?? "0");
+        methods3.setValue("points", "0");
+      } else {
+        methods3.setValue("discount", "");
+        methods3.setValue("points", member.point?.toString() ?? "0");
+        const convertedAmount = pointToAmount(member?.point ?? 0);
+        setTotalPoints(convertedAmount);
+        setPayment(MembershipType.POINT);
+      }
+      localStorage.removeItem("voucher");
+    }
+  }, [member]);
+
+  useEffect(() => {
+    if (storedVoucher) {
+      methods3.setValue("discount", storedVoucher.discount?.toString() ?? "0");
+      methods3.setValue("points", "0");
+      setPayment("voucher");
+      localStorage.removeItem("membership");
+    }
+  }, [storedVoucher]);
+  console.log(member);
   return (
     <div className="flex w-full justify-between gap-4">
       <div className="w-full">
@@ -327,6 +423,7 @@ const Page = () => {
             totalAmount={totalAmount}
           />
         </div>
+
         <BasicModal
           ContentComponent={PaymentQRCode}
           onClose={() => setToggleQRCode(false)}
@@ -345,61 +442,91 @@ const Page = () => {
           onClose={() => setToggleMembership(false)}
           open={toggleMembership}
         />
+
+        <BasicModal
+          ContentComponent={PaymentQRCode}
+          onClose={() => setToggleQRCode(false)}
+          open={toggleQRCode}
+          text={totalAmount.toString()}
+        />
+        <BasicModal
+          ContentComponent={ConfirmOrder}
+          onAction={() => handleOrder(orderId)}
+          onClose={() => setToggleConfirmOrder(false)}
+          open={toggleConfirmOrder}
+          text="Are you sure you want to place the order?"
+        />
+        <BasicModal
+          ContentComponent={Membership}
+          onClose={() => setToggleMembership(false)}
+          open={toggleMembership}
+        />
+        <BasicModal
+          ContentComponent={Voucher}
+          onClose={() => setToggleVoucher(false)}
+          open={toggleVoucher}
+        />
         <Form
           methods={methods3}
-          className={`${
-            member ? "grid-cols-8 " : "grid-cols-7"
-          } w-full grid items-center gap-2 justify-between`}
+          className={`${"grid-cols-10"} w-full grid items-center gap-2 justify-between`}
         >
-          <div className="col-span-4">
-            <CustomButton
-              onHandleButton={() => setToggleMembership(true)}
-              text={`${
-                member
-                  ? `${member.phoneNumber} (${member.type})`
-                  : "Check Membership"
-              }`}
-              theme="general"
-            />
-          </div>
-          <div className="flex col-span-3 justify-between items-center gap-2 w-full">
-            {member && member.type !== MembershipType.POINT && (
-              <div className="flex gap-2">
+          <div className="col-span-4 gap-2 flex w-full items-center justify-between">
+            <div className="col-span-2 w-full">
+              {
                 <CustomButton
                   theme="general"
-                  text={`${getDiscountValue(member.type)}%`}
-                  onHandleButton={() =>
-                    selectDiscount(member.type as MembershipType)
-                  }
+                  onHandleButton={() => setToggleVoucher(true)}
+                  icon={RiCoupon3Line}
                 />
-                <CustomButton
-                  theme="general"
-                  text={`${String(member.points)}P`}
-                  onHandleButton={() => selectPoints(member.points)}
-                />
-              </div>
-            )}
-            {member && member.type === MembershipType.POINT && (
-              <div>
-                <CustomButton
-                  theme="general"
-                  text={`${String(member.points)}P`}
-                  onHandleButton={() => selectPoints(member.points)}
-                />
-              </div>
-            )}
-            {!member && (
-              <InputField name="discount" label="Discount" type="number" />
-            )}
-          </div>
-          {member && (
-            <div className="pl-4 w-full flex justify-center">
-              <MdClose
-                onClick={clearMembership}
-                className="text-xl text-red-500 cursor-pointer text-center"
+              }
+            </div>
+            <div className="col-span-2 w-full">
+              <CustomButton
+                onHandleButton={() => setToggleMembership(true)}
+                icon={LuUserRoundSearch}
+                theme="general"
               />
             </div>
-          )}
+          </div>
+          <div className="h-full col-span-6 grid grid-cols-6 justify-between items-center gap-2 w-full">
+            <div
+              className={`${
+                member && member.point ? "col-span-3" : "col-span-5"
+              } w-full`}
+            >
+              <InputField
+                name="discount"
+                label="Discount"
+                disabled={items.length === 0}
+                type="number"
+              />
+            </div>
+
+            {member && member.point && (
+              <div className="col-span-2">
+                <InputField
+                  disabled={items.length === 0}
+                  name="points"
+                  label="Points"
+                  type="number"
+                />
+              </div>
+            )}
+            <button
+              disabled={items.length === 0}
+              className="w-full m-auto flex-col items-center rounded h-full border
+            flex justify-center"
+            >
+              <MdClose
+                onClick={clearMembership}
+                className={`text-xl ${
+                  items.length === 0
+                    ? "text-gray-500"
+                    : "text-red-500 cursor-pointer"
+                } cursor-pointer text-center`}
+              />
+            </button>
+          </div>
         </Form>
 
         {paymentMethod !== "cash" && (

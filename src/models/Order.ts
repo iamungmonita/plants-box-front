@@ -48,7 +48,7 @@ export interface ICheckout {
   amount: number;
   paymentMethod: string;
   profile: string | undefined;
-  id: string;
+  phoneNumber: string;
   paidAmount: number;
   changeAmount: number;
   totalDiscountPercentage: number;
@@ -56,6 +56,7 @@ export interface ICheckout {
   totalAmount: number;
   totalPoints: number;
   orderId: string;
+  others?: string;
 }
 
 export interface PurchasedOrderList extends Response {
@@ -71,6 +72,7 @@ export interface PurchasedOrderList extends Response {
   paidAmount?: number;
   changeAmount?: number;
   member?: MemberInfo;
+  others?: string;
 }
 
 export interface MemberInfo {

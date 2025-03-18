@@ -5,13 +5,16 @@ import { useForm } from "react-hook-form";
 import CustomButton from "@/components/Button";
 import Form from "@/components/Form";
 import AutocompleteForm from "@/components/Autocomplete";
-import { getAllMembership } from "@/services/membership";
+import { getAllMembership, IMemberResponse } from "@/services/membership";
 import BasicModal from "@/components/Modal";
 import { IMembership } from "@/models/Membership";
 import CreateForm from "@/components/Form/Membership";
+import { getMembershipType } from "@/helpers/calculation/getPoint";
+import { getDiscountValue } from "@/constants/Membership";
 
 const Membership = ({ onClose }: { onClose?: () => void }) => {
-  const [membership, setMembership] = useState<IMembership[]>([]);
+  const [membership, setMembership] = useState<IMemberResponse[]>([]);
+  const [member, setMember] = useState<IMemberResponse>();
   const [invoices, setInvoices] = useState<string[]>([]);
   const [toggle, setToggle] = useState<boolean>(false);
   const [exist, setExist] = useState<boolean>(false);
@@ -51,14 +54,29 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
   }, [invoices, orderId]);
   const selectMembership = (id: string) => {
     const member = membership.find((member) => member._id === id);
-    localStorage.setItem("membership", JSON.stringify(member));
-    window.dispatchEvent(new Event("memberUpdated"));
+    setMember(member);
   };
   const handleClose = () => {
     setToggle(false);
     if (onClose) {
       onClose();
     }
+  };
+  const selectPoints = () => {
+    const stored = {
+      phone: member?.phoneNumber,
+      point: member?.points, // Default value
+    };
+    localStorage.setItem("membership", JSON.stringify(stored));
+    window.dispatchEvent(new Event("memberUpdated"));
+  };
+  const selectDiscount = () => {
+    const stored = {
+      phone: member?.phoneNumber,
+      discount: getDiscountValue(member?.type as string), // Default value
+    };
+    localStorage.setItem("membership", JSON.stringify(stored));
+    window.dispatchEvent(new Event("memberUpdated"));
   };
 
   return (
@@ -72,7 +90,7 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
         <div className="col-span-4">
           <AutocompleteForm
             name="phoneNumber"
-            label="Name or Phone Number"
+            label="Phone Number"
             options={membership.map((member) => ({
               label: `${member.phoneNumber} (${member.type})`,
               value: member.phoneNumber,
@@ -87,6 +105,29 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
             }}
           />
         </div>
+
+        {member ? (
+          <div className="grid grid-cols-3 col-span-4 gap-4 justify-between items-center">
+            <p className="col-span-1">
+              {member.phoneNumber} ({member.type})
+            </p>
+            <div className=" gap-4  col-span-2 grid grid-cols-2">
+              <CustomButton
+                theme="general"
+                text={`${String(member.points)} Points`}
+                onHandleButton={selectPoints}
+              />
+              <CustomButton
+                theme="general"
+                text={getDiscountValue(member.type).toString()}
+                onHandleButton={selectDiscount}
+              />
+            </div>
+          </div>
+        ) : (
+          "no member matches"
+        )}
+
         <div className="col-span-4 grid grid-cols-2 gap-4">
           <CustomButton
             theme={exist ? "dark" : ""}

@@ -51,6 +51,7 @@ const Page = () => {
     };
     fetchProduct();
   }, [purchasedId, selectedEndDate, selectedStartDate]);
+
   const handleStartDateChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {

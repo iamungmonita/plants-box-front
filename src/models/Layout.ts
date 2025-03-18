@@ -22,4 +22,5 @@ export interface queryParam {
   start?: string;
   end?: string;
   phoneNumber?: string;
+  barcode?: string;
 }

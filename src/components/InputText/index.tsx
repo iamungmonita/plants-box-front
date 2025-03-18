@@ -12,11 +12,13 @@ interface InputFieldProps {
   step?: string;
   allowDecimals?: boolean; // New prop to control decimals
   onBlur?: () => void;
+  disabled?: boolean;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
   name,
   type,
+  disabled = false,
   label,
   multiline = false,
   minRows = 1,
@@ -52,6 +54,7 @@ const InputField: React.FC<InputFieldProps> = ({
             min: type === "number" ? 0 : undefined,
             step: allowDecimals ? "0.01" : "1", // Dynamic step
           }}
+          disabled={disabled}
           onChange={(e) => {
             const value = e.target.value;
 
