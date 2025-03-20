@@ -1,28 +1,74 @@
+import { getAccessToken } from "@/utils/Cookie";
+
+const token = getAccessToken();
+
 export function GET<T, Q = any>(url: string, params?: Q): Promise<T> {
   return sendRequest({ method: "GET", url, params });
 }
+
+export function GETWithToken<T, Q = any>(url: string, params?: Q): Promise<T> {
+  // Get token from localStorage
+
+  return sendRequest({
+    method: "GET",
+    url,
+    params,
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "", // Attach token if available
+    },
+  });
+}
+
 export function POST<T, Q = any>(url: string, params?: Q): Promise<T> {
   return sendRequest({ method: "POST", url, params });
 }
+
+export function POSTWithToken<T, Q = any>(url: string, params?: Q): Promise<T> {
+  // Get token from localStorage
+
+  return sendRequest({
+    method: "POST",
+    url,
+    params,
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+    },
+  });
+}
+
 export function PUT<T, Q = any>(url: string, params?: Q): Promise<T> {
   return sendRequest({ method: "PUT", url, params });
+}
+
+export function PUTWithToken<T, Q = any>(url: string, params?: Q): Promise<T> {
+  return sendRequest({
+    method: "PUT",
+    url,
+    params,
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+    },
+  });
 }
 
 const sendRequest = async <T, Q = any>({
   url,
   method,
   params,
+  headers = {}, // ✅ Default to an empty object
   signal,
 }: {
   url: string;
   method: string;
   params?: Q;
   signal?: AbortSignal;
+  headers?: Record<string, string>; // ✅ Correctly type headers
 }): Promise<T> => {
   return fetch(url, {
     method,
     headers: {
       "Content-Type": "application/json",
+      ...headers,
     },
     body: method === "GET" ? undefined : JSON.stringify(params), // ✅ Exclude body for GET
     credentials: "include",
@@ -31,7 +77,9 @@ const sendRequest = async <T, Q = any>({
     .then(async (response) => {
       const data = await response.json();
       if (!response.ok) {
-        return data;
+        throw new Error(
+          data.message || `HTTP error! Status: ${response.status}`
+        );
       }
       return data;
     })

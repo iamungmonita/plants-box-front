@@ -37,10 +37,8 @@ const Page = () => {
     const newForm = {
       ...form,
       date: selectedDate as string,
-
       createdBy: profile?.firstName as string,
     };
-    console.log(newForm);
     const response = await CreateExpense(newForm);
     if (response.message) {
       setToggleAlert(true);

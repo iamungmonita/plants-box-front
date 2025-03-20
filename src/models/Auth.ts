@@ -27,8 +27,8 @@ export interface Profile extends Response {
 }
 
 export interface ProfileWithCount {
-  admin: Profile;
-  count: boolean;
+  token: string;
+  initialLog: boolean;
 }
 
 export interface IAuthLogIn {

@@ -141,42 +141,7 @@ const Page = () => {
     localStorage.removeItem("membership");
     window.dispatchEvent(new Event("memberUpdated"));
   };
-  //
-  // useEffect(() => {
-  //   const fetchProduct = async () => {
-  //     try {
-  //       const response = await getAllProducts({ category, barcode });
-  //       if (response) {
-  //         setProducts(response);
-  //       } else {
-  //         console.error("No products found in response");
-  //         setProducts([]);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error uploading:", error);
-  //     }
-  //   };
-  //   fetchProduct();
-  // }, [category, barcode, refresh]);
 
-  //   const generateNextOrderId = (): string => {
-  //     let lastOrderId = localStorage.getItem("lastOrderId");
-  //     let currentOrderId = localStorage.getItem("currentOrderId");
-  //
-  //     if (!lastOrderId) {
-  //       lastOrderId = "PO-00001"; // Start from 0, next will be PO-00001
-  //     }
-  //
-  //     if (currentOrderId === lastOrderId) {
-  //       localStorage.removeItem("currentOrderId");
-  //       return currentOrderId;
-  //     }
-  //
-  //     const orderNumber = parseInt(lastOrderId.split("-")[1]) + 1;
-  //     const nextOrderId = `PO-${orderNumber.toString().padStart(5, "0")}`;
-  //     localStorage.setItem("lastOrderId", nextOrderId);
-  //     return nextOrderId;
-  //   };
   const handlePrint = () => {
     window.open(`/print/${orderId}`, "_blank", "width=800,height=600");
   };
@@ -230,35 +195,10 @@ const Page = () => {
     onRefresh();
   };
 
-  // const selectDiscount = (type: MembershipType) => {
-  //   const value = getDiscountValue(type);
-  //   setTotalDiscountPercentage(value);
-  //   methods3.setValue("discount", String(value));
-  //   setTotalDiscountValue(amount * (value / 100));
-  //   setTotalPoints(0);
-  //   const discountedAmount = amount - amount * (value / 100);
-  //   setTotalAmount(discountedAmount);
-  // };
-
   const handlePaymentChange = (paid: number, changes: number) => {
     setPaidAmount(paid);
     setChangeAmount(changes);
   };
-
-  // const selectPoints = (points: number) => {
-  //   if (amount > 0) {
-  //     setTotalAmount(amount);
-  //     const convertedAmount = amount - pointToAmount(points);
-  //     const discountedAmount = pointToAmount(points);
-  //     setPayment(MembershipType.POINT);
-  //     setTotalPoints(discountedAmount);
-  //     setTotalDiscountValue(0);
-  //     setTotalAmount(convertedAmount);
-  //   } else {
-  //     setTotalAmount(0);
-  //     setTotalDiscountValue(0);
-  //   }
-  // };
 
   const heldOrder = (orderId: string) => {
     if (items.length === 0) return;

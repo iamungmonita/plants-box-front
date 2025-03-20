@@ -44,27 +44,20 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     profileRoles?: string[],
     roleCodes?: string[]
   ): boolean => {
-    // If neither profileRoles nor roleCodes are provided, deny access
     if (!profileRoles && !roleCodes) {
-      return true; // Allowing everyone might not be what you want
+      return true;
     }
-
-    // If profileRoles is provided but roleCodes is missing, deny access
     if (profileRoles && !roleCodes) {
       return false;
     }
 
-    // If roleCodes is provided, check if any roleCode in profileRoles matches
     if (roleCodes && roleCodes.length > 0 && profileRoles) {
       return profileRoles.some((roleCode) => roleCodes.includes(roleCode));
     }
 
-    // If profileRoles is missing, but roleCodes is provided, allow access
     if (!profileRoles && roleCodes && roleCodes.length > 0) {
-      return true; // This allows access if roleCodes are provided but no profileRoles
+      return true;
     }
-
-    // Default to false if no roleCodes provided, deny access
     return true;
   };
 
@@ -119,6 +112,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     try {
       await SignOut();
+      localStorage.removeItem(process.env.NEXT_PUBLIC_AUTH_TOKEN as string);
       setIsAuthenticated(false);
       setProfile(null);
       setMessage(null);

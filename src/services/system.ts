@@ -1,6 +1,6 @@
 import API_URL from "@/lib/api";
 
-import { GET, POST, PUT } from ".";
+import { GET, POST, PUT, PUTWithToken } from ".";
 import query from "query-string";
 
 import { IRole, IRoleResponse } from "@/models/Roles";
@@ -62,7 +62,7 @@ export function updateUserById(
   params: IAuthRegister
 ): Promise<ILayout<Profile>> {
   const url = `${API_URL}/auth/users/update/` + id;
-  return PUT<ILayout<Profile>, IAuthRegister>(url, params);
+  return PUTWithToken<ILayout<Profile>, IAuthRegister>(url, params);
 }
 export function updateVoucherByBarcode(
   barcode: string

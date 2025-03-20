@@ -31,9 +31,13 @@ const Page = () => {
     const response = await SignIn(data);
 
     if (response.data) {
+      localStorage.setItem(
+        process.env.NEXT_PUBLIC_AUTH_TOKEN as string,
+        response.data.token
+      );
       signIn();
       onRefresh();
-      if (response.data.count) {
+      if (response.data.initialLog) {
         setToggle(true);
       } else {
         setToggle(false);

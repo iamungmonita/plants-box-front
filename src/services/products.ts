@@ -1,8 +1,8 @@
-import API_URL from "@/lib/api";
-import { GET, POST, PUT } from ".";
+import { GET, POST, POSTWithToken, PUT } from ".";
 import query from "query-string";
 import { ILayout, queryParam } from "@/models/Layout";
 import { Product, ProductResponse } from "@/models/Product";
+import API_URL from "@/lib/api";
 
 // GET
 
@@ -28,7 +28,7 @@ export function AddNewProduct(
   data: Product
 ): Promise<ILayout<ProductResponse>> {
   const url = `${API_URL}/product/create`;
-  return POST<ILayout<ProductResponse>, Product>(url, data);
+  return POSTWithToken<ILayout<ProductResponse>, Product>(url, data);
 }
 
 //PUT

@@ -66,9 +66,9 @@ const Page = () => {
       const userData = {
         ...data,
         codes: roleCodes,
-        createdBy: profile?.firstName,
         pictures: fileBase64 || data.pictures, // Ensure the correct image is sent
       };
+      console.log(userData);
       const response = userId
         ? await updateUserById(userId, userData)
         : await SignUp(userData);
@@ -155,7 +155,9 @@ const Page = () => {
         onClose={() => setToggleAlert(false)}
       />
       <div className="max-w-[500px] w-full">
-        <h2 className="text-center font-bold text-xl mb-5">Create User</h2>
+        <h2 className="text-center font-bold text-xl mb-5">
+          {userId ? "Update" : "Create"} User
+        </h2>
         <Form
           methods={methods}
           className="p-2 space-y-6"
@@ -167,7 +169,9 @@ const Page = () => {
           </div>
           <InputField name="email" type="email" label="Email" />
           <InputField name="phoneNumber" type="text" label="Phone Number" />
-          <InputField name="password" type="password" label="Password" />
+          {!userId && (
+            <InputField name="password" type="password" label="Password" />
+          )}{" "}
           <AutocompleteForm
             options={roles.map((option) => ({
               label: `${option.name}`,
@@ -183,8 +187,10 @@ const Page = () => {
             setPreviewUrl={setPreviewUrl}
             handleRemoveImage={handleRemoveImage}
           />
-
-          <CustomButton text="Create" type="submit" />
+          <CustomButton
+            text={`${userId ? "Update" : "Create"}`}
+            type="submit"
+          />
         </Form>
       </div>
     </div>

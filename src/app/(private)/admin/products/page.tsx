@@ -77,7 +77,7 @@ const Page = () => {
       <div>
         <ReusableTable
           columns={columns}
-          data={products}
+          data={products.filter((product) => product.isActive)}
           onRowClick={(row) => router.push(`/admin/products/${row._id}`)}
         />
       </div>

@@ -1,6 +1,7 @@
-import { GET, POST, PUT } from ".";
+import { GETWithToken, POST, POSTWithToken } from ".";
 import API_URL from "@/lib/api";
 import { ILayout } from "@/models/Layout";
+
 import {
   IAuthLogIn,
   IAuthRegister,
@@ -13,7 +14,7 @@ export function getAdminProfile(
   abortController: AbortController
 ): Promise<ILayout<Profile>> {
   const url = `${API_URL}/auth/profile`;
-  return GET<ILayout<Profile>>(url, abortController);
+  return GETWithToken<ILayout<Profile>>(url, abortController);
 }
 
 //POST
@@ -23,7 +24,7 @@ export function SignIn(form: IAuthLogIn): Promise<ILayout<ProfileWithCount>> {
 }
 export function SignUp(form: IAuthRegister): Promise<ILayout<Profile>> {
   const url = `${API_URL}/auth/sign-up`;
-  return POST<ILayout<Profile>, IAuthRegister>(url, form);
+  return POSTWithToken<ILayout<Profile>, IAuthRegister>(url, form);
 }
 
 export function SignOut(): Promise<void> {
