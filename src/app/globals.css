@@ -5,26 +5,20 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  /* **Main Colors** */
-  --primary: #2f4f3a; /* Deep Forest Green */
-  --secondary: #5f7d6d; /* Muted Teal-Green */
-  /* **Dark Variants** */
-  --darkest: #1a2617; /* Near-Black Green */
-  --dark: #243524; /* Deep Earth Green */
-  --dark-medium: #3a5740; /* Midway Deep Green */
-  /* **Mid Tones** */
-  --medium: #4e725a; /* Balanced Natural Green */
-  --medium-light: #6d8a74; /* Gentle Soft Green */
-  /* **Light Variants** */
-  --green-light: #a8c3a0; /* Soft Pastel Green */
-  --light: #f1f3ec; /* Warm Off-White */
-  --lighter: #f8faf6; /* Softest Neutral */
-  /* **Accent Colors** */
-  --accent: #d1e8c7; /* Fresh Green Tint */
-  --muted-accent: #9eb79c; /* Softer Accent */
-  --text: "Red Hat Display";
+  --primary: #14705e;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --primary: #45624e;
+    --secondary: #6d8777;
+    --green-light: #c0cfb2;
+    --light: #e4e6df;
+    --dark: #273525;
+  }
+}
 html,
 body {
   box-sizing: border-box;
@@ -54,19 +48,11 @@ header,
 footer,
 body {
   font-family: "red hat display";
+  color: var(--secondary);
 }
 
 section {
   width: 100%;
   height: auto;
   margin-bottom: 16px;
-}
-
-.scroll-container {
-  overflow-y: scroll;
-  scrollbar-width: none; /* Firefox */
-}
-
-.scroll-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
-}/*# sourceMappingURL=globals.css.map */
+} /*# sourceMappingURL=globals.css.map */

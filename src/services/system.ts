@@ -1,6 +1,6 @@
 import API_URL from "@/lib/api";
 
-import { GET, POST, PUT, PUTWithToken } from ".";
+import { GET, GETWithToken, POST, POSTWithToken, PUT, PUTWithToken } from ".";
 import query from "query-string";
 
 import { IRole, IRoleResponse } from "@/models/Roles";
@@ -23,14 +23,14 @@ export function CreateExpense(
   form: ExpenseForm
 ): Promise<ILayout<ExpenseResponse>> {
   const url = `${API_URL}/system/create-expense`;
-  return POST<ILayout<ExpenseResponse>, ExpenseForm>(url, form);
+  return POSTWithToken<ILayout<ExpenseResponse>, ExpenseForm>(url, form);
 }
 
 export function CreateVoucher(
   form: VoucherForm
 ): Promise<ILayout<VoucherResponse>> {
   const url = `${API_URL}/system/create-voucher`;
-  return POST<ILayout<VoucherResponse>, VoucherForm>(url, form);
+  return POSTWithToken<ILayout<VoucherResponse>, VoucherForm>(url, form);
 }
 export function getRoles(): Promise<ILayout<IRoleResponse[]>> {
   const url = `${API_URL}/system/retrieve`;
@@ -68,5 +68,5 @@ export function updateVoucherByBarcode(
   barcode: string
 ): Promise<ILayout<VoucherResponse>> {
   const url = `${API_URL}/system/update-voucher/` + barcode;
-  return PUT<ILayout<VoucherResponse>>(url);
+  return PUTWithToken<ILayout<VoucherResponse>>(url);
 }

@@ -37,7 +37,6 @@ const Page = () => {
     const newForm = {
       ...form,
       date: selectedDate as string,
-      createdBy: profile?.firstName as string,
     };
     const response = await CreateExpense(newForm);
     if (response.message) {
@@ -96,8 +95,8 @@ const Page = () => {
                   className="border w-full col-span-2 rounded p-3.5 bg-gray-100"
                   type="date"
                   id="date"
-                  value={selectedDate || ""} // Binding state to input
-                  onChange={handleDate} // Handling date change
+                  value={selectedDate || ""}
+                  onChange={handleDate}
                 />
               </div>
             </div>
@@ -108,7 +107,6 @@ const Page = () => {
               type="text"
               label="Remarks"
             />
-
             <CustomButton text="Create" type="submit" />
           </Form>
         </div>
