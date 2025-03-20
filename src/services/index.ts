@@ -1,4 +1,4 @@
-import { getAccessToken } from "@/utils/Cookie";
+import { getAccessToken } from "@/utils/localStroage";
 
 const token = getAccessToken();
 

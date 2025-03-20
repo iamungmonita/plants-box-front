@@ -2,7 +2,7 @@
 
 import { Profile } from "@/models/Auth";
 import { getAdminProfile, SignOut } from "@/services/authentication";
-import { getAccessToken } from "@/utils/Cookie";
+import { getAccessToken } from "@/utils/localStroage";
 import React, {
   createContext,
   useCallback,

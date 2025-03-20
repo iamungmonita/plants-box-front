@@ -37,7 +37,6 @@ const Page = () => {
       validTo: selectedEndDate,
       createdBy: profile?.firstName,
     };
-    console.log(newForm);
     const response = await CreateVoucher(newForm);
     if (response.message) {
       setToggleAlert(true);
@@ -55,12 +54,12 @@ const Page = () => {
   const handleStartDateChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const newDate = event.target.value; // The value will be in YYYY-MM-DD format
-    setSelectedStartDate(newDate || null); // This triggers the second useEffect hook
+    const newDate = event.target.value;
+    setSelectedStartDate(newDate || null);
   };
   const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newDate = event.target.value; // The value will be in YYYY-MM-DD format
-    setSelectedEndDate(newDate || null); // This triggers the second useEffect hook
+    const newDate = event.target.value;
+    setSelectedEndDate(newDate || null);
   };
 
   return (
