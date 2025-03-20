@@ -14,18 +14,20 @@ import InputField from "@/components/InputText";
 import { ProductResponse } from "@/models/Product";
 
 const Page = () => {
+  const router = useRouter();
   const { profile } = useAuthContext();
   const [products, setProducts] = useState<ProductResponse[]>([]);
 
   const methods = useForm({
     defaultValues: {
-      name: "",
-      category: "",
+      name: undefined,
+      category: undefined,
     },
   });
   const { watch, setValue } = methods;
   const name = watch("name");
   const category = watch("category");
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -33,31 +35,25 @@ const Page = () => {
           search: name,
           category,
         });
-        if (response.data) {
-          setProducts(response.data);
-        }
+        setProducts(response?.data ?? []);
       } catch (error) {
         console.error("Error uploading:", error);
       }
     };
     fetchProduct();
   }, [name, category]);
-  const router = useRouter();
+
   const onClear = () => {
-    setValue("category", "");
-    setValue("name", "");
+    setValue("category", undefined);
+    setValue("name", undefined);
   };
-  console.log(profile?.codes);
+
   return (
     <div className="flex flex-col min-h-screen justify-start gap-4">
       <div className="flex items-center justify-between gap-4">
         <h2 className="font-semibold text-xl">Products</h2>
         <div className="w-52">
-          <CustomButton
-            roleCodes={["1001"]}
-            path="/admin/products/create"
-            text="Create Product"
-          />
+          <CustomButton path="/admin/products/create" text="Create Product" />
         </div>
       </div>
       <Form

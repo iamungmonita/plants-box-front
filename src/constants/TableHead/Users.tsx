@@ -23,8 +23,8 @@ export const columns: Column<Profile>[] = [
         <Image
           width={50}
           height={50}
-          src={`${API_URL}${row.pictures}`}
-          alt={`${API_URL}${row.pictures}`}
+          src={`${row.pictures}`}
+          alt={`${row.pictures}`}
           style={{
             width: 50,
             height: 50,

@@ -1,26 +1,45 @@
+import { uploadSingleImage } from "@/services/file";
 import Image from "next/image";
 import React from "react";
 
 interface ImageUploadProps {
   previewUrl: string | null;
-  setFile: React.Dispatch<React.SetStateAction<File | null>>;
   setPreviewUrl: React.Dispatch<React.SetStateAction<string | null>>;
   handleRemoveImage: (e: React.MouseEvent) => void;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({
-  previewUrl,
-  setFile,
-  setPreviewUrl,
-  handleRemoveImage,
-}) => {
+const ImageUpload: React.FC<ImageUploadProps> = (props) => {
+  const { previewUrl, setPreviewUrl, handleRemoveImage } = props;
+
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    if (event.target.files && event.target.files.length > 0) {
-      const selectedFile = event.target.files[0];
-      setFile(selectedFile);
-      setPreviewUrl(URL.createObjectURL(selectedFile));
+    const files = event.target.files ?? [];
+    if (files?.length) {
+      const selectedFile = files[0];
+      const formData = new FormData();
+      formData.append("name", selectedFile.name);
+      formData.append("file", selectedFile);
+
+      const result = await onUploadImages(formData);
+      const previewUrl = result?.url ?? URL.createObjectURL(selectedFile);
+      //
+      setPreviewUrl(previewUrl);
+    }
+  };
+
+  const onUploadImages = async (formData: FormData) => {
+    try {
+      const files = formData.get("file");
+      if (!files) {
+        return;
+      }
+      const fileUploaded = await uploadSingleImage(formData);
+      setPreviewUrl(fileUploaded?.url);
+      return fileUploaded;
+    } catch (error) {
+      const message = (error as any).message ?? "Somethings Went Wrong";
+      alert(message);
     }
   };
 
@@ -35,7 +54,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const selectedFile = e.dataTransfer.files[0];
-      setFile(selectedFile);
       setPreviewUrl(URL.createObjectURL(selectedFile));
     }
   };

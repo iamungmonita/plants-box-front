@@ -14,8 +14,8 @@ export interface Response {
 }
 
 export interface queryParam {
-  search?: string;
-  category?: string;
+  search?: string | null;
+  category?: string | null;
   type?: string;
   purchasedId?: string;
   date?: string;

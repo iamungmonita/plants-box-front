@@ -81,7 +81,7 @@ const CreateForm = ({
       <Form
         methods={methods}
         className="w-full p-2 space-y-6"
-        onSubmit={handleSubmit(onSubmitForm)}
+        onSubmit={onSubmitForm}
       >
         <h2 className="text-xl text-center">Create New Membership</h2>
         <InputField name="phoneNumber" type="text" label="Phone Number" />

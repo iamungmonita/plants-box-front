@@ -1,13 +1,12 @@
 import { getAccessToken } from "@/utils/localStroage";
 
-const token = getAccessToken();
-
 export function GET<T, Q = any>(url: string, params?: Q): Promise<T> {
   return sendRequest({ method: "GET", url, params });
 }
 
 export function GETWithToken<T, Q = any>(url: string, params?: Q): Promise<T> {
   // Get token from localStorage
+  const token = getAccessToken();
 
   return sendRequest({
     method: "GET",
@@ -19,12 +18,17 @@ export function GETWithToken<T, Q = any>(url: string, params?: Q): Promise<T> {
   });
 }
 
-export function POST<T, Q = any>(url: string, params?: Q): Promise<T> {
-  return sendRequest({ method: "POST", url, params });
+export function POST<T, Q = any>(
+  url: string,
+  params?: Q,
+  headers?: any
+): Promise<T> {
+  return sendRequest({ method: "POST", url, params, headers });
 }
 
 export function POSTWithToken<T, Q = any>(url: string, params?: Q): Promise<T> {
   // Get token from localStorage
+  const token = getAccessToken();
 
   return sendRequest({
     method: "POST",
@@ -41,6 +45,8 @@ export function PUT<T, Q = any>(url: string, params?: Q): Promise<T> {
 }
 
 export function PUTWithToken<T, Q = any>(url: string, params?: Q): Promise<T> {
+  const token = getAccessToken();
+
   return sendRequest({
     method: "PUT",
     url,

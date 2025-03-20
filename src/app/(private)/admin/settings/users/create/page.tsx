@@ -47,7 +47,6 @@ const Page = () => {
     formState: { errors },
   } = methods;
   console.log(errors);
-  const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { data: roles = [] } = useFetch(getRoles, {}, []);
   const [error, setError] = useState(false);
@@ -56,17 +55,13 @@ const Page = () => {
 
   const onSubmitForm = async (data: IAuthRegister) => {
     try {
-      let fileBase64 = ""; // Default to existing image
-      if (file instanceof File) {
-        fileBase64 = await convertFileToBase64(file);
-      }
       const roleCodes =
         roles.find((role) => role.name === data.role)?.codes ?? [];
 
       const userData = {
         ...data,
         codes: roleCodes,
-        pictures: fileBase64 || data.pictures, // Ensure the correct image is sent
+        pictures: data.pictures, // Ensure the correct image is sent
       };
       console.log(userData);
       const response = userId
@@ -93,9 +88,6 @@ const Page = () => {
         methods.setValue("phoneNumber", "");
         methods.setValue("isActive", true);
         setPreviewUrl(null);
-        setFile(null);
-      } else if (fileBase64) {
-        setPreviewUrl(fileBase64);
       }
     } catch (error) {
       console.error("Error uploading:", error);
@@ -141,7 +133,6 @@ const Page = () => {
   const handleRemoveImage = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setFile(null);
     setPreviewUrl(null);
     methods.setValue("pictures", "");
   };
@@ -183,7 +174,6 @@ const Page = () => {
           <Checkbox name="isActive" label="Active" />
           <ImageUpload
             previewUrl={previewUrl}
-            setFile={setFile}
             setPreviewUrl={setPreviewUrl}
             handleRemoveImage={handleRemoveImage}
           />

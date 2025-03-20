@@ -7,10 +7,8 @@ import Form from "@/components/Form";
 import AutocompleteForm from "@/components/Autocomplete";
 import { getAllMembership, IMemberResponse } from "@/services/membership";
 import BasicModal from "@/components/Modal";
-import { IMembership } from "@/models/Membership";
 import CreateForm from "@/components/Form/Membership";
-import { getMembershipType } from "@/helpers/calculation/getPoint";
-import { getDiscountValue } from "@/constants/Membership";
+import { getDiscountValue } from "@/constants/membership";
 
 const Membership = ({ onClose }: { onClose?: () => void }) => {
   const [membership, setMembership] = useState<IMemberResponse[]>([]);

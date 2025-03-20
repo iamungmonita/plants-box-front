@@ -40,7 +40,6 @@ export const CreateForm = ({ createId }: { createId: string }) => {
     resolver: yupResolver(ProductSchema),
   });
   const { handleSubmit, setValue } = methods;
-  const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [, setLoading] = useState<boolean>(false);
   const [toggleAlert, setToggleAlert] = useState<boolean>(false);
@@ -49,15 +48,10 @@ export const CreateForm = ({ createId }: { createId: string }) => {
 
   const onSubmit = async (data: Product) => {
     try {
-      let fileBase64 = ""; // Default to existing image
-      if (file instanceof File) {
-        fileBase64 = await convertFileToBase64(file);
-      }
-
       const productData = {
         ...data,
         createdBy: createdBy,
-        pictures: fileBase64 || data.pictures, // Ensure the correct image is sent
+        pictures: (previewUrl ?? null) as any, // Ensure the correct image is sent
       };
       const response = createId
         ? await updateProductDetailsById(createId, productData)
@@ -82,11 +76,6 @@ export const CreateForm = ({ createId }: { createId: string }) => {
         setValue("isActive", true);
         setValue("isDiscountable", true);
         setValue("pictures", "");
-        setFile(null);
-        setPreviewUrl(null);
-      } else if (fileBase64) {
-        // If updating, update preview with new image
-        setPreviewUrl(fileBase64);
       }
     } catch (error) {
       console.error("Error uploading:", error);
@@ -96,7 +85,6 @@ export const CreateForm = ({ createId }: { createId: string }) => {
   const handleRemoveImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     setValue("pictures", "");
-    setFile(null);
     setPreviewUrl(null);
   };
 
@@ -125,9 +113,7 @@ export const CreateForm = ({ createId }: { createId: string }) => {
               "pictures",
               productData.data?.pictures as unknown as string
             );
-            setPreviewUrl(
-              `${API_URL}${productData.data?.pictures as unknown as string}`
-            );
+            setPreviewUrl(`${productData.data?.pictures as unknown as string}`);
           } else {
             setValue("pictures", "");
           }
@@ -144,7 +130,7 @@ export const CreateForm = ({ createId }: { createId: string }) => {
     <Form
       methods={methods}
       className="grid grid-cols-2 gap-4 p-2"
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={onSubmit}
     >
       <InputField name="name" type="text" label="Name" />
       <InputField name="barcode" type="text" label="Barcode" />
@@ -156,7 +142,6 @@ export const CreateForm = ({ createId }: { createId: string }) => {
       <Checkbox name="isDiscountable" label="Discountable" />
       <ImageUpload
         previewUrl={previewUrl}
-        setFile={setFile}
         setPreviewUrl={setPreviewUrl}
         handleRemoveImage={handleRemoveImage}
       />

@@ -8,7 +8,7 @@ const ProfileComponent = ({ profile }: { profile: Profile | null }) => {
       height={50}
       src={`${
         profile?.pictures
-          ? `${API_URL}${profile?.pictures}`
+          ? `${profile?.pictures}`
           : "/assets/default-profile.jpg"
       }`}
       title={profile?.firstName}

@@ -10,7 +10,8 @@ import { IMemberResponse, getAllMembership } from "@/services/membership";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
 import AutocompleteForm from "@/components/Autocomplete";
-import { optionsMembership } from "@/constants/Membership";
+import { optionsMembership } from "@/constants/membership";
+
 const Page = () => {
   const [membership, setMembership] = useState<IMemberResponse[]>([]);
   const methods = useForm({ defaultValues: { phoneNumber: "", type: "" } });

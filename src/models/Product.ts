@@ -16,7 +16,7 @@ export interface Product extends FieldValues {
 
 export interface ProductResponse extends Response {
   name: string;
-  pictures?: File; // Array of image URLs
+  pictures?: string; // Array of image URLs
   price: number; // Assuming price is a string; you can change it to a number if needed
   importedPrice: number; // Assuming price is a string; you can change it to a number if needed
   category: string;

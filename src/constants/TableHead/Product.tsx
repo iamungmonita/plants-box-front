@@ -23,8 +23,8 @@ export const columns: Column<ProductResponse>[] = [
         <Image
           width={50}
           height={50}
-          src={`${API_URL}${row.pictures}`}
-          alt={`${API_URL}${row.pictures}`}
+          src={row.pictures}
+          alt={row.pictures}
           style={{ width: 50, height: 50, objectFit: "cover" }}
         />
       ) : (
@@ -74,6 +74,7 @@ export const columns: Column<ProductResponse>[] = [
     id: "createdBy",
     label: "Created By",
     minWidth: 100,
+    formatString: (value: any) => [value?.firstName, value?.lastName].join(" "),
   },
   {
     id: "createdAt",

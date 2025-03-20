@@ -39,8 +39,8 @@ import { LuUserRoundSearch } from "react-icons/lu";
 import Voucher from "@/components/Modals/Voucher";
 // import { useVoucher } from "@/hooks/useVoucher";
 import { updateVoucherByBarcode } from "@/services/system";
-import { MembershipType } from "@/constants/Membership";
 import { useVoucher } from "@/hooks/useVoucher";
+import { MembershipType } from "@/constants/membership";
 
 const Page = () => {
   const [orderId, setOrderId] = useState<string>("PO-00001");
