@@ -12,12 +12,12 @@ import { ExpenseForm, ExpenseResponse } from "@/models/Expensese";
 
 export function CreateRole(form: IRole): Promise<ILayout<IRoleResponse>> {
   const url = `${API_URL}/system/create`;
-  return POST<ILayout<IRoleResponse>, IRole>(url, form);
+  return POSTWithToken<ILayout<IRoleResponse>, IRole>(url, form);
 }
 
 export function RetrieveRoles(): Promise<ILayout<IRoleResponse[]>> {
   const url = `${API_URL}/system/retrieve`;
-  return GET<ILayout<IRoleResponse[]>>(url);
+  return GETWithToken<ILayout<IRoleResponse[]>>(url);
 }
 export function CreateExpense(
   form: ExpenseForm
@@ -34,11 +34,11 @@ export function CreateVoucher(
 }
 export function getRoles(): Promise<ILayout<IRoleResponse[]>> {
   const url = `${API_URL}/system/retrieve`;
-  return GET<ILayout<IRoleResponse[]>>(url);
+  return GETWithToken<ILayout<IRoleResponse[]>>(url);
 }
 export function getAllExpenses(): Promise<ILayout<ExpenseResponse[]>> {
   const url = `${API_URL}/system/retrieve-expenses`;
-  return GET<ILayout<ExpenseResponse[]>>(url);
+  return GETWithToken<ILayout<ExpenseResponse[]>>(url);
 }
 
 export function getAllVouchers(
@@ -46,16 +46,16 @@ export function getAllVouchers(
 ): Promise<ILayout<VoucherResponse[]>> {
   const queryString = query.stringify(params);
   const url = `${API_URL}/system/retrieve-vouchers?${queryString}`;
-  return GET<ILayout<VoucherResponse[]>>(url);
+  return GETWithToken<ILayout<VoucherResponse[]>>(url);
 }
 
 export function getUsers(): Promise<ILayout<Profile[]>> {
   const url = `${API_URL}/auth/users`;
-  return GET<ILayout<Profile[]>>(url);
+  return GETWithToken<ILayout<Profile[]>>(url);
 }
 export function getUserById(id: string): Promise<ILayout<Profile>> {
   const url = `${API_URL}/auth/users/` + id;
-  return GET<ILayout<Profile>>(url);
+  return GETWithToken<ILayout<Profile>>(url);
 }
 export function updateUserById(
   id: string,

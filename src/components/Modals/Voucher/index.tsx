@@ -29,7 +29,6 @@ const Voucher = ({ onClose }: { onClose?: () => void }) => {
         const response = await getAllVouchers({ barcode });
         if (response.data) {
           const filtered = response.data.filter((voucher) => voucher.isActive);
-          console.log(filtered);
           setVouchers(filtered);
         }
       } catch (error) {

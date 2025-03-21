@@ -26,29 +26,42 @@ const Page = () => {
   const { setError } = methods;
   const router = useRouter();
   const [toggle, setToggle] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const onSubmitForm = async (data: IAuthLogIn) => {
-    const response = await SignIn(data);
+    try {
+      const response = await SignIn(data);
 
-    if (response.data) {
-      localStorage.setItem(
-        process.env.NEXT_PUBLIC_AUTH_TOKEN as string,
-        response.data.token
-      );
-      signIn();
-      onRefresh();
-      if (response.data.initialLog) {
-        setToggle(true);
+      if (response.data) {
+        if (response.data.token) {
+          const authTokenKey =
+            process.env.NEXT_PUBLIC_AUTH_TOKEN || "auth_token";
+          localStorage.setItem(authTokenKey, response.data.token);
+        } else {
+          console.error("Token is missing in response data.");
+        }
+
+        signIn();
+        onRefresh();
+        if (response.data.initialLog) {
+          setToggle(true);
+        } else {
+          setToggle(false);
+          router.push("/admin/dashboard");
+        }
+      } else if (response.name) {
+        // Handle field-specific errors like email/password
+        setError(response.name as "email" | "password", {
+          type: "manual",
+          message: response.message,
+        });
       } else {
-        setToggle(false);
-        router.push("/admin/dashboard");
+        // Handle general errors
+        setErrorMessage(response.message || "An unknown error occurred.");
       }
-    } else {
-      setError(response.name as "email" | "password", {
-        type: "manual",
-        message: response.message,
-      });
-      console.log(response.message);
+    } catch (error) {
+      console.error("Sign-in failed:", error);
+      setErrorMessage("An error occurred. Please try again.");
     }
   };
   return (
@@ -69,6 +82,7 @@ const Page = () => {
           <InputField name="email" type="email" label="Email" />
           <InputField name="password" type="password" label="Password" />
           <CustomButton text="Submit" type="submit" />
+          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
         </Form>
       </div>
     </div>

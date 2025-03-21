@@ -63,7 +63,6 @@ const Page = () => {
         </div>
         <CustomButton theme="alarm" text="clear" onHandleButton={onClear} />
       </Form>
-
       <div>
         <ReusableTable columns={columns} data={membership} />
       </div>

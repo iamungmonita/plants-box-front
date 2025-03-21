@@ -9,6 +9,7 @@ export interface ExpenseForm extends FieldValues {
   supplier: string;
   invoice?: string;
   createdBy: string | null;
+  updatedBy?: string;
 }
 
 export interface ExpenseResponse extends Response, ExpenseForm {}

@@ -1,7 +1,7 @@
 "use client";
 
 import { Profile } from "@/models/Auth";
-import { getAdminProfile, SignOut } from "@/services/authentication";
+import { getAdminProfile } from "@/services/authentication";
 import { getAccessToken } from "@/utils/localStroage";
 import React, {
   createContext,
@@ -50,11 +50,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (profileRoles && !roleCodes) {
       return false;
     }
-
     if (roleCodes && roleCodes.length > 0 && profileRoles) {
       return profileRoles.some((roleCode) => roleCodes.includes(roleCode));
     }
-
     if (!profileRoles && roleCodes && roleCodes.length > 0) {
       return true;
     }
@@ -75,13 +73,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log(response.message);
       }
     } catch (error: unknown) {
-      // Type assertion to ensure it's an instance of Error
       if (error instanceof Error) {
         if (error.name !== "AbortError") {
-          // Handle non-abort errors here
           console.error("Error fetching profile:", error.message);
         } else {
-          // Handle abort error separately
           console.log("Request was aborted.");
         }
       } else {
@@ -111,8 +106,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
-      await SignOut();
-      localStorage.removeItem(process.env.NEXT_PUBLIC_AUTH_TOKEN as string);
+      const authTokenKey = process.env.NEXT_PUBLIC_AUTH_TOKEN || "auth_token";
+      localStorage.removeItem(authTokenKey);
       setIsAuthenticated(false);
       setProfile(null);
       setMessage(null);

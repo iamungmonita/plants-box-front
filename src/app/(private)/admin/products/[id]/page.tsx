@@ -91,11 +91,7 @@ const Page = () => {
           <CreateForm createId={product._id} />
         </div>
         <div className="space-y-4">
-          {product.updatedCount.length > 0 ? (
-            <ReusableTable columns={columns} data={product.updatedCount} />
-          ) : (
-            <div>No orders have been recorded for this product.</div>
-          )}
+          <ReusableTable columns={columns} data={product.updatedCount} />
         </div>
       </div>
     </div>

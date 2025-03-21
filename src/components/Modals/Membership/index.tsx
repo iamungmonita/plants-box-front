@@ -9,6 +9,7 @@ import { getAllMembership, IMemberResponse } from "@/services/membership";
 import BasicModal from "@/components/Modal";
 import CreateForm from "@/components/Form/Membership";
 import { getDiscountValue } from "@/constants/membership";
+import AlertPopUp from "@/components/AlertPopUp";
 
 const Membership = ({ onClose }: { onClose?: () => void }) => {
   const [membership, setMembership] = useState<IMemberResponse[]>([]);
@@ -16,6 +17,9 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
   const [invoices, setInvoices] = useState<string[]>([]);
   const [toggle, setToggle] = useState<boolean>(false);
   const [exist, setExist] = useState<boolean>(false);
+  const [toggleAlert, setToggleAlert] = useState(false);
+  const [error, setError] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const methods = useForm({ defaultValues: { phoneNumber: "" } });
   const { watch } = methods;
   const phoneNumber = watch("phoneNumber");
@@ -37,19 +41,22 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
     };
     fetchMembership();
   }, [phoneNumber]);
+
   const orderId = localStorage.getItem("lastOrderId") ?? "";
   useEffect(() => {
     if (invoices && orderId) {
       const orderExists = invoices.includes(orderId);
       if (orderExists) {
-        console.log("Order ID already exists in invoices.");
+        setAlertMessage("Invoice is already used to create a membership");
+        setError(true);
+        setToggleAlert(true);
         setExist(true); // Set to true when order exists
       } else {
-        console.log("Order ID does not exist in invoices.");
-        setExist(false); // Set to false only when order doesn't exist
+        setExist(false);
       }
     }
   }, [invoices, orderId]);
+
   const selectMembership = (id: string) => {
     const member = membership.find((member) => member._id === id);
     setMember(member);
@@ -83,6 +90,12 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
         ContentComponent={CreateForm}
         onClose={handleClose}
         open={toggle}
+      />
+      <AlertPopUp
+        open={toggleAlert}
+        error={error}
+        message={alertMessage}
+        onClose={() => setToggleAlert(false)}
       />
       <Form methods={methods} className="w-full gap-4 grid grid-cols-4">
         <div className="col-span-4">

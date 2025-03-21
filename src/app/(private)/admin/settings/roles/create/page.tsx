@@ -24,13 +24,9 @@ const Page = () => {
       isActive: true,
     },
   });
-  const { profile } = useAuthContext();
+  // const { profile } = useAuthContext();
   const onSubmitForm = async (form: IRole) => {
-    const newForm = {
-      ...form,
-      createdBy: profile?.firstName,
-    };
-    const response = await CreateRole(newForm);
+    const response = await CreateRole(form);
     if (response.message) {
       setToggleAlert(true);
       setError(true);

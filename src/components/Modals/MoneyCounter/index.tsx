@@ -25,7 +25,6 @@ const MoneyCounter = () => {
   const [canProceed, setCanProceed] = useState(false);
   const router = useRouter();
 
-  // Collect and convert field values to numbers
   const collectFields = (fields: readonly string[]) => {
     return fields.reduce((acc, field) => {
       acc[field] = Number(watch(field)) || 0; // Ensure numeric conversion
@@ -62,7 +61,6 @@ const MoneyCounter = () => {
 
   const onSubmitForm = async (data: ILog) => {
     data = {
-      createdBy: profile?.firstName as string,
       riels,
       dollars,
     };

@@ -17,9 +17,6 @@ export const addToCart = async (id: string, productType: string = "plants") => {
         (item) => item._id === id
       );
       if (existingItemIndex !== -1) {
-        console.log(storedItems[existingItemIndex].quantity, stock);
-
-        // If the item exists, update the quantity and price
         if (storedItems[existingItemIndex].quantity >= stock) {
           return;
         } else {
@@ -79,8 +76,7 @@ export const removeItem = (id: string) => {
 
 export const handleCheckout = async (id: string, qty: number) => {
   try {
-    const response = await updateProductStockById(id, { qty: qty });
-    console.log("Stock updated successfully:", response);
+    await updateProductStockById(id, { qty: qty });
   } catch (error) {
     console.error("Error updating stock:", error);
   }

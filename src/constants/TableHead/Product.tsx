@@ -1,5 +1,4 @@
 import { formattedTimeStamp } from "@/helpers/format/time";
-import API_URL from "@/lib/api";
 import { ProductResponse } from "@/models/Product";
 import Image from "next/image";
 
@@ -59,7 +58,31 @@ export const columns: Column<ProductResponse>[] = [
     label: "Active",
     minWidth: 100,
     formatBoolean: (value: boolean) => {
-      return value ? <div>Active</div> : <div>Inactive</div>;
+      return value ? (
+        <div className="flex gap-2 justify-start items-center">
+          <div
+            style={{
+              width: "10px",
+              height: "10px",
+              backgroundColor: "green",
+              borderRadius: "100%",
+            }}
+          ></div>
+          <p>Yes</p>
+        </div>
+      ) : (
+        <div className="flex gap-2 justify-start items-center">
+          <div
+            style={{
+              width: "10px",
+              height: "10px",
+              backgroundColor: "red",
+              borderRadius: "100%",
+            }}
+          ></div>
+          <p>No</p>
+        </div>
+      );
     },
   },
   {
@@ -67,7 +90,31 @@ export const columns: Column<ProductResponse>[] = [
     label: "Discountable",
     minWidth: 100,
     formatBoolean: (value: boolean) => {
-      return value ? <div>Discountable</div> : <div>Non-discountable</div>;
+      return value ? (
+        <div className="flex gap-2 justify-start items-center">
+          <div
+            style={{
+              width: "10px",
+              height: "10px",
+              backgroundColor: "green",
+              borderRadius: "100%",
+            }}
+          ></div>
+          <p>Yes</p>
+        </div>
+      ) : (
+        <div className="flex gap-2 justify-start items-center">
+          <div
+            style={{
+              width: "10px",
+              height: "10px",
+              backgroundColor: "red",
+              borderRadius: "100%",
+            }}
+          ></div>
+          <p>No</p>
+        </div>
+      );
     },
   },
   {

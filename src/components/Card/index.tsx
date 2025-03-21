@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import API_URL from "@/lib/api";
 import { Card } from "@mui/material";
 import { addToCart } from "@/helpers/addToCart";
 import { ProductResponse } from "@/models/Product";
@@ -16,11 +15,7 @@ const POSCard = ({ product }: { product: ProductResponse }) => {
         <Image
           width={500}
           height={500}
-          src={`${
-            product.pictures
-              ? `${API_URL}${product.pictures}`
-              : "/assets/default.png"
-          }`}
+          src={`${product.pictures ? product.pictures : "/assets/default.png"}`}
           alt={product.name}
           title={product.name}
           className="w-full h-full object-cover shadow rounded-t p-2"

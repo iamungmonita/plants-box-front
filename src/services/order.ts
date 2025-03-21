@@ -14,7 +14,6 @@ import {
 export function getOrder(params: queryParam): Promise<ILayout<IOrderResponse>> {
   const queryString = query.stringify(params);
   const url = `${API_URL}/order/retrieve?${queryString}`;
-  console.log(url);
   return GETWithToken<ILayout<IOrderResponse>>(url);
 }
 

@@ -266,13 +266,11 @@ const ReceiptPage = () => {
       `);
 
       printWindow?.document.write("</body></html>");
-      printWindow?.document.close(); // Close document to load the content
-      console.log("content is loading");
-      // Delay the print to ensure content is rendered
+      printWindow?.document.close();
       printWindow?.addEventListener("load", () => {
         try {
-          printWindow?.print(); // Automatically opens the print dialog
-          printWindow?.close(); // Automatically closes the print window
+          printWindow?.print();
+          printWindow?.close();
           window.close();
         } catch (error) {
           console.error("Error during printing:", error);

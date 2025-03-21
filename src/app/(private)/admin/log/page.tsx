@@ -11,11 +11,7 @@ const Page = () => {
   return (
     <div>
       <h2 className="font-semibold text-xl mb-4">Daily Logs</h2>
-      {log.length > 0 ? (
-        <ReusableTable columns={columns} data={log ?? []} />
-      ) : (
-        <p>No log has been recorded</p>
-      )}
+      <ReusableTable columns={columns} data={log ?? []} />
     </div>
   );
 };

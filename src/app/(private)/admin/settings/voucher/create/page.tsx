@@ -35,7 +35,6 @@ const Page = () => {
       ...form,
       validFrom: selectedStartDate,
       validTo: selectedEndDate,
-      createdBy: profile?.firstName,
     };
     const response = await CreateVoucher(newForm);
     if (response.message) {
@@ -47,6 +46,7 @@ const Page = () => {
       setError(false);
       setAlertMessage("Success!");
       methods.setValue("barcode", "");
+      methods.setValue("discount", 0);
       setSelectedEndDate(null);
       setSelectedStartDate(null);
     }

@@ -46,7 +46,6 @@ const Page = () => {
   const {
     formState: { errors },
   } = methods;
-  console.log(errors);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { data: roles = [] } = useFetch(getRoles, {}, []);
   const [error, setError] = useState(false);
@@ -61,9 +60,8 @@ const Page = () => {
       const userData = {
         ...data,
         codes: roleCodes,
-        pictures: data.pictures, // Ensure the correct image is sent
+        pictures: (previewUrl ?? null) as any, // Ensure the correct image is sent
       };
-      console.log(userData);
       const response = userId
         ? await updateUserById(userId, userData)
         : await SignUp(userData);
@@ -116,9 +114,7 @@ const Page = () => {
               "pictures",
               response.data?.pictures as unknown as string
             );
-            setPreviewUrl(
-              `${API_URL}${response.data?.pictures as unknown as string}`
-            );
+            setPreviewUrl(`${response.data?.pictures as unknown as string}`);
           } else {
             methods.setValue("pictures", "");
           }

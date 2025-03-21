@@ -14,17 +14,14 @@ import {
   updateProductDetailsById,
 } from "@/services/products";
 import { categories } from "@/constants/AutoComplete";
-import API_URL from "@/lib/api";
 import Checkbox from "@/components/Checkbox";
 import CustomButton from "@/components/Button";
 import AlertPopUp from "@/components/AlertPopUp";
-import { convertFileToBase64 } from "@/helpers/format/picture";
 import ImageUpload from "@/components/Upload";
 import { Product } from "@/models/Product";
 
 export const CreateForm = ({ createId }: { createId: string }) => {
   const { profile } = useAuthContext();
-  const [createdBy] = useState(profile?.firstName as string);
   const methods = useForm<Product>({
     defaultValues: {
       name: "",
@@ -50,7 +47,6 @@ export const CreateForm = ({ createId }: { createId: string }) => {
     try {
       const productData = {
         ...data,
-        createdBy: createdBy,
         pictures: (previewUrl ?? null) as any, // Ensure the correct image is sent
       };
       const response = createId

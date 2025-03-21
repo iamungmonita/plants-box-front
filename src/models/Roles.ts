@@ -9,4 +9,5 @@ export interface IRole extends FieldValues {
 }
 export interface IRoleResponse extends IRole, Response {
   createdBy: string;
+  updatedBy?: string;
 }

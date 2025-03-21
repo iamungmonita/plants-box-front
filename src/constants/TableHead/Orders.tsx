@@ -59,7 +59,7 @@ export const columns: Column<PurchasedOrderList>[] = [
   },
   {
     id: "createdBy",
-    label: "Cashier",
+    label: "Seller",
     minWidth: 170,
   },
 ];

@@ -7,4 +7,5 @@ export interface IMembership extends FieldValues {
   invoices: string[];
   points: number;
   createdBy: string;
+  updatedBy?: string;
 }

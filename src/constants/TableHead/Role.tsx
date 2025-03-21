@@ -13,7 +13,12 @@ export interface Column<T> {
 
 export const columns: Column<IRoleResponse>[] = [
   { id: "name", label: "Name", minWidth: 170 },
-  { id: "createdBy", label: "Created By", minWidth: 170 },
+  {
+    id: "createdBy",
+    label: "Created By",
+    minWidth: 170,
+    formatString: (value: any) => [value?.firstName, value?.lastName].join(" "),
+  },
 
   {
     id: "createdAt",

@@ -152,15 +152,11 @@ const Page = () => {
             />
           </div>
         </Form>
-        {orders.length > 0 ? (
-          <ReusableTable
-            columns={columns}
-            data={orders}
-            onRowClick={(row) => router.push(`/admin/sale/${row.purchasedId}`)}
-          />
-        ) : (
-          <div>No result matches this filter.</div>
-        )}
+        <ReusableTable
+          columns={columns}
+          data={orders}
+          onRowClick={(row) => router.push(`/admin/sale/${row.purchasedId}`)}
+        />
       </div>
     </div>
   );

@@ -1,17 +1,13 @@
 "use client";
 
 import CustomButton from "@/components/Button";
-import Checkbox from "@/components/Checkbox";
-import CheckboxGroup from "@/components/CheckboxGroup";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
 import { useAuthContext } from "@/context/AuthContext";
-import { CreateExpense, CreateRole, CreateVoucher } from "@/services/system";
+import { CreateExpense } from "@/services/system";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import AlertPopUp from "@/components/AlertPopUp";
-import { IRole } from "@/models/Roles";
-import { VoucherForm } from "@/models/Voucher";
 import { ExpenseForm } from "@/models/Expensese";
 import AutocompleteForm from "@/components/Autocomplete";
 import { expensesCategory } from "@/constants/Expense";
@@ -21,7 +17,6 @@ const Page = () => {
   const [error, setError] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedEndDate, setSelectedEndDate] = useState<string | null>(null);
   const methods = useForm<ExpenseForm>({
     defaultValues: {
       category: "",
@@ -56,8 +51,8 @@ const Page = () => {
     }
   };
   const handleDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newDate = event.target.value; // The value will be in YYYY-MM-DD format
-    setSelectedDate(newDate || null); // This triggers the second useEffect hook
+    const newDate = event.target.value;
+    setSelectedDate(newDate || null);
   };
 
   return (

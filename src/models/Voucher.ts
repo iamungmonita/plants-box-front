@@ -8,5 +8,6 @@ export interface VoucherForm extends FieldValues {
   validTo: string | null;
   isActive?: boolean;
   createdBy: string | undefined;
+  updatedBy?: string;
 }
 export interface VoucherResponse extends Response, VoucherForm {}

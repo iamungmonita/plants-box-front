@@ -2,7 +2,6 @@ import CustomButton from "@/components/Button";
 import Checkbox from "@/components/Checkbox";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
-import { useAuthContext } from "@/context/AuthContext";
 import {
   amountToPoint,
   getMembershipType,
@@ -12,6 +11,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useCartItems } from "@/hooks/useCartItems";
 import { IMembership } from "@/models/Membership";
+import AlertPopUp from "@/components/AlertPopUp";
 
 const CreateForm = ({
   onClose,
@@ -30,10 +30,14 @@ const CreateForm = ({
       purchasedId: "",
     },
   });
-  const { setValue, handleSubmit } = methods;
-  const { profile } = useAuthContext();
+
+  const { setValue } = methods;
+  const [toggleAlert, setToggleAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string>("");
+
   const [invoices, setInvoices] = useState<string[]>([]);
   const [purchasedOrderId, setPurchasedOrderId] = useState<string>("");
+  const [error, setError] = useState(false);
   const { items, amount } = useCartItems();
 
   useEffect(() => {
@@ -56,7 +60,6 @@ const CreateForm = ({
         const updatedData = {
           ...dataWithoutPurchasedId,
           points: points,
-          createdBy: profile?.firstName as string,
           invoices: updatedInvoice,
         };
 
@@ -65,19 +68,29 @@ const CreateForm = ({
           if (onClose) {
             onClose();
           }
-        } else {
-          alert("Failed to create membership"); // Alert message for failure
         }
+        setToggleAlert(true);
+        setError(true);
+        setAlertMessage(response.message ?? "Error creating membership..");
       } else {
-        console.log("Invoice already exists, not adding again.");
+        setToggleAlert(true);
+        setError(true);
+        setAlertMessage("Invoice already exists, not adding again.");
       }
     } else {
-      console.log("Items not found");
+      setToggleAlert(true);
+      setError(true);
+      setAlertMessage("IMust have items in the cart.");
     }
   };
-
   return (
     <>
+      <AlertPopUp
+        open={toggleAlert}
+        error={error}
+        message={alertMessage}
+        onClose={() => setToggleAlert(false)}
+      />
       <Form
         methods={methods}
         className="w-full p-2 space-y-6"

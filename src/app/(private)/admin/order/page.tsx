@@ -226,8 +226,6 @@ const Page = () => {
     );
 
     if (selectedCart[0]) {
-      console.log(selectedCart[0].orderId);
-      setOrderId(selectedCart[0].orderId);
       localStorage.setItem("plants", JSON.stringify(selectedCart[0].items));
       window.dispatchEvent(new Event("cartUpdated"));
       const lastOrderId = localStorage.getItem("lastOrderId");
@@ -292,7 +290,6 @@ const Page = () => {
       localStorage.removeItem("membership");
     }
   }, [storedVoucher]);
-  console.log(member);
   return (
     <div className="flex w-full justify-between gap-4">
       <div className="w-full">

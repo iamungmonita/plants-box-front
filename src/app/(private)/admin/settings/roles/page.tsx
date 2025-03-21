@@ -12,7 +12,6 @@ import { IRoleResponse } from "@/models/Roles";
 const Page = () => {
   const [roles, setRoles] = useState<IRoleResponse[]>([]);
   const methods = useForm();
-  const { watch } = methods;
   useEffect(() => {
     const fetchRoles = async () => {
       try {
@@ -25,9 +24,6 @@ const Page = () => {
     fetchRoles();
   }, []);
 
-  const deliveryMethod = watch("deliveryMethod");
-  console.log(deliveryMethod);
-
   return (
     <div className="flex flex-col min-h-screen justify-start gap-4">
       <div className="flex items-center justify-between gap-4">
@@ -39,7 +35,6 @@ const Page = () => {
           />
         </div>
       </div>
-
       <div>
         <ReusableTable columns={columns} data={roles} />
       </div>
