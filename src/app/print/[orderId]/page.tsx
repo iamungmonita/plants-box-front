@@ -69,14 +69,14 @@ const ReceiptPage = () => {
                     top: 0;
                     width: 80mm;
                     min-height: auto;
-                    font-size: 12px;
+                    font-size: 14px;
                     margin: 0;
                   }
                   #header {
                     font-size: 16px;
                   }
                   #payment {
-                    font-size: 12px;
+                    font-size: 14px;
                   }
                   @page {
                     size: 88mm auto;
@@ -89,7 +89,7 @@ const ReceiptPage = () => {
                   th, td {
                     text-align: left; /* Align content to the left */
                     padding: 2px; /* Reduce padding to make table smaller */
-                    font-size: 12px; /* Adjust font size for compactness */
+                    font-size: 14px; /* Adjust font size for compactness */
                   }
               hr {
                 border: 1px dashed #ccc; /* Ensure it's a dashed line */
@@ -142,24 +142,12 @@ const ReceiptPage = () => {
                     <td>${order?.purchasedId}</td>
                   </tr>
                   <tr class="flex items-center justify-between w-full">
-                    <td class="font-semibold">Customer:</td>
-                    <td>${
-                      order?.member
-                        ? `${order?.member.fullname} (${order?.member.type})`
-                        : "Walk-in Customer"
-                    }</td>
-                  </tr>
-                  <tr class="flex items-center justify-between w-full">
-                    <td class="font-semibold">Mobile Number:</td>
-                    <td>${order?.member ? order?.member.phoneNumber : "-"}</td>
-                  </tr>
-                  <tr class="flex items-center justify-between w-full">
                     <td class="font-semibold">Payment Method:</td>
                     <td>${order?.paymentMethod.toUpperCase()}</td>
                   </tr>
                   <tr class="flex items-center justify-between w-full">
                     <td class="font-semibold">Seller:</td>
-                    <td>${order?.createdBy}</td>
+                    <td>${order?.createdBy.firstName}</td>
                   </tr>
                   <tr class="flex items-center justify-between w-full">
                     <td class="font-semibold">Date:</td>
@@ -235,14 +223,7 @@ const ReceiptPage = () => {
         order?.totalDiscountValue ?? 0
       }</td>
                 </tr>
-                <tr class="flex items-center justify-between w-full">
-                  <td class="font-semibold">Points:</td>
-                  <td>$${(order?.totalPoints ?? 0).toFixed(2)}</td>
-                </tr>
-                <tr class="flex items-center justify-between w-full">
-                  <td class="font-semibold">Points:</td>
-                  <td>${order?.others || "N/A"}</td>
-                </tr>
+
                 <tr class="flex text-xl font-bold items-center justify-between w-full">
                   <td class="font-bold">Total:</td>
                   <td>$${order?.totalAmount.toFixed(2)}</td>

@@ -62,25 +62,25 @@ export const columns: Column<ProductResponse>[] = [
         <div className="flex gap-2 justify-start items-center">
           <div
             style={{
-              width: "10px",
-              height: "10px",
+              width: "8px",
+              height: "8px",
               backgroundColor: "green",
               borderRadius: "100%",
             }}
           ></div>
-          <p>Yes</p>
+          <p>Active</p>
         </div>
       ) : (
         <div className="flex gap-2 justify-start items-center">
           <div
             style={{
-              width: "10px",
-              height: "10px",
+              width: "8px",
+              height: "8px",
               backgroundColor: "red",
               borderRadius: "100%",
             }}
           ></div>
-          <p>No</p>
+          <p>Inactive</p>
         </div>
       );
     },
@@ -94,8 +94,8 @@ export const columns: Column<ProductResponse>[] = [
         <div className="flex gap-2 justify-start items-center">
           <div
             style={{
-              width: "10px",
-              height: "10px",
+              width: "8px",
+              height: "8px",
               backgroundColor: "green",
               borderRadius: "100%",
             }}
@@ -106,8 +106,8 @@ export const columns: Column<ProductResponse>[] = [
         <div className="flex gap-2 justify-start items-center">
           <div
             style={{
-              width: "10px",
-              height: "10px",
+              width: "8px",
+              height: "8px",
               backgroundColor: "red",
               borderRadius: "100%",
             }}
@@ -121,7 +121,7 @@ export const columns: Column<ProductResponse>[] = [
     id: "createdBy",
     label: "Created By",
     minWidth: 100,
-    formatString: (value: any) => [value?.firstName, value?.lastName].join(" "),
+    formatString: (value: any) => [value?.firstName].join(" "),
   },
   {
     id: "createdAt",
@@ -133,6 +133,7 @@ export const columns: Column<ProductResponse>[] = [
     id: "updatedBy",
     label: "Updated By",
     minWidth: 100,
+    formatString: (value: any) => [value?.firstName].join(" "),
   },
   {
     id: "updatedAt",
@@ -140,4 +141,8 @@ export const columns: Column<ProductResponse>[] = [
     minWidth: 100,
     formatString: (value: string) => formattedTimeStamp(value, "YYYY MMM DD"),
   },
+];
+export const dashboard: Column<ProductResponse>[] = [
+  { id: "name", label: "Name", minWidth: 170 },
+  { id: "stock", label: "Stock", minWidth: 100 },
 ];

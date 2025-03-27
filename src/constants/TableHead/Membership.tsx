@@ -1,24 +1,48 @@
 import { formattedTimeStamp } from "@/helpers/format/time";
 import { IMemberResponse } from "@/services/membership";
-
-export interface Column<T> {
-  id: keyof T; // id should be a key of T, which is ProductReturnList in this case
-  label: string;
-  minWidth?: number;
-  align?: "right";
-  format?: (value: number) => string;
-  formatString?: (value: string) => string;
-  render?: (value: any, row: T) => React.ReactNode; // Render method for custom columns like image
-}
+import { Column } from "./Product";
 
 export const columns: Column<IMemberResponse>[] = [
   { id: "phoneNumber", label: "Phone Number", minWidth: 170 },
   { id: "type", label: "Membership Type", minWidth: 100 },
+  {
+    id: "isActive",
+    label: "Active",
+    minWidth: 100,
+    formatBoolean: (value: boolean) => {
+      return value ? (
+        <div className="flex gap-2 justify-start items-center">
+          <div
+            style={{
+              width: "8px",
+              height: "8px",
+              backgroundColor: "green",
+              borderRadius: "100%",
+            }}
+          ></div>
+          <p>Yes</p>
+        </div>
+      ) : (
+        <div className="flex gap-2 justify-start items-center">
+          <div
+            style={{
+              width: "8px",
+              height: "8px",
+              backgroundColor: "red",
+              borderRadius: "100%",
+            }}
+          ></div>
+          <p>No</p>
+        </div>
+      );
+    },
+  },
   { id: "points", label: "Points", minWidth: 100 },
   {
     id: "createdBy",
     label: "Created By",
     minWidth: 100,
+    formatString: (value: any) => [value?.firstName].join(" "),
   },
   {
     id: "createdAt",

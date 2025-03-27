@@ -49,7 +49,7 @@ export const CustomButton = (props: IButton) => {
               theme === "general"
                 ? "white"
                 : theme === "dark"
-                ? "lightgray"
+                ? "#f5f5f5"
                 : theme === "alarm"
                 ? "#D50000"
                 : theme === "notice"

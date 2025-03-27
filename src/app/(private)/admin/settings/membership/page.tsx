@@ -11,8 +11,9 @@ import Form from "@/components/Form";
 import InputField from "@/components/InputText";
 import AutocompleteForm from "@/components/Autocomplete";
 import { optionsMembership } from "@/constants/membership";
-
+import { useRouter } from "next/navigation";
 const Page = () => {
+  const router = useRouter();
   const [membership, setMembership] = useState<IMemberResponse[]>([]);
   const methods = useForm({ defaultValues: { phoneNumber: "", type: "" } });
   const { phoneNumber, type } = methods.watch();
@@ -41,12 +42,12 @@ const Page = () => {
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-xl font-semibold">Membership</h2>
 
-        <div className="w-42">
+        {/* <div className="w-42">
           <CustomButton
             text="Create Membership"
             path="/admin/settings/membership/create"
           />
-        </div>
+        </div> */}
       </div>
       <Form methods={methods} className="w-1/2 grid grid-cols-5 gap-4">
         <div className="col-span-4 grid grid-cols-2 gap-4">
@@ -64,7 +65,13 @@ const Page = () => {
         <CustomButton theme="alarm" text="clear" onHandleButton={onClear} />
       </Form>
       <div>
-        <ReusableTable columns={columns} data={membership} />
+        <ReusableTable
+          columns={columns}
+          data={membership}
+          onRowClick={(row) =>
+            router.push(`/admin/settings/membership/${row._id}`)
+          }
+        />
       </div>
     </div>
   );

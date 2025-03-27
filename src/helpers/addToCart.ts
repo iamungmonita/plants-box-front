@@ -7,7 +7,8 @@ export const addToCart = async (id: string, productType: string = "plants") => {
   try {
     const productData = await getProductById(id);
     if (productData.data) {
-      const { _id, price, stock, name, isDiscountable } = productData.data;
+      const { _id, price, stock, name, isDiscountable, pictures } =
+        productData.data;
       const storedItems: ShoppingCartProduct[] = JSON.parse(
         localStorage.getItem(productType) || "[]"
       );

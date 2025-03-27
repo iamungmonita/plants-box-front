@@ -10,12 +10,23 @@ export interface IMembershipResponseList {
   member: IMemberResponse[];
   count: number;
 }
-export function CreateMembership(
+export function createMembership(
   form: IMembership
 ): Promise<ILayout<IMemberResponse>> {
   const url = `${API_URL}/membership/create`;
   return POSTWithToken<ILayout<IMemberResponse>, IMembership>(url, form);
 }
+export function updateMembership(
+  id: string,
+  params: { phoneNumber: string; isActive: boolean }
+): Promise<ILayout<IMemberResponse>> {
+  const url = `${API_URL}/membership/update/` + id;
+  return PUTWithToken<
+    ILayout<IMemberResponse>,
+    { phoneNumber: string; isActive: boolean }
+  >(url, params);
+}
+
 export function getAllMembership(
   params: queryParam = {}
 ): Promise<ILayout<IMembershipResponseList>> {

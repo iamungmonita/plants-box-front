@@ -49,14 +49,32 @@ export const columns: Column<ILogResponse>[] = [
   {
     id: "riels",
     label: "KHR Bills",
-    minWidth: 170,
+    minWidth: 100,
     render: (_: any, row: any) => {
       return row.riels ? displayCurrency(row.riels) : <p></p>;
     },
+  },
+
+  {
+    id: "dollarTotal",
+    label: "Total USD",
+    minWidth: 100,
+    format: (value: number) =>
+      value !== undefined && value !== null ? `$${value.toFixed(2)}` : "$0.00",
+  },
+  {
+    id: "rielTotal",
+    label: "Total KHR",
+    minWidth: 100,
+    format: (value: number) =>
+      value !== undefined && value !== null
+        ? `៛${formattedKHR(value)}`
+        : "៛0,00",
   },
   {
     id: "createdBy",
     label: "Logged By",
     minWidth: 100,
+    formatString: (value: any) => [value?.firstName].join(" "),
   },
 ];

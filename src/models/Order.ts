@@ -73,6 +73,8 @@ export interface PurchasedOrderList extends Response {
   changeAmount?: number;
   member?: MemberInfo;
   others?: string;
+  orderStatus: number;
+  paymentStatus: number;
 }
 
 export interface MemberInfo {

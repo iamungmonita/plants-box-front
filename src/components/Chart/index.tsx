@@ -12,8 +12,8 @@ export default function BasicPie({ data }: { data: any }) {
           data: data,
         },
       ]}
-      width={700}
-      height={400}
+      width={500}
+      height={200}
     />
   );
 }

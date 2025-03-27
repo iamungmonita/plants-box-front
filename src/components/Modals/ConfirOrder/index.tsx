@@ -16,8 +16,8 @@ const ConfirmOrder = ({
     <div className="flex flex-col min-h-full w-3/4 gap-4">
       <p className="text-2xl">{text}</p>
       <div className="grid grid-cols-2 gap-4">
-        <CustomButton text="Place Order" onHandleButton={onAction} />
-        <CustomButton text="Not Yet" theme="alarm" onHandleButton={onClose} />
+        <CustomButton text="Confirm" onHandleButton={onAction} />
+        <CustomButton text="Cancel" theme="alarm" onHandleButton={onClose} />
       </div>
     </div>
   );

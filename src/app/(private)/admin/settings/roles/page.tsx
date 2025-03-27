@@ -8,10 +8,11 @@ import { columns } from "@/constants/TableHead/Role";
 import { getRoles } from "@/services/system";
 import CustomButton from "@/components/Button";
 import { IRoleResponse } from "@/models/Roles";
-
+import { useRouter } from "next/navigation";
 const Page = () => {
   const [roles, setRoles] = useState<IRoleResponse[]>([]);
   const methods = useForm();
+  const router = useRouter();
   useEffect(() => {
     const fetchRoles = async () => {
       try {
@@ -36,7 +37,11 @@ const Page = () => {
         </div>
       </div>
       <div>
-        <ReusableTable columns={columns} data={roles} />
+        <ReusableTable
+          columns={columns}
+          data={roles}
+          onRowClick={(row) => router.push(`/admin/settings/roles/${row._id}`)}
+        />
       </div>
     </div>
   );

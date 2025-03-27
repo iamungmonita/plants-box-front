@@ -17,10 +17,8 @@ const Page = () => {
   const [orders, setOrders] = useState<PurchasedOrderList[]>([]);
   const [amount, setAmount] = useState<number>(0);
   const [transactions, setTransactions] = useState<number>(0);
-  const [selectedStartDate, setSelectedStartDate] = useState<string | null>(
-    null
-  );
-  const [selectedEndDate, setSelectedEndDate] = useState<string | null>(null);
+  const [selectedStartDate, setSelectedStartDate] = useState<string>("");
+  const [selectedEndDate, setSelectedEndDate] = useState<string>("");
 
   const methods = useForm({
     defaultValues: {
@@ -55,24 +53,26 @@ const Page = () => {
   const handleStartDateChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const newDate = event.target.value; // The value will be in YYYY-MM-DD format
-    setSelectedStartDate(newDate || null); // This triggers the second useEffect hook
+    const newDate = event.target.value || "1970-01-01"; // The value will be in YYYY-MM-DD format
+    setSelectedStartDate(newDate); // This triggers the second useEffect hook
   };
+  console.log(new Date(0));
   const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newDate = event.target.value; // The value will be in YYYY-MM-DD format
-    setSelectedEndDate(newDate || null); // This triggers the second useEffect hook
+    const newDate =
+      event.target.value || new Date().toISOString().split("T")[0]; // The value will be in YYYY-MM-DD format
+    setSelectedEndDate(newDate); // This triggers the second useEffect hook
   };
 
   const clearAll = () => {
     methods.setValue("purchasedId", "");
-    setSelectedStartDate(null);
-    setSelectedEndDate(null);
+    setSelectedStartDate("");
+    setSelectedEndDate("");
   };
 
   const handleDownloadExcel = async () => {
     try {
       const response = await fetch(
-        `${API_URL}/order/download-excel?end=${selectedEndDate}&start=${selectedStartDate}`
+        `${API_URL}/download/download-excel?end=${selectedEndDate}&start=${selectedStartDate}`
       );
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);

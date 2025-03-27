@@ -14,10 +14,20 @@ export function CreateRole(form: IRole): Promise<ILayout<IRoleResponse>> {
   const url = `${API_URL}/system/create`;
   return POSTWithToken<ILayout<IRoleResponse>, IRole>(url, form);
 }
-
 export function RetrieveRoles(): Promise<ILayout<IRoleResponse[]>> {
   const url = `${API_URL}/system/retrieve`;
   return GETWithToken<ILayout<IRoleResponse[]>>(url);
+}
+export function getRoleById(id: string): Promise<ILayout<IRoleResponse>> {
+  const url = `${API_URL}/system/retrieve-role/` + id;
+  return GETWithToken<ILayout<IRoleResponse>>(url);
+}
+export function updateRoleById(
+  id: string,
+  params: IRole
+): Promise<ILayout<IRoleResponse>> {
+  const url = `${API_URL}/system/update-role/` + id;
+  return PUTWithToken<ILayout<IRoleResponse>, IRole>(url, params);
 }
 export function CreateExpense(
   form: ExpenseForm
@@ -32,12 +42,28 @@ export function CreateVoucher(
   const url = `${API_URL}/system/create-voucher`;
   return POSTWithToken<ILayout<VoucherResponse>, VoucherForm>(url, form);
 }
+export function updateVoucherById(
+  id: string,
+  form: VoucherForm
+): Promise<ILayout<VoucherResponse>> {
+  const url = `${API_URL}/system/update-voucher/` + id;
+  return PUTWithToken<ILayout<VoucherResponse>, VoucherForm>(url, form);
+}
+export function getVoucherById(id: string): Promise<ILayout<VoucherResponse>> {
+  const url = `${API_URL}/system/voucher/` + id;
+  return GETWithToken<ILayout<VoucherResponse>>(url);
+}
+
 export function getRoles(): Promise<ILayout<IRoleResponse[]>> {
   const url = `${API_URL}/system/retrieve`;
   return GETWithToken<ILayout<IRoleResponse[]>>(url);
 }
 export function getAllExpenses(): Promise<ILayout<ExpenseResponse[]>> {
   const url = `${API_URL}/system/retrieve-expenses`;
+  return GETWithToken<ILayout<ExpenseResponse[]>>(url);
+}
+export function getMonthlyExpense(): Promise<ILayout<ExpenseResponse[]>> {
+  const url = `${API_URL}/system/expenses/monthly`;
   return GETWithToken<ILayout<ExpenseResponse[]>>(url);
 }
 
@@ -64,9 +90,10 @@ export function updateUserById(
   const url = `${API_URL}/auth/users/update/` + id;
   return PUTWithToken<ILayout<Profile>, IAuthRegister>(url, params);
 }
+
 export function updateVoucherByBarcode(
   barcode: string
 ): Promise<ILayout<VoucherResponse>> {
-  const url = `${API_URL}/system/update-voucher/` + barcode;
+  const url = `${API_URL}/system/voucher/update/` + barcode;
   return PUTWithToken<ILayout<VoucherResponse>>(url);
 }
