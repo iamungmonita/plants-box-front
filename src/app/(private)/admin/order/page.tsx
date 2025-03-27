@@ -142,10 +142,6 @@ const Page = () => {
     window.dispatchEvent(new Event("memberUpdated"));
   };
 
-  const handlePrint = () => {
-    window.open(`/print/${orderId}`, "_blank", "width=800,height=600");
-  };
-
   const handleSelectPaymentMethod = (method: string) => {
     setPaymentMethod(method);
     if (method === "khqr") {
@@ -231,7 +227,6 @@ const Page = () => {
       const lastOrderId = localStorage.getItem("lastOrderId");
       localStorage.setItem("currentOrderId", lastOrderId as string);
     }
-
     setRefresh(!refresh);
   };
   const onRemoveAllItems = () => {
@@ -299,7 +294,7 @@ const Page = () => {
             className="col-span-3 grid grid-cols-5 gap-4"
           >
             <div className="col-span-4 grid-cols-2 grid gap-4">
-              <InputField label="Search Product" name="barcode" type="text" />
+              <InputField label="Barcode or Name" name="barcode" type="text" />
               <AutocompleteForm
                 options={categories}
                 name="category"
@@ -365,7 +360,7 @@ const Page = () => {
           ContentComponent={PaymentQRCode}
           onClose={() => setToggleQRCode(false)}
           open={toggleQRCode}
-          text={totalAmount.toString()}
+          text={String(totalAmount)}
         />
         <BasicModal
           ContentComponent={ConfirmOrder}
@@ -380,12 +375,11 @@ const Page = () => {
           open={toggleMembership}
         />
 
-        <BasicModal
+        {/* <BasicModal
           ContentComponent={PaymentQRCode}
           onClose={() => setToggleQRCode(false)}
           open={toggleQRCode}
-          text={totalAmount.toString()}
-        />
+        /> */}
         <BasicModal
           ContentComponent={ConfirmOrder}
           onAction={() => handleOrder(orderId)}

@@ -13,6 +13,8 @@ export interface IUserLog {
 export interface ILog extends FieldValues {
   riels: CurrencyFields;
   dollars: CurrencyFields;
+  rielTotal: number;
+  dollarTotal: number;
 }
 
 export function countLog(user: IUserLog): Promise<boolean> {

@@ -47,9 +47,6 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
     if (invoices && orderId) {
       const orderExists = invoices.includes(orderId);
       if (orderExists) {
-        setAlertMessage("Invoice is already used to create a membership");
-        setError(true);
-        setToggleAlert(true);
         setExist(true); // Set to true when order exists
       } else {
         setExist(false);
@@ -117,7 +114,7 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
           />
         </div>
 
-        {member ? (
+        {member && (
           <div className="grid grid-cols-3 col-span-4 gap-4 justify-between items-center">
             <p className="col-span-1">
               {member.phoneNumber} ({member.type})
@@ -135,10 +132,7 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
               />
             </div>
           </div>
-        ) : (
-          "no member matches"
         )}
-
         <div className="col-span-4 grid grid-cols-2 gap-4">
           <CustomButton
             theme={exist ? "dark" : ""}

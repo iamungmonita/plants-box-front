@@ -20,24 +20,52 @@ export const columns: Column<VoucherResponse>[] = [
     id: "validFrom",
     label: "Valid From",
     minWidth: 170,
-    formatString: (value: string) =>
-      formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
+    formatString: (value: string) => formattedTimeStamp(value, "YYYY MMM DD"),
   },
   {
     id: "validTo",
     label: "Valid To",
     minWidth: 170,
-    formatString: (value: string) =>
-      formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
+    formatString: (value: string) => formattedTimeStamp(value, "YYYY MMM DD"),
   },
-  { id: "createdBy", label: "Created By", minWidth: 170 },
+  {
+    id: "createdBy",
+    label: "Created By",
+    minWidth: 170,
+    formatString: (value: any) =>
+      value ? [value?.firstName].join(" ") : "N/A",
+  },
 
   {
     id: "isActive",
     label: "Active",
     minWidth: 170,
     formatBoolean: (value: boolean) => {
-      return value ? <div>Active</div> : <div>Inactive</div>;
+      return value ? (
+        <div className="flex gap-2 justify-start items-center">
+          <div
+            style={{
+              width: "8px",
+              height: "8px",
+              backgroundColor: "green",
+              borderRadius: "100%",
+            }}
+          ></div>
+          <p>Active</p>
+        </div>
+      ) : (
+        <div className="flex gap-2 justify-start items-center">
+          <div
+            style={{
+              width: "8px",
+              height: "8px",
+              backgroundColor: "red",
+              borderRadius: "100%",
+            }}
+          ></div>
+          <p>Inactive</p>
+        </div>
+      );
     },
   },
   {

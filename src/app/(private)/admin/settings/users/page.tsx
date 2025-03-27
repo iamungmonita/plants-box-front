@@ -24,7 +24,7 @@ const Page = () => {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen justify-start gap-4">
+    <div className="flex flex-col min-h-[90vh] justify-start gap-4">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-xl font-semibold">Users</h2>
         <div className="w-42">

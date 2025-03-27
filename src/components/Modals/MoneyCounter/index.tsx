@@ -8,9 +8,11 @@ import Form from "@/components/Form";
 import CustomButton from "@/components/Button";
 import {
   generateDefaultValues,
+  generateTotalAmount,
   khrFields,
   usdFields,
 } from "@/constants/MoneyCounter";
+import { formattedKHR } from "@/helpers/format/currency";
 
 const MoneyCounter = () => {
   const methods = useForm<ILog>({
@@ -58,13 +60,16 @@ const MoneyCounter = () => {
     ...usdFields.map((field) => watch(field)),
     ...khrFields.map((field) => watch(field)),
   ]);
+  const rielTotal = generateTotalAmount(riels);
+  const dollarTotal = generateTotalAmount(dollars);
 
   const onSubmitForm = async (data: ILog) => {
     data = {
       riels,
       dollars,
+      rielTotal,
+      dollarTotal,
     };
-
     try {
       const response = await createLog(data);
       if (response.data) {
@@ -88,7 +93,14 @@ const MoneyCounter = () => {
           Please count the money left in the drawer.
         </span>
       </h2>
-
+      <h2 className="text-lg font-normal flex flex-col text-gray-500">
+        <span>
+          Total KHR: <strong>&#x17DB;{formattedKHR(rielTotal)}</strong>
+        </span>
+        <span>
+          Total USD: <strong>${dollarTotal.toFixed(2)}</strong>
+        </span>
+      </h2>
       <div className="space-y-4">
         <h2>Cambodian Riel Bills</h2>
         <div className="grid grid-cols-4 row-span-2 gap-4">

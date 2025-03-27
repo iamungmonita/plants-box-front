@@ -39,7 +39,9 @@ const Page = () => {
         <ReusableTable
           columns={columns}
           data={vouchers}
-          onRowClick={(row) => router.push(`/admin/settings/users/${row._id}`)}
+          onRowClick={(row) =>
+            router.push(`/admin/settings/voucher/${row._id}`)
+          }
         />
       </div>
     </div>

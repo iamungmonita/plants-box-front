@@ -116,7 +116,7 @@ const ReusableTable = <T extends { [key: string]: any }>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} align="center">
-                  No data available for this filter.
+                  No data available.
                 </TableCell>
               </TableRow>
             )}

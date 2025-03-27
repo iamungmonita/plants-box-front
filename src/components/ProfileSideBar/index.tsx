@@ -7,6 +7,7 @@ import Image from "next/image";
 import { settingPaths, sidebar } from "@/constants/Sidebar";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import {
+  MdClose,
   MdCurrencyExchange,
   MdOutlineKeyboardArrowRight,
 } from "react-icons/md";
@@ -110,7 +111,7 @@ function ProfileSidebar() {
                         ? "white"
                         : "",
                     }}
-                    className="py-2 !pl-6 capitalize border-t px-4 cursor-pointer hover:bg-gray-100"
+                    className="py-2 !pl-8 flex items-center gap-4 capitalize border-t px-4 cursor-pointer hover:bg-gray-100"
                     href={`/admin/settings/${setting.path}`}
                   >
                     {setting.path}

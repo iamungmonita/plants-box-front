@@ -38,6 +38,13 @@ export function updateProductStockById(
   const url = `${API_URL}/product/update/` + id;
   return POSTWithToken<ProductResponse, typeof params>(url, params);
 }
+export function UpdateCancelledProductById(
+  id: string,
+  params: any
+): Promise<ProductResponse> {
+  const url = `${API_URL}/product/update-cancel/` + id;
+  return POSTWithToken<ProductResponse, typeof params>(url, params);
+}
 
 export function updateProductDetailsById(
   id: string,

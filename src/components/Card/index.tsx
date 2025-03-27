@@ -8,8 +8,12 @@ const POSCard = ({ product }: { product: ProductResponse }) => {
   return (
     <Card
       key={product._id}
-      className={`shadow-lg cursor-pointer relative min-w-[180px] h-[320px]
-       flex flex-col hover:bg-gray-100 border duration-500 ease-in-out transition-all`}
+      sx={{
+        backgroundColor: product.stock === 0 ? "#f5f5f5" : "",
+        borderColor: product.stock === 0 ? "red" : "",
+      }}
+      className={`shadow-lg border cursor-pointer relative min-w-[180px] h-[320px]
+       flex flex-col hover:bg-gray-100 duration-500 ease-in-out transition-all`}
     >
       <div className="relative w-full h-[60%]">
         <Image
