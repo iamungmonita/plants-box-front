@@ -17,7 +17,7 @@ const Page = () => {
         <h2 className="text-xl font-semibold">Expenses</h2>
         <div className="w-42">
           <CustomButton
-            roleCodes={["1001"]}
+            roleCodes={["1005"]}
             text="Create Expense"
             path="/admin/expense/create"
           />

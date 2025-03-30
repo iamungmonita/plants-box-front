@@ -22,7 +22,12 @@ export const columns: Column<ExpenseResponse>[] = [
       value !== undefined && value !== null ? `$${value.toFixed(2)}` : "$0.00",
   },
   { id: "supplier", label: "Supplier", minWidth: 170 },
-  { id: "createdBy", label: "Created By", minWidth: 170 },
+  {
+    id: "createdBy",
+    label: "Created By",
+    minWidth: 170,
+    formatString: (value: any) => [value?.firstName].join(" "),
+  },
   {
     id: "date",
     label: "Expense Date",

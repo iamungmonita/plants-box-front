@@ -5,20 +5,17 @@ import { useEffect, useState } from "react";
 export const useCartItems = () => {
   const [items, setItems] = useState<ShoppingCartProduct[]>([]);
   const [amount, setAmount] = useState<number>(0);
-
-  useEffect(() => {
+  const updateCart = () => {
     const { items, total } = updateCartItems();
     setItems(items);
     setAmount(total);
-    const handleCartUpdate = () => {
-      const { items, total } = updateCartItems();
-      setItems(items);
-      setAmount(total);
-    };
+  };
+  useEffect(() => {
+    updateCart();
 
-    window.addEventListener("cartUpdated", handleCartUpdate);
+    window.addEventListener("cartUpdated", updateCart);
     return () => {
-      window.removeEventListener("cartUpdated", handleCartUpdate);
+      window.removeEventListener("cartUpdated", updateCart);
     };
   }, []);
 

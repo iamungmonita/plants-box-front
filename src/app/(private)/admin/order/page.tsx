@@ -142,10 +142,6 @@ const Page = () => {
     window.dispatchEvent(new Event("memberUpdated"));
   };
 
-  const handlePrint = () => {
-    window.open(`/print/${orderId}`, "_blank", "width=800,height=600");
-  };
-
   const handleSelectPaymentMethod = (method: string) => {
     setPaymentMethod(method);
     if (method === "khqr") {
@@ -226,12 +222,12 @@ const Page = () => {
     );
 
     if (selectedCart[0]) {
+      setOrderId(selectedCart[0].orderId);
       localStorage.setItem("plants", JSON.stringify(selectedCart[0].items));
       window.dispatchEvent(new Event("cartUpdated"));
       const lastOrderId = localStorage.getItem("lastOrderId");
       localStorage.setItem("currentOrderId", lastOrderId as string);
     }
-
     setRefresh(!refresh);
   };
   const onRemoveAllItems = () => {
@@ -299,7 +295,7 @@ const Page = () => {
             className="col-span-3 grid grid-cols-5 gap-4"
           >
             <div className="col-span-4 grid-cols-2 grid gap-4">
-              <InputField label="Search Product" name="barcode" type="text" />
+              <InputField label="Barcode or Name" name="barcode" type="text" />
               <AutocompleteForm
                 options={categories}
                 name="category"
@@ -365,7 +361,7 @@ const Page = () => {
           ContentComponent={PaymentQRCode}
           onClose={() => setToggleQRCode(false)}
           open={toggleQRCode}
-          text={totalAmount.toString()}
+          text={String(totalAmount)}
         />
         <BasicModal
           ContentComponent={ConfirmOrder}
@@ -380,12 +376,11 @@ const Page = () => {
           open={toggleMembership}
         />
 
-        <BasicModal
+        {/* <BasicModal
           ContentComponent={PaymentQRCode}
           onClose={() => setToggleQRCode(false)}
           open={toggleQRCode}
-          text={totalAmount.toString()}
-        />
+        /> */}
         <BasicModal
           ContentComponent={ConfirmOrder}
           onAction={() => handleOrder(orderId)}
@@ -499,18 +494,20 @@ const Page = () => {
         <div className="grid grid-cols-4 gap-2 w-full mb-5">
           <div className="col-span-2">
             <CustomButton
+              roleCodes={["1015"]}
               theme={`${
                 items.length <= 0 || paymentMethod === "" ? "dark" : ""
               }`}
               disabled={items.length <= 0 || paymentMethod === ""}
               onHandleButton={() => setToggleConfirmOrder(true)}
-              text="Confirm Order"
+              text="Place Order"
             />
           </div>
 
           {heldCart === orderId ? (
             <CustomButton
               onHandleButton={onRemoveHoldOrder}
+              roleCodes={["1015"]}
               icon={MdDelete}
               disabled={items.length <= 0}
               theme={`${items.length <= 0 ? "dark" : "alarm"}`}
@@ -518,6 +515,7 @@ const Page = () => {
           ) : (
             <CustomButton
               onHandleButton={onRemoveAllItems}
+              roleCodes={["1015"]}
               icon={VscClearAll}
               disabled={items.length <= 0}
               theme={`${items.length <= 0 ? "dark" : "alarm"}`}
@@ -525,6 +523,7 @@ const Page = () => {
           )}
 
           <CustomButton
+            roleCodes={["1015"]}
             onHandleButton={() => heldOrder(orderId)}
             icon={TbShoppingCartPause}
             disabled={items.length <= 0}

@@ -6,7 +6,11 @@ import {
   amountToPoint,
   getMembershipType,
 } from "@/helpers/calculation/getPoint";
-import { CreateMembership } from "@/services/membership";
+import {
+  createMembership,
+  getMembershipById,
+  updateMembership,
+} from "@/services/membership";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useCartItems } from "@/hooks/useCartItems";
@@ -16,9 +20,11 @@ import AlertPopUp from "@/components/AlertPopUp";
 const CreateForm = ({
   onClose,
   onAction,
+  memberId,
 }: {
   onClose?: () => void;
   onAction?: () => void;
+  memberId?: string;
 }) => {
   const methods = useForm<IMembership>({
     defaultValues: {
@@ -30,11 +36,13 @@ const CreateForm = ({
       purchasedId: "",
     },
   });
+  const { watch } = methods;
+  const phoneNumber = watch("phoneNumber");
+  const isActive = watch("isActive");
 
   const { setValue } = methods;
   const [toggleAlert, setToggleAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string>("");
-
   const [invoices, setInvoices] = useState<string[]>([]);
   const [purchasedOrderId, setPurchasedOrderId] = useState<string>("");
   const [error, setError] = useState(false);
@@ -50,39 +58,85 @@ const CreateForm = ({
   }, [items]);
 
   const onSubmitForm = async (data: IMembership) => {
-    if (items) {
-      if (!invoices.includes(purchasedOrderId)) {
-        const updatedInvoice = [...invoices, purchasedOrderId];
-        setInvoices(updatedInvoice);
+    try {
+      if (items) {
+        if (!invoices.includes(purchasedOrderId)) {
+          const updatedInvoice = [...invoices, purchasedOrderId];
+          setInvoices(updatedInvoice);
 
-        const points = amountToPoint(amount);
-        const { purchasedId, ...dataWithoutPurchasedId } = data;
-        const updatedData = {
-          ...dataWithoutPurchasedId,
-          points: points,
-          invoices: updatedInvoice,
-        };
+          const points = amountToPoint(amount);
+          const { purchasedId, ...dataWithoutPurchasedId } = data;
+          const updatedData = {
+            ...dataWithoutPurchasedId,
+            points: points,
+            invoices: updatedInvoice,
+          };
 
-        const response = await CreateMembership(updatedData);
-        if (response.data) {
-          if (onClose) {
-            onClose();
+          if (!memberId) {
+            const response = await createMembership(updatedData);
+            if (response.data) {
+              if (onClose) {
+                onClose();
+              }
+              setToggleAlert(true);
+              setAlertMessage("Success!");
+            } else {
+              setToggleAlert(true);
+              setError(true);
+              setAlertMessage("Invoice already exists, not adding again.");
+            }
+          } else {
+            const response = await updateMembership(memberId, {
+              phoneNumber,
+              isActive,
+            });
+            if (response.data) {
+              if (onClose) {
+                onClose();
+              }
+              setToggleAlert(true);
+              setAlertMessage("Success!");
+            } else {
+              setToggleAlert(true);
+              setError(true);
+              setAlertMessage("Error updating.");
+            }
           }
         }
-        setToggleAlert(true);
-        setError(true);
-        setAlertMessage(response.message ?? "Error creating membership..");
       } else {
         setToggleAlert(true);
         setError(true);
-        setAlertMessage("Invoice already exists, not adding again.");
+        setAlertMessage("Must have items in the cart.");
       }
-    } else {
-      setToggleAlert(true);
-      setError(true);
-      setAlertMessage("IMust have items in the cart.");
+      if (!memberId) {
+        methods.setValue("phoneNumber", "");
+        methods.setValue("type", "");
+        methods.setValue("isActive", true);
+        methods.setValue("invoices", []);
+      }
+    } catch (error) {
+      console.error("Error uploading:", error);
     }
   };
+
+  useEffect(() => {
+    if (!memberId) return;
+    const fetch = async () => {
+      try {
+        const response = await getMembershipById(memberId);
+        if (response.data) {
+          const invoice = response.data.invoices.map((row) => row);
+          methods.setValue("phoneNumber", response.data?.phoneNumber);
+          methods.setValue("type", response.data?.type);
+          methods.setValue("isActive", response.data?.isActive);
+          methods.setValue("invoices", invoice);
+        }
+      } catch (err) {
+        console.error("Error fetching product:", err);
+      }
+    };
+    fetch();
+  }, [memberId]);
   return (
     <>
       <AlertPopUp
@@ -93,18 +147,32 @@ const CreateForm = ({
       />
       <Form
         methods={methods}
-        className="w-full p-2 space-y-6"
+        className="w-full max-w-[600px]  mx-auto p-2 space-y-6"
         onSubmit={onSubmitForm}
       >
-        <h2 className="text-xl text-center">Create New Membership</h2>
+        <h2 className="text-xl text-center">
+          {memberId ? "Update" : "Create New"} Membership
+        </h2>
         <InputField name="phoneNumber" type="text" label="Phone Number" />
-        <InputField name="purchasedId" label="Purchased ID" type="text" />
-        <InputField name="type" label="Type" type="text" />
-
+        {!memberId && (
+          <InputField name="purchasedId" label="Purchased ID" type="text" />
+        )}
+        {!memberId && <InputField name="type" label="Type" type="text" />}
         <Checkbox name="isActive" label="Is Active" />
-        <div className="grid grid-cols-2 gap-4">
-          <CustomButton text="Create" type="submit" onHandleButton={onAction} />
-          <CustomButton text="Close" theme="alarm" onHandleButton={onClose} />
+        <div
+          className={`${
+            memberId ? " grid-cols-1 w-full" : " grid-cols-2"
+          } grid gap-4`}
+        >
+          <CustomButton
+            text={memberId ? "Update" : "Create"}
+            // roleCodes={["1008"]}
+            type="submit"
+            onHandleButton={onAction}
+          />
+          {!memberId && (
+            <CustomButton text="Close" theme="alarm" onHandleButton={onClose} />
+          )}
         </div>
       </Form>
     </>

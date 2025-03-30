@@ -5,20 +5,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --primary: #14705e;
+  /* **Main Colors** */
+  --primary: #2f4f3a; /* Deep Forest Green */
+  --secondary: #5f7d6d; /* Muted Teal-Green */
+  --medium: #4e725a; /* Balanced Natural Green */
+  --medium-light: #6d8a74; /* Gentle Soft Green */
+  --muted-accent: #9eb79c; /* Softer Accent */
+  --text: "Red Hat Display";
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --primary: #45624e;
-    --secondary: #6d8777;
-    --green-light: #c0cfb2;
-    --light: #e4e6df;
-    --dark: #273525;
-  }
-}
 html,
 body {
   box-sizing: border-box;
@@ -26,7 +21,7 @@ body {
   padding: 0;
   font-family: "red hat display", serif;
   position: relative;
-  min-height: 100%; /* Ensure the page takes up the full viewport height */
+  min-height: 100%;
   background: var(--background);
 }
 
@@ -48,11 +43,51 @@ header,
 footer,
 body {
   font-family: "red hat display";
-  color: var(--secondary);
 }
 
 section {
   width: 100%;
   height: auto;
   margin-bottom: 16px;
-} /*# sourceMappingURL=globals.css.map */
+}
+
+.scroll-container {
+  overflow-y: scroll;
+  scrollbar-width: none; /* Firefox */
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #receipt,
+  #receipt * {
+    visibility: visible;
+  }
+  #receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    min-height: auto;
+    font-size: 11px;
+    margin: 0;
+  }
+  #header {
+    font-size: 16px;
+  }
+  #payment {
+    font-size: 11px;
+  }
+  button {
+    display: none !important;
+  }
+  @page {
+    size: 88mm auto;
+    margin: 0;
+  }
+}/*# sourceMappingURL=globals.css.map */

@@ -24,9 +24,11 @@ export default function BasicModal<T>({
   onClose,
   onAction,
   text,
+  amount,
   items,
 }: {
   open: boolean;
+  amount?: number;
   text?: string;
   items?: T[];
   onClose?: () => void;
@@ -35,6 +37,7 @@ export default function BasicModal<T>({
     onClose?: () => void;
     onAction?: () => void;
     text?: string;
+    amount?: number;
     items?: T[];
   }>;
 }) {
@@ -60,6 +63,7 @@ export default function BasicModal<T>({
               onClose={onClose}
               onAction={onAction}
               text={text}
+              amount={amount}
             />
           </div>
         </Box>

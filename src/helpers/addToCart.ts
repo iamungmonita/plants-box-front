@@ -7,7 +7,8 @@ export const addToCart = async (id: string, productType: string = "plants") => {
   try {
     const productData = await getProductById(id);
     if (productData.data) {
-      const { _id, price, stock, name, isDiscountable } = productData.data;
+      const { _id, price, stock, name, isDiscountable, pictures } =
+        productData.data;
       const storedItems: ShoppingCartProduct[] = JSON.parse(
         localStorage.getItem(productType) || "[]"
       );
@@ -53,6 +54,10 @@ export const updateCartItems = () => {
       (acc, item) => acc + item.price * item.quantity,
       0
     );
+    //     localStorage.setItem("plants", JSON.stringify(storedItems));
+    //
+    //     // ✅ Dispatch event so components can react
+    //     window.dispatchEvent(new Event("cartUpdated"));
     return { items: storedItems, total: amount };
   }
   return { items: [], total: 0 };

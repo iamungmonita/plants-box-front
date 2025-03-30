@@ -28,7 +28,9 @@ const Voucher = ({ onClose }: { onClose?: () => void }) => {
       try {
         const response = await getAllVouchers({ barcode });
         if (response.data) {
-          const filtered = response.data.filter((voucher) => voucher.isActive);
+          const filtered = response.data.filter(
+            (voucher) => !voucher.isExpired && voucher.isActive
+          );
           setVouchers(filtered);
         }
       } catch (error) {
@@ -63,7 +65,10 @@ const Voucher = ({ onClose }: { onClose?: () => void }) => {
         onClose={handleClose}
         open={toggle}
       />
-      <Form methods={methods} className="w-full gap-4 grid grid-cols-4">
+      <Form
+        methods={methods}
+        className="w-full gap-4 grid justify-end grid-cols-4"
+      >
         <div className="col-span-4">
           <AutocompleteForm
             name="barcode"
@@ -84,32 +89,7 @@ const Voucher = ({ onClose }: { onClose?: () => void }) => {
             }}
           />
         </div>
-
-        {/* {member && (
-          <div className="col-span-4 grid grid-cols-3 items-center justify-between gap-4">
-            <p>
-              {member?.phoneNumber} ({member?.type})
-            </p>
-            <CustomButton
-              theme="general"
-              onHandleButton={selectDiscount}
-              text={`${getDiscountValue(member?.type as string).toString()}%`}
-            />
-            <CustomButton
-              onHandleButton={selectPoint}
-              theme="general"
-              text={`${member?.points.toString() ?? 0} Points`}
-            />
-          </div>
-        )} */}
-
-        <div className="col-span-4 grid grid-cols-2 gap-4">
-          {/* <CustomButton
-            theme={exist ? "dark" : ""}
-            disabled={exist}
-            text="Apply"
-            onHandleButton={() => selectVoucher(barcode)}
-          /> */}
+        <div className="col-span-2">
           <CustomButton text="close" theme="alarm" onHandleButton={onClose} />
         </div>
       </Form>

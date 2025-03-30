@@ -20,6 +20,7 @@ export const CustomButton = (props: IButton) => {
   } = props;
 
   const authorized = isAuthorized(roleCodes, profile?.codes);
+  console.log(authorized);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!authorized) {
@@ -49,7 +50,7 @@ export const CustomButton = (props: IButton) => {
               theme === "general"
                 ? "white"
                 : theme === "dark"
-                ? "lightgray"
+                ? "#f5f5f5"
                 : theme === "alarm"
                 ? "#D50000"
                 : theme === "notice"

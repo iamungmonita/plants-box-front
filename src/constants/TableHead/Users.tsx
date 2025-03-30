@@ -51,8 +51,19 @@ export const columns: Column<Profile>[] = [
   { id: "lastName", label: "Last Name", minWidth: 100 },
 
   { id: "phoneNumber", label: "Phone Number", minWidth: 170 },
-  { id: "role", label: "Role", minWidth: 170 },
-  { id: "createdBy", label: "Created By", minWidth: 170 },
+  {
+    id: "role",
+    label: "Role",
+    minWidth: 170,
+    formatString: (value: any) => (value ? [value?.name].join(" ") : "N/A"),
+  },
+  {
+    id: "createdBy",
+    label: "Created By",
+    minWidth: 170,
+    formatString: (value: any) =>
+      value ? [value?.firstName].join(" ") : "N/A",
+  },
   {
     id: "createdAt",
     label: "Created At",

@@ -3,6 +3,7 @@ import { formattedTimeStamp } from "@/helpers/format/time";
 import { PurchasedOrderList } from "@/models/Order";
 import React from "react";
 import CustomButton from "../Button";
+import { TfiPrinter } from "react-icons/tfi";
 
 interface PrintButtonProps {
   order: PurchasedOrderList | null;
@@ -138,14 +139,6 @@ const PrintButton: React.FC<PrintButtonProps> = ({ order, exchangeRate }) => {
                 <td class="font-semibold">Discount:</td>
                 <td>${order?.totalDiscountPercentage ?? 0}%</td>
               </tr>
-              <tr class="flex items-center justify-between w-full">
-                <td class="font-semibold">Points:</td>
-                <td>$${(order?.totalPoints ?? 0).toFixed(2)}</td>
-              </tr>
-              <tr class="flex items-center justify-between w-full">
-                <td class="font-semibold">Voucher:</td>
-                <td>${order?.others || "N/A"}</td>
-              </tr>
               <tr class="flex text-xl font-bold items-center justify-between w-full">
                 <td class="font-bold">Total:</td>
                 <td>$${order?.totalAmount.toFixed(2)}</td>
@@ -160,9 +153,7 @@ const PrintButton: React.FC<PrintButtonProps> = ({ order, exchangeRate }) => {
               </tr>
             </tbody>
           </table>
-
           <hr class="my-3" />
-
           <p class="text-center font-semibold">Thank you for shopping with us!</p>
         </div>
       </div>
@@ -182,7 +173,7 @@ const PrintButton: React.FC<PrintButtonProps> = ({ order, exchangeRate }) => {
     });
   };
 
-  return <CustomButton onHandleButton={handlePrint} text="Print Receipt" />;
+  return <CustomButton onHandleButton={handlePrint} icon={TfiPrinter} />;
 };
 
 export default PrintButton;

@@ -3,7 +3,7 @@ export interface ILayout<T> {
   message?: string;
   data?: T;
   name?: string;
-  errors?: any;
+  errors?: Error;
 }
 
 export interface Response {

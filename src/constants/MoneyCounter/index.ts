@@ -11,6 +11,15 @@ export const khrFields = [
 
 export const usdFields = ["100$", "50$", "20$", "10$", "5$", "1$"] as const;
 
+export const generateTotalAmount = (
+  currency: Record<string, number>
+): number => {
+  return Object.entries(currency).reduce((acc, [key, value]) => {
+    const keyNum = parseInt(key.replace(/[^\d]/g, "")); // Extract the numeric part of the key
+    return acc + (isNaN(keyNum) ? 0 : keyNum * value); // Multiply if key is a valid number
+  }, 0);
+};
+
 export const generateDefaultValues = (fields: readonly string[]) => {
   return fields.reduce((acc, field) => {
     acc[field] = 0; // Set default value to 0 for each field
