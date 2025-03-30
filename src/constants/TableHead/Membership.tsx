@@ -20,7 +20,7 @@ export const columns: Column<IMemberResponse>[] = [
               borderRadius: "100%",
             }}
           ></div>
-          <p>Yes</p>
+          <p>Active</p>
         </div>
       ) : (
         <div className="flex gap-2 justify-start items-center">
@@ -32,7 +32,7 @@ export const columns: Column<IMemberResponse>[] = [
               borderRadius: "100%",
             }}
           ></div>
-          <p>No</p>
+          <p>Inactive</p>
         </div>
       );
     },

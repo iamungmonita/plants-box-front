@@ -152,6 +152,7 @@ export const CreateForm = ({ createId }: { createId: string }) => {
       <div className="col-span-2">
         <CustomButton
           type="submit"
+          roleCodes={["1000", "1001"]}
           className="col-span-2"
           text={`${createId ? "Update" : "Create"}`}
         />

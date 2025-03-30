@@ -32,6 +32,7 @@ const Page = () => {
   const [selectedEndDate, setSelectedEndDate] = useState<string | null>(null);
   const methods = useForm<VoucherForm>({
     defaultValues: {
+      name: "",
       barcode: "",
       discount: 0,
       validFrom: "",
@@ -84,6 +85,7 @@ const Page = () => {
     const fetch = async () => {
       const response = await getVoucherById(voucherId);
       if (response.data) {
+        methods.setValue("name", response.data.name);
         methods.setValue("barcode", response.data.barcode);
         methods.setValue("isActive", response.data.isActive);
         setSelectedStartDate(
@@ -93,7 +95,6 @@ const Page = () => {
           formattedTimeStamp(response.data.validTo as string, "YYYY-MM-DD")
         );
         methods.setValue("discount", response.data.discount);
-        console.log(response.data);
       } else {
         console.log("error retrieving voucher...");
       }
@@ -112,13 +113,16 @@ const Page = () => {
       <div className="flex justify-center items-center min-h-screen w-full">
         <div className="max-w-[500px] w-full">
           <h2 className="text-center font-semibold text-lg uppercase mb-5">
-            Create Voucher
+            {voucherId ? "Update" : "Create"} Voucher
           </h2>
           <Form
             methods={methods}
             className="grid grid-cols-1  p-2 space-y-6"
             onSubmit={onSubmitForm}
           >
+            <div className="grid grid-cols-1 gap-4">
+              <InputField name="name" type="text" label="Name" />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <InputField name="barcode" type="text" label="Barcode" />
               <InputField name="discount" type="number" label="Discount" />
@@ -146,7 +150,10 @@ const Page = () => {
               </div>
             </div>
 
-            <CustomButton text="Create" type="submit" />
+            <CustomButton
+              text={voucherId ? "Update" : "Create"}
+              type="submit"
+            />
           </Form>
         </div>
       </div>

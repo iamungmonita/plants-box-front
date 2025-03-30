@@ -66,7 +66,7 @@ const Page = () => {
       <div className="flex justify-center items-center min-h-screen w-full">
         <div className="max-w-[500px] w-full">
           <h2 className="text-center font-semibold text-lg uppercase mb-5">
-            Create Voucher
+            Create Expense
           </h2>
           <Form
             methods={methods}

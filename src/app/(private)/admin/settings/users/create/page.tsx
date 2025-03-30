@@ -60,12 +60,12 @@ const Page = () => {
       const userData = {
         ...data,
         codes: roleCodes,
-        pictures: (previewUrl ?? null) as any, // Ensure the correct image is sent
+        pictures: (previewUrl ?? null) as any,
       };
+
       const response = userId
         ? await updateUserById(userId, userData)
         : await SignUp(userData);
-
       if (response.message) {
         setToggleAlert(true);
         setAlertMessage(response.message);
@@ -87,23 +87,34 @@ const Page = () => {
         methods.setValue("isActive", true);
         setPreviewUrl(null);
       }
-    } catch (error) {
-      console.error("Error uploading:", error);
+    } catch (error: any) {
+      if (error) {
+        setToggleAlert(true);
+        setError(true);
+        setAlertMessage(error.message);
+        return;
+      }
+      setToggleAlert(true);
+      setAlertMessage("Network error, please try again");
+      setError(true);
+      return;
     }
   };
+
   useEffect(() => {
     if (!userId) return;
     const fetchUser = async () => {
       try {
         const response = await getUserById(userId);
+        console.log(response.data);
         if (response.data) {
           methods.setValue("firstName", response.data?.firstName);
           methods.setValue("lastName", response.data?.lastName);
           const selectedRole = roles.find(
-            (role) => role.name === response.data?.role
+            (role) => role._id === response.data?.role
           );
           if (selectedRole) {
-            methods.setValue("role", selectedRole.name ?? "");
+            methods.setValue("role", selectedRole._id ?? "");
           }
           methods.setValue("email", response.data?.email);
           methods.setValue("password", response.data?.password);
@@ -158,11 +169,11 @@ const Page = () => {
           <InputField name="phoneNumber" type="text" label="Phone Number" />
           {!userId && (
             <InputField name="password" type="password" label="Password" />
-          )}{" "}
+          )}
           <AutocompleteForm
             options={roles.map((option) => ({
               label: `${option.name}`,
-              value: `${option.name}`,
+              value: `${option._id}`,
             }))}
             name="role"
             label="Role"

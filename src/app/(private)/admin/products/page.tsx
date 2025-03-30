@@ -15,7 +15,6 @@ import { ProductResponse } from "@/models/Product";
 
 const Page = () => {
   const router = useRouter();
-  const { profile } = useAuthContext();
   const [products, setProducts] = useState<ProductResponse[]>([]);
 
   const methods = useForm({
@@ -53,7 +52,11 @@ const Page = () => {
       <div className="flex items-center justify-between gap-4">
         <h2 className="font-semibold text-xl">Products</h2>
         <div className="w-52">
-          <CustomButton path="/admin/products/create" text="Create Product" />
+          <CustomButton
+            path="/admin/products/create"
+            roleCodes={["1000"]}
+            text="Create Product"
+          />
         </div>
       </div>
       <Form
@@ -61,7 +64,7 @@ const Page = () => {
         className="grid grid-cols-5 gap-4 w-1/2 max-md:w-full max-md:grid-cols-1"
       >
         <div className="col-span-4 grid grid-cols-2 gap-4">
-          <InputField label="Search Product" name="name" type="text" />
+          <InputField label="Search product by name" name="name" type="text" />
           <AutocompleteForm
             label="Category"
             name="category"

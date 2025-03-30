@@ -46,8 +46,13 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
   useEffect(() => {
     if (invoices && orderId) {
       const orderExists = invoices.includes(orderId);
-      if (orderExists) {
-        setExist(true); // Set to true when order exists
+      if (orderExists && !member) {
+        setExist(true);
+        setError(true);
+        setToggleAlert(true);
+        setAlertMessage("Invoice is already used, search membership instead.");
+      } else if (orderExists && member) {
+        setExist(true);
       } else {
         setExist(false);
       }

@@ -23,7 +23,7 @@ const Page = () => {
     defaultValues: {
       name: "",
       codes: [],
-      remarks: "",
+      remark: "",
       isActive: true,
     },
   });
@@ -82,7 +82,7 @@ const Page = () => {
       <div className="flex justify-center items-center min-h-screen w-full">
         <div className="max-w-[750px] w-full">
           <h2 className="text-center font-semibold text-lg uppercase mb-5">
-            Create Role
+            {roleId ? "Update" : "Create"} Role
           </h2>
           <Form
             methods={methods}
@@ -97,10 +97,9 @@ const Page = () => {
               label=""
               placeholder="Remarks"
             />
-
             <CheckboxGroup />
             <div className="w-2/5 mx-auto">
-              <CustomButton text="Create" type="submit" />
+              <CustomButton text={roleId ? "Update" : "Create"} type="submit" />
             </div>
           </Form>
         </div>

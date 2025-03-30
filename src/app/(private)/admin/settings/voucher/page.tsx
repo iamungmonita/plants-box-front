@@ -29,7 +29,7 @@ const Page = () => {
         <h2 className="text-xl font-semibold">Voucher</h2>
         <div className="w-42">
           <CustomButton
-            roleCodes={["1001"]}
+            roleCodes={["1009"]}
             text="Create Voucher"
             path="/admin/settings/voucher/create"
           />

@@ -127,6 +127,7 @@ function ProfileSidebar() {
         <div className="mb-10 space-y-4">
           <CustomButton
             onHandleButton={() => setToggleModal(true)}
+            roleCodes={["1016"]}
             text="Exchange Rate"
             theme="general"
           />

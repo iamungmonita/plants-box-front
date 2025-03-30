@@ -222,6 +222,7 @@ const Page = () => {
     );
 
     if (selectedCart[0]) {
+      setOrderId(selectedCart[0].orderId);
       localStorage.setItem("plants", JSON.stringify(selectedCart[0].items));
       window.dispatchEvent(new Event("cartUpdated"));
       const lastOrderId = localStorage.getItem("lastOrderId");
@@ -493,18 +494,20 @@ const Page = () => {
         <div className="grid grid-cols-4 gap-2 w-full mb-5">
           <div className="col-span-2">
             <CustomButton
+              roleCodes={["1015"]}
               theme={`${
                 items.length <= 0 || paymentMethod === "" ? "dark" : ""
               }`}
               disabled={items.length <= 0 || paymentMethod === ""}
               onHandleButton={() => setToggleConfirmOrder(true)}
-              text="Confirm Order"
+              text="Place Order"
             />
           </div>
 
           {heldCart === orderId ? (
             <CustomButton
               onHandleButton={onRemoveHoldOrder}
+              roleCodes={["1015"]}
               icon={MdDelete}
               disabled={items.length <= 0}
               theme={`${items.length <= 0 ? "dark" : "alarm"}`}
@@ -512,6 +515,7 @@ const Page = () => {
           ) : (
             <CustomButton
               onHandleButton={onRemoveAllItems}
+              roleCodes={["1015"]}
               icon={VscClearAll}
               disabled={items.length <= 0}
               theme={`${items.length <= 0 ? "dark" : "alarm"}`}
@@ -519,6 +523,7 @@ const Page = () => {
           )}
 
           <CustomButton
+            roleCodes={["1015"]}
             onHandleButton={() => heldOrder(orderId)}
             icon={TbShoppingCartPause}
             disabled={items.length <= 0}

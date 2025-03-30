@@ -20,6 +20,7 @@ export const CustomButton = (props: IButton) => {
   } = props;
 
   const authorized = isAuthorized(roleCodes, profile?.codes);
+  console.log(authorized);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!authorized) {
