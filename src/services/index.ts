@@ -23,7 +23,7 @@ export function POST<T, Q = any>(
   params?: Q,
   headers?: any
 ): Promise<T> {
-  return sendRequest({ method: "POST", url, params, headers });
+  return sendRequest({ method: "post", url, params: params, headers });
 }
 
 export function POSTWithToken<T, Q = any>(url: string, params?: Q): Promise<T> {
@@ -31,9 +31,9 @@ export function POSTWithToken<T, Q = any>(url: string, params?: Q): Promise<T> {
   const token = getAccessToken();
 
   return sendRequest({
-    method: "POST",
+    method: "post",
     url,
-    params,
+    params: params,
     headers: {
       Authorization: token ? `Bearer ${token}` : "",
     },

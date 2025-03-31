@@ -1,5 +1,4 @@
 import API_URL from "@/lib/api";
-import { POST } from ".";
 
 export interface FileResponse {
   url: string;

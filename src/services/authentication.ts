@@ -26,8 +26,3 @@ export function SignUp(form: IAuthRegister): Promise<ILayout<Profile>> {
   const url = `${API_URL}/auth/sign-up`;
   return POSTWithToken<ILayout<Profile>, IAuthRegister>(url, form);
 }
-
-// export function SignOut(): Promise<void> {
-//   const url = `${API_URL}/auth/sign-out`;
-//   return POST<void>(url, {}); // POST with empty body, as it's a sign-out action
-// }

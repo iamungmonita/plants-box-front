@@ -1,3 +1,4 @@
+import { IAuthRegister } from "./Auth";
 import { ShoppingCartProduct } from "./Cart";
 import { Response } from "@/models/Layout";
 
@@ -64,7 +65,7 @@ export interface PurchasedOrderList extends Response {
   purchasedId: string;
   amount: string;
   paymentMethod: string;
-  createdBy: string;
+  createdBy: string | IAuthRegister;
   totalDiscountPercentage: number;
   totalDiscountValue: number;
   totalPoints: number;

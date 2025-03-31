@@ -25,6 +25,7 @@ import {
   updateProductStockById,
 } from "@/services/products";
 import { PurchasedOrderList } from "@/models/Order";
+import { IAuthRegister } from "@/models/Auth";
 
 const Page = () => {
   const params = useParams();
@@ -170,7 +171,9 @@ const Page = () => {
             <div className="flex items-center mb-5 gap-2 rounded">
               <span className="flex items-center font-semibold">Seller:</span>
               {order?.createdBy && (
-                <span className="text-sm">{order.createdBy.firstName}</span>
+                <span className="text-sm">
+                  {(order.createdBy as IAuthRegister)?.firstName}
+                </span>
               )}
             </div>
             <div className="grid grid-cols-2 gap-4">
