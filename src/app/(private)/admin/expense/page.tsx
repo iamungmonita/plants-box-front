@@ -5,11 +5,12 @@ import React from "react";
 import { columns } from "@/constants/TableHead/Expense";
 import { getAllExpenses } from "@/services/system";
 import CustomButton from "@/components/Button";
-
+import { useRouter } from "next/navigation";
 import useFetch from "@/hooks/useFetch";
 
 const Page = () => {
   const { data: expenses } = useFetch(getAllExpenses, {}, []);
+  const router = useRouter();
 
   return (
     <div className="flex flex-col min-h-screen justify-start gap-4">
@@ -24,7 +25,11 @@ const Page = () => {
         </div>
       </div>
       <div>
-        <ReusableTable columns={columns} data={expenses} />
+        <ReusableTable
+          columns={columns}
+          data={expenses}
+          onRowClick={(row) => router.push(`/admin/expense/${row._id}`)}
+        />
       </div>
     </div>
   );

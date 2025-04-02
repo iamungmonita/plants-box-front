@@ -142,6 +142,7 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
           <CustomButton
             theme={exist ? "dark" : ""}
             disabled={exist}
+            roleCodes={["1008"]}
             text="Create New Membership"
             onHandleButton={() => setToggle(true)}
           />

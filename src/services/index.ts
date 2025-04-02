@@ -5,7 +5,6 @@ export function GET<T, Q = any>(url: string, params?: Q): Promise<T> {
 }
 
 export function GETWithToken<T, Q = any>(url: string, params?: Q): Promise<T> {
-  // Get token from localStorage
   const token = getAccessToken();
 
   return sendRequest({
@@ -27,7 +26,6 @@ export function POST<T, Q = any>(
 }
 
 export function POSTWithToken<T, Q = any>(url: string, params?: Q): Promise<T> {
-  // Get token from localStorage
   const token = getAccessToken();
 
   return sendRequest({
@@ -83,6 +81,12 @@ const sendRequest = async <T, Q = any>({
     .then(async (response) => {
       const data = await response.json();
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          if (typeof window !== "undefined") {
+            window.location.href = "/auth/sign-in";
+          }
+          throw new Error("Unauthorized. Redirecting to sign-in.");
+        }
         throw new Error(
           data.message || `HTTP error! Status: ${response.status}`
         );
@@ -90,7 +94,7 @@ const sendRequest = async <T, Q = any>({
       return data;
     })
     .catch((err) => {
-      console.error(`Error in ${method} request:`, err);
+      console.log(`Error in ${method} request:`, err);
       throw err;
     });
 };

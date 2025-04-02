@@ -47,9 +47,7 @@ export const columns: Column<Profile>[] = [
         />
       ),
   },
-  { id: "firstName", label: "First Name", minWidth: 170 },
-  { id: "lastName", label: "Last Name", minWidth: 100 },
-
+  { id: "fullName", label: "Full Name", minWidth: 170 },
   { id: "phoneNumber", label: "Phone Number", minWidth: 170 },
   {
     id: "role",
@@ -60,6 +58,13 @@ export const columns: Column<Profile>[] = [
   {
     id: "createdBy",
     label: "Created By",
+    minWidth: 170,
+    formatString: (value: any) =>
+      value ? [value?.firstName].join(" ") : "N/A",
+  },
+  {
+    id: "updatedBy",
+    label: "Updated By",
     minWidth: 170,
     formatString: (value: any) =>
       value ? [value?.firstName].join(" ") : "N/A",

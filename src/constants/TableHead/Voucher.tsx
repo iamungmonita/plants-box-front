@@ -13,26 +13,26 @@ export interface Column<T> {
   render?: (value: any, row: T) => React.ReactNode; // Render method for custom columns like image
 }
 export const columns: Column<VoucherResponse>[] = [
-  { id: "name", label: "Name", minWidth: 170 },
-  { id: "barcode", label: "Barcode", minWidth: 170 },
+  { id: "name", label: "Name", minWidth: 100 },
+  { id: "barcode", label: "Barcode", minWidth: 100 },
   { id: "discount", label: "Discount", minWidth: 100 },
 
   {
     id: "validFrom",
     label: "Valid From",
-    minWidth: 170,
+    minWidth: 100,
     formatString: (value: string) => formattedTimeStamp(value, "YYYY MMM DD"),
   },
   {
     id: "validTo",
     label: "Valid To",
-    minWidth: 170,
+    minWidth: 100,
     formatString: (value: string) => formattedTimeStamp(value, "YYYY MMM DD"),
   },
   {
     id: "createdBy",
     label: "Created By",
-    minWidth: 170,
+    minWidth: 100,
     formatString: (value: any) =>
       value ? [value?.firstName].join(" ") : "N/A",
   },
@@ -40,7 +40,7 @@ export const columns: Column<VoucherResponse>[] = [
   {
     id: "isActive",
     label: "Active",
-    minWidth: 170,
+    minWidth: 100,
     formatBoolean: (value: boolean) => {
       return value ? (
         <div className="flex gap-2 justify-start items-center">
@@ -72,7 +72,7 @@ export const columns: Column<VoucherResponse>[] = [
   {
     id: "isExpired",
     label: "Expired",
-    minWidth: 170,
+    minWidth: 100,
     formatBoolean: (value: boolean) => {
       return value ? (
         <div className="flex gap-2 justify-start items-center">
@@ -104,7 +104,7 @@ export const columns: Column<VoucherResponse>[] = [
   {
     id: "createdAt",
     label: "Created At",
-    minWidth: 170,
+    minWidth: 100,
     formatString: (value: string) =>
       formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
   },

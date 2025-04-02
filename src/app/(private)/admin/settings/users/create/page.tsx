@@ -4,7 +4,6 @@ import AutocompleteForm from "@/components/Autocomplete";
 import CustomButton from "@/components/Button";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
-import { useAuthContext } from "@/context/AuthContext";
 import { RegisterSchema } from "@/schema/auth";
 import { SignUp } from "@/services/authentication";
 import { getRoles, getUserById, updateUserById } from "@/services/system";
@@ -12,13 +11,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import ImageUpload from "@/components/Upload";
-import { convertFileToBase64 } from "@/helpers/format/picture";
 import useFetch from "@/hooks/useFetch";
 import AlertPopUp from "@/components/AlertPopUp";
 import Checkbox from "@/components/Checkbox";
 import { IAuthRegister } from "@/models/Auth";
-import API_URL from "@/lib/api";
 import { useParams } from "next/navigation";
+import { useAuthContext } from "@/context/AuthContext";
 
 const Page = () => {
   const params = useParams();
@@ -29,7 +27,6 @@ const Page = () => {
     setUserId(params.id as string);
   }, [params]);
 
-  const { profile } = useAuthContext();
   const methods = useForm<IAuthRegister>({
     defaultValues: {
       role: "",
@@ -43,19 +40,17 @@ const Page = () => {
     resolver: yupResolver(RegisterSchema),
   });
 
-  const {
-    formState: { errors },
-  } = methods;
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { data: roles = [] } = useFetch(getRoles, {}, []);
   const [error, setError] = useState(false);
   const [toggleAlert, setToggleAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-
+  const { profile } = useAuthContext();
   const onSubmitForm = async (data: IAuthRegister) => {
+    console.log(data);
     try {
       const roleCodes =
-        roles.find((role) => role.name === data.role)?.codes ?? [];
+        roles.find((role) => role._id === data.role)?.codes ?? [];
 
       const userData = {
         ...data,
@@ -66,12 +61,6 @@ const Page = () => {
       const response = userId
         ? await updateUserById(userId, userData)
         : await SignUp(userData);
-      if (response.message) {
-        setToggleAlert(true);
-        setAlertMessage(response.message);
-        setError(true);
-        return;
-      }
 
       setToggleAlert(true);
       setAlertMessage("Success!");
@@ -106,7 +95,6 @@ const Page = () => {
     const fetchUser = async () => {
       try {
         const response = await getUserById(userId);
-        console.log(response.data);
         if (response.data) {
           methods.setValue("firstName", response.data?.firstName);
           methods.setValue("lastName", response.data?.lastName);
@@ -167,7 +155,7 @@ const Page = () => {
           </div>
           <InputField name="email" type="email" label="Email" />
           <InputField name="phoneNumber" type="text" label="Phone Number" />
-          {!userId && (
+          {(!userId || userId === profile?._id) && (
             <InputField name="password" type="password" label="Password" />
           )}
           <AutocompleteForm
@@ -185,6 +173,7 @@ const Page = () => {
             handleRemoveImage={handleRemoveImage}
           />
           <CustomButton
+            roleCodes={["1011", "1006"]}
             text={`${userId ? "Update" : "Create"}`}
             type="submit"
           />

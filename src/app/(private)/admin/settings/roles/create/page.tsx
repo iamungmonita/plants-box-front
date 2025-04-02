@@ -99,7 +99,11 @@ const Page = () => {
             />
             <CheckboxGroup />
             <div className="w-2/5 mx-auto">
-              <CustomButton text={roleId ? "Update" : "Create"} type="submit" />
+              <CustomButton
+                roleCodes={["1007", "1012"]}
+                text={roleId ? "Update" : "Create"}
+                type="submit"
+              />
             </div>
           </Form>
         </div>

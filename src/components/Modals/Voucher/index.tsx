@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import CustomButton from "@/components/Button";
 import Form from "@/components/Form";
 import AutocompleteForm from "@/components/Autocomplete";
-import { getAllMembership } from "@/services/membership";
 import BasicModal from "@/components/Modal";
 import CreateForm from "@/components/Form/Membership";
 import { getAllVouchers } from "@/services/system";
@@ -15,9 +14,7 @@ import { formattedTimeStamp } from "@/helpers/format/time";
 const Voucher = ({ onClose }: { onClose?: () => void }) => {
   const [vouchers, setVouchers] = useState<VoucherResponse[]>([]);
   const [voucher, setVoucher] = useState<VoucherResponse | null>(null);
-  const [invoices, setInvoices] = useState<string[]>([]);
   const [toggle, setToggle] = useState<boolean>(false);
-  const [exist, setExist] = useState<boolean>(false);
 
   const methods = useForm({ defaultValues: { barcode: "" } });
   const { watch } = methods;

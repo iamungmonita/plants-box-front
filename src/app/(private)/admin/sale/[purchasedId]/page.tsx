@@ -150,6 +150,7 @@ const Page = () => {
                   onHandleButton={() => setToggleModal(true)}
                   theme="alarm"
                   text="Cancel Order"
+                  roleCodes={["1002"]}
                 />
               )}
               {order.orderStatus === OrderStatus.CANCELLED && (
@@ -157,6 +158,7 @@ const Page = () => {
                   onHandleButton={() => setToggleModal(true)}
                   theme="general"
                   text="Retrieve Order"
+                  roleCodes={["1002"]}
                 />
               )}
             </div>

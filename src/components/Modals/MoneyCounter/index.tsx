@@ -130,7 +130,6 @@ const MoneyCounter = () => {
           ))}
         </div>
       </div>
-
       <CustomButton
         type="submit"
         theme={`${!canProceed && "dark"}`}

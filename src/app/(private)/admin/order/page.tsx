@@ -11,7 +11,6 @@ import AutocompleteForm from "@/components/Autocomplete";
 import CustomButton from "@/components/Button";
 import ToggleButton from "@/components/ToggleButton";
 import { RiCoupon3Line } from "react-icons/ri";
-
 import { categories } from "@/constants/AutoComplete";
 import { PaymentOptions } from "@/constants/Options";
 import { useAuthContext } from "@/context/AuthContext";
@@ -26,9 +25,8 @@ import { useMembership } from "@/hooks/useMembership";
 import { amountToPoint, pointToAmount } from "@/helpers/calculation/getPoint";
 import { useHeldCarts } from "@/hooks/useHeldCart";
 import useFetch from "@/hooks/useFetch";
-
 import ConfirmOrder from "@/components/Modals/ConfirOrder";
-import { updateMembershipPointById } from "@/services/membership";
+import { updateMembershipPointByPhoneNumber } from "@/services/membership";
 import PaymentQRCode from "@/components/Modals/QRcode";
 import { ProductResponse } from "@/models/Product";
 import Pagination from "@/components/Pagination";
@@ -37,31 +35,32 @@ import { useDiscount } from "@/hooks/useDiscount";
 import { IHold } from "@/models/Order";
 import { LuUserRoundSearch } from "react-icons/lu";
 import Voucher from "@/components/Modals/Voucher";
-// import { useVoucher } from "@/hooks/useVoucher";
 import { updateVoucherByBarcode } from "@/services/system";
 import { useVoucher } from "@/hooks/useVoucher";
 import { MembershipType } from "@/constants/membership";
+import AlertPopUp from "@/components/AlertPopUp";
+import Link from "next/link";
 
 const Page = () => {
   const [orderId, setOrderId] = useState<string>("PO-00001");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [totalDiscountValue, setTotalDiscountValue] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
-  // const [products, setProducts] = useState<ProductResponse[]>([])
   const [payment, setPayment] = useState("");
   const [toggleConfirmOrder, setToggleConfirmOrder] = useState(false);
   const [toggleMembership, setToggleMembership] = useState(false);
   const [toggleQRCode, setToggleQRCode] = useState(false);
   const [toggleVoucher, setToggleVoucher] = useState(false);
-
   const [refresh, setRefresh] = useState(false);
   const [totalPoints, setTotalPoints] = useState<number>(0);
   const [totalDiscountPercentage, setTotalDiscountPercentage] =
     useState<number>(0);
   const [paidAmount, setPaidAmount] = useState<number>(0);
   const [changeAmount, setChangeAmount] = useState<number>(0);
+  const [error, setError] = useState(false);
+  const [toggleAlert, setToggleAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const { value, percentage } = useDiscount();
-
   const methods1 = useForm({ defaultValues: { barcode: "", category: "" } });
   const methods2 = useForm<{ heldCart: string }>({
     defaultValues: { heldCart: "" },
@@ -72,9 +71,7 @@ const Page = () => {
 
   const { barcode, category } = methods1.watch();
   const { heldCart } = methods2.watch();
-
   const { discount, points, voucher } = methods3.watch();
-
   const { profile } = useAuthContext();
 
   useEffect(() => {
@@ -88,7 +85,6 @@ const Page = () => {
 
   const { items, amount } = useCartItems();
   const { member } = useMembership();
-
   const { voucher: storedVoucher } = useVoucher();
   const carts = useHeldCarts([refresh]);
   const updatedHeldOrders = carts.filter(
@@ -119,10 +115,10 @@ const Page = () => {
   }, [items, points]);
 
   useEffect(() => {
-    if (!items || items.length === 0) return; // Prevent overwriting with empty data
+    if (!items || items.length === 0) return;
     const updatedItems = items.map((item) => ({
       ...item,
-      discount: item.isDiscountable ? discount : "", // Only update if isDiscountable
+      discount: item.isDiscountable ? discount : "",
     }));
     localStorage.setItem("plants", JSON.stringify(updatedItems));
     window.dispatchEvent(new Event("cartUpdated"));
@@ -149,6 +145,16 @@ const Page = () => {
     }
     return;
   };
+  const onRemoveHoldOrder = () => {
+    clearLocalStorage();
+    onRefresh();
+    localStorage.setItem("heldOrders", JSON.stringify(updatedHeldOrders));
+    const lastOrderId = localStorage.getItem("lastOrderId");
+    if (lastOrderId) {
+      localStorage.setItem("currentOrderId", lastOrderId as string);
+    }
+    setOrderId(generateNextOrderId());
+  };
 
   const handleOrder = async (orderId: string) => {
     const data = {
@@ -169,7 +175,10 @@ const Page = () => {
     const newData = Object.assign({}, data, { orderId });
     const response = await placeOrder(newData);
     if (response === false) {
-      alert("cannot make order");
+      setError(true);
+      setToggleAlert(true);
+      setAlertMessage("Cannot place order, please check product's stock.");
+      onRemoveHoldOrder();
       return;
     }
     setToggleConfirmOrder(false);
@@ -178,7 +187,7 @@ const Page = () => {
       window.close();
     });
     if (member && payment === MembershipType.POINT) {
-      await updateMembershipPointById(member.phone, {
+      await updateMembershipPointByPhoneNumber(member.phone, {
         points: amountToPoint(totalAmount),
         invoice: [orderId],
       });
@@ -235,17 +244,6 @@ const Page = () => {
     onRefresh();
   };
 
-  const onRemoveHoldOrder = () => {
-    clearLocalStorage();
-    onRefresh();
-    localStorage.setItem("heldOrders", JSON.stringify(updatedHeldOrders));
-    const lastOrderId = localStorage.getItem("lastOrderId");
-    if (lastOrderId) {
-      localStorage.setItem("currentOrderId", lastOrderId as string);
-    }
-    setOrderId(generateNextOrderId());
-  };
-
   const clearSearch = () => {
     methods1.setValue("barcode", "");
     methods1.setValue("category", "");
@@ -288,6 +286,12 @@ const Page = () => {
   }, [storedVoucher]);
   return (
     <div className="flex w-full justify-between gap-4">
+      <AlertPopUp
+        open={toggleAlert}
+        error={error}
+        message={alertMessage}
+        onClose={() => setToggleAlert(false)}
+      />
       <div className="w-full">
         <div className="grid grid-cols-4 gap-4">
           <Form
@@ -295,7 +299,11 @@ const Page = () => {
             className="col-span-3 grid grid-cols-5 gap-4"
           >
             <div className="col-span-4 grid-cols-2 grid gap-4">
-              <InputField label="Barcode or Name" name="barcode" type="text" />
+              <InputField
+                label="Search by barcode or name"
+                name="barcode"
+                type="text"
+              />
               <AutocompleteForm
                 options={categories}
                 name="category"
@@ -330,10 +338,13 @@ const Page = () => {
             <CiReceipt className="text-2xl" />
             {orderId}
           </span>
-          <span className="rounded-full flex gap-4 pl-6 border items-center">
+          <Link
+            href={`/admin/settings/users/${profile?._id}`}
+            className="rounded-full flex gap-4 pl-6 border items-center"
+          >
             <span>{profile?.firstName}</span>
             <ProfileComponent profile={profile} />
-          </span>
+          </Link>
         </p>
         {paymentMethod !== "cash" && (
           <table className="w-full text-left text-sm text-gray-700">
@@ -356,7 +367,6 @@ const Page = () => {
             totalAmount={totalAmount}
           />
         </div>
-
         <BasicModal
           ContentComponent={PaymentQRCode}
           onClose={() => setToggleQRCode(false)}
@@ -375,12 +385,6 @@ const Page = () => {
           onClose={() => setToggleMembership(false)}
           open={toggleMembership}
         />
-
-        {/* <BasicModal
-          ContentComponent={PaymentQRCode}
-          onClose={() => setToggleQRCode(false)}
-          open={toggleQRCode}
-        /> */}
         <BasicModal
           ContentComponent={ConfirmOrder}
           onAction={() => handleOrder(orderId)}
@@ -485,6 +489,7 @@ const Page = () => {
 
         <div className="flex flex-col gap-4 w-full">
           <ToggleButton
+            roleCodes={["1015"]}
             disabled={items.length <= 0}
             options={PaymentOptions}
             selectedValue={paymentMethod}
