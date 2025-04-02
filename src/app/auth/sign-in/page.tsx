@@ -13,9 +13,16 @@ import { SignIn } from "@/services/authentication";
 import BasicModal from "@/components/Modal";
 import MoneyCounter from "@/components/Modals/MoneyCounter";
 import { IAuthLogIn } from "@/models/Auth";
+import AlertPopUp from "@/components/AlertPopUp";
 
 const Page = () => {
   const { signIn, onRefresh } = useAuthContext();
+  const [error, setError] = useState(false);
+  const [toggleAlert, setToggleAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const router = useRouter();
+  const [toggle, setToggle] = useState<boolean>(false);
+
   const methods = useForm<IAuthLogIn>({
     defaultValues: {
       email: "",
@@ -23,10 +30,6 @@ const Page = () => {
     },
     resolver: yupResolver(LogInSchema),
   });
-  const { setError } = methods;
-  const router = useRouter();
-  const [toggle, setToggle] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const onSubmitForm = async (data: IAuthLogIn) => {
     try {
@@ -49,26 +52,31 @@ const Page = () => {
           setToggle(false);
           router.push("/admin/dashboard");
         }
-      } else if (response.name) {
-        // Handle field-specific errors like email/password
-        setError(response.name as "email" | "password", {
-          type: "manual",
-          message: response.message,
-        });
-      } else {
-        // Handle general errors
-        setErrorMessage(response.message || "An unknown error occurred.");
       }
-    } catch (error) {
-      console.error("Sign-in failed:", error);
-      setErrorMessage("An error occurred. Please try again.");
+    } catch (error: any) {
+      if (error) {
+        setToggleAlert(true);
+        setAlertMessage(error.message);
+        setError(true);
+        return;
+      }
+      setToggleAlert(true);
+      setAlertMessage("Network error, please try again");
+      setError(true);
+      return;
     }
   };
+
   return (
     <div className="flex justify-center items-center min-h-screen w-full">
       <div className="max-w-[400px] w-full">
         <h2 className="text-center font-bold text-xl">Sign In</h2>
-
+        <AlertPopUp
+          open={toggleAlert}
+          error={error}
+          message={alertMessage}
+          onClose={() => setToggleAlert(false)}
+        />
         <BasicModal
           ContentComponent={MoneyCounter}
           open={toggle}
@@ -82,7 +90,6 @@ const Page = () => {
           <InputField name="email" type="email" label="Email" />
           <InputField name="password" type="password" label="Password" />
           <CustomButton text="Submit" type="submit" />
-          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
         </Form>
       </div>
     </div>

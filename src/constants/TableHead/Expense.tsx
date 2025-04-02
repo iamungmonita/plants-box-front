@@ -29,6 +29,12 @@ export const columns: Column<ExpenseResponse>[] = [
     formatString: (value: any) => [value?.firstName].join(" "),
   },
   {
+    id: "updatedBy",
+    label: "Updated By",
+    minWidth: 170,
+    formatString: (value: any) => [value?.firstName].join(" "),
+  },
+  {
     id: "date",
     label: "Expense Date",
     minWidth: 170,
@@ -41,5 +47,10 @@ export const columns: Column<ExpenseResponse>[] = [
     minWidth: 170,
     formatString: (value: string) =>
       formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
+  },
+  {
+    id: "remarks",
+    label: "Remarks",
+    minWidth: 170,
   },
 ];

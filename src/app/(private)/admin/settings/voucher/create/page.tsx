@@ -1,13 +1,9 @@
 "use client";
 
 import CustomButton from "@/components/Button";
-import Checkbox from "@/components/Checkbox";
-import CheckboxGroup from "@/components/CheckboxGroup";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
-import { useAuthContext } from "@/context/AuthContext";
 import {
-  CreateRole,
   CreateVoucher,
   getVoucherById,
   updateVoucherById,
@@ -15,7 +11,6 @@ import {
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import AlertPopUp from "@/components/AlertPopUp";
-import { IRole } from "@/models/Roles";
 import { VoucherForm } from "@/models/Voucher";
 import { useParams } from "next/navigation";
 import { formattedTimeStamp } from "@/helpers/format/time";
@@ -28,7 +23,6 @@ const Page = () => {
     null
   );
   const [voucherId, setVoucherId] = useState<string>("");
-
   const [selectedEndDate, setSelectedEndDate] = useState<string | null>(null);
   const methods = useForm<VoucherForm>({
     defaultValues: {
@@ -152,6 +146,7 @@ const Page = () => {
 
             <CustomButton
               text={voucherId ? "Update" : "Create"}
+              roleCodes={["1009, 1014"]}
               type="submit"
             />
           </Form>

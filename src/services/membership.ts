@@ -41,11 +41,11 @@ export function getMembershipById(
   return GETWithToken<ILayout<IMemberResponse>>(url);
 }
 
-export function updateMembershipPointById(
-  id: string,
+export function updateMembershipPointByPhoneNumber(
+  phoneNumber: string,
   params?: { points: number; invoice: string[] }
 ): Promise<ILayout<IMemberResponse>> {
-  const url = `${API_URL}/membership/update-points/` + id;
+  const url = `${API_URL}/membership/update-points/` + phoneNumber;
   return PUTWithToken<
     ILayout<IMemberResponse>,
     { points: number; invoice: string[] }

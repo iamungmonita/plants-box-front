@@ -8,10 +8,7 @@ import ReusableTable from "@/components/Table";
 import { columns } from "@/constants/TableHead/Dashboard";
 import { getAllProducts, getBestSellingProducts } from "@/services/products";
 import BasicPie from "@/components/Chart";
-import {
-  dashboard,
-  columns as productColumn,
-} from "@/constants/TableHead/Product";
+import { dashboard } from "@/constants/TableHead/Product";
 import {
   getMonthRange,
   getWeekRange,
@@ -19,8 +16,7 @@ import {
 } from "@/helpers/calculation/getDate";
 import { IChart, IRange } from "@/models/Product";
 import { PurchasedOrderList } from "@/models/Order";
-import MonthlyExpenseChart from "@/components/BarChart";
-import BarChart from "@/components/BarChart";
+
 import BarChartComponent from "@/components/BarChart";
 
 const Page = () => {
@@ -110,7 +106,6 @@ const Page = () => {
       fetch();
     }
   }, [selectedDate]);
-  console.log(orders);
   return (
     <div>
       {isAuthenticated && (

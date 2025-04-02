@@ -41,20 +41,13 @@ const Page = () => {
     <div className="flex flex-col min-h-screen justify-start gap-4">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-xl font-semibold">Membership</h2>
-
-        {/* <div className="w-42">
-          <CustomButton
-            text="Create Membership"
-            path="/admin/settings/membership/create"
-          />
-        </div> */}
       </div>
       <Form methods={methods} className="w-1/2 grid grid-cols-5 gap-4">
         <div className="col-span-4 grid grid-cols-2 gap-4">
           <InputField
             name="phoneNumber"
             type="text"
-            label="Search Membership"
+            label="Search by phone number"
           />
           <AutocompleteForm
             options={optionsMembership}

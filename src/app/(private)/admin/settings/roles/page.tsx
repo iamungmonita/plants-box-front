@@ -32,6 +32,7 @@ const Page = () => {
         <div className="w-42">
           <CustomButton
             text="Create Role"
+            roleCodes={["1007"]}
             path="/admin/settings/roles/create"
           />
         </div>

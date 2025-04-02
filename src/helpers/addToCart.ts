@@ -1,4 +1,8 @@
-import { getProductById, updateProductStockById } from "@/services/products";
+import {
+  getProductById,
+  updateProductStockById,
+  getAllProducts,
+} from "@/services/products";
 import { ShoppingCartProduct } from "@/models/Cart";
 import { CreateOrder } from "@/services/order";
 import { ICheckout } from "@/models/Order";
@@ -135,16 +139,25 @@ export const settlement = async (data: ICheckout) => {
 };
 
 export const handleOrder = async (data: ICheckout) => {
-  const response = await CreateOrder(data);
-  if (response.message) {
-    console.log(response.message);
-    return false;
-  } else {
+  try {
+    await CreateOrder(data);
     return true;
+  } catch (error) {
+    return false;
   }
 };
 
 export const placeOrder = async (data: ICheckout) => {
+  for (const item of data.items) {
+    const product = await getProductById(item._id);
+    if (product.data) {
+      if (product.data.stock < item.quantity) {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
   const response = await settlement(data);
   return response?.response;
 };

@@ -20,9 +20,10 @@ export interface Profile extends Response {
   phoneNumber: string;
   lastName: string;
   firstName: string;
+  fullName: string;
   isActive: boolean;
   createdBy: string;
-  updatedBy?: string;
+  updatedBy: string;
   pictures?: string; // Array of image URLs
 }
 

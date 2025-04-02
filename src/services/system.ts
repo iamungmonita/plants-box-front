@@ -36,6 +36,19 @@ export function CreateExpense(
   return POSTWithToken<ILayout<ExpenseResponse>, ExpenseForm>(url, form);
 }
 
+export function getExpenseById(id: string): Promise<ILayout<ExpenseResponse>> {
+  const url = `${API_URL}/system/retrieve-expenses/` + id;
+  return GETWithToken<ILayout<ExpenseResponse>>(url);
+}
+
+export function updateExpenseById(
+  id: string,
+  form: ExpenseForm
+): Promise<ILayout<ExpenseResponse>> {
+  const url = `${API_URL}/system/expense/update/` + id;
+  return PUTWithToken<ILayout<ExpenseResponse>, ExpenseForm>(url, form);
+}
+
 export function CreateVoucher(
   form: VoucherForm
 ): Promise<ILayout<VoucherResponse>> {

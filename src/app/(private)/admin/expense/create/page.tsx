@@ -4,19 +4,29 @@ import CustomButton from "@/components/Button";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
 import { useAuthContext } from "@/context/AuthContext";
-import { CreateExpense } from "@/services/system";
-import React, { useState } from "react";
+import {
+  CreateExpense,
+  getAllExpenses,
+  getExpenseById,
+  updateExpenseById,
+} from "@/services/system";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import AlertPopUp from "@/components/AlertPopUp";
 import { ExpenseForm } from "@/models/Expensese";
 import AutocompleteForm from "@/components/Autocomplete";
 import { expensesCategory } from "@/constants/Expense";
-
+import { useParams } from "next/navigation";
+import { formattedTimeStamp } from "@/helpers/format/time";
+import useFetch from "@/hooks/useFetch";
 const Page = () => {
+  const params = useParams();
   const [toggleAlert, setToggleAlert] = useState(false);
   const [error, setError] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [expenseId, setExpenseId] = useState("");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const { data: expenses } = useFetch(getAllExpenses, {}, []);
   const methods = useForm<ExpenseForm>({
     defaultValues: {
       category: "",
@@ -27,29 +37,65 @@ const Page = () => {
       remarks: "",
     },
   });
-  const { profile } = useAuthContext();
+
+  useEffect(() => {
+    if (!params?.expenseId) return;
+    setExpenseId(params.expenseId as string);
+  }, [params]);
+
   const onSubmitForm = async (form: ExpenseForm) => {
-    const newForm = {
-      ...form,
-      date: selectedDate as string,
-    };
-    const response = await CreateExpense(newForm);
-    if (response.message) {
+    try {
+      const newForm = {
+        ...form,
+        date: selectedDate as string,
+      };
+      const response = expenseId
+        ? await updateExpenseById(expenseId, newForm)
+        : await CreateExpense(newForm);
+
+      if (response.data) {
+        setToggleAlert(true);
+        setError(false);
+        setAlertMessage("Success!");
+        methods.setValue("category", "");
+        methods.setValue("amount", 0);
+        methods.setValue("supplier", "");
+        methods.setValue("remarks", "");
+        methods.setValue("invoice", "");
+        setSelectedDate(null);
+      }
+    } catch (error: any) {
       setToggleAlert(true);
       setError(true);
-      setAlertMessage(response.message);
-    } else {
-      setToggleAlert(true);
-      setError(false);
-      setAlertMessage("Success!");
-      methods.setValue("category", "");
-      methods.setValue("amount", 0);
-      methods.setValue("supplier", "");
-      methods.setValue("remarks", "");
-      methods.setValue("invoice", "");
-      setSelectedDate(null);
+      setAlertMessage(error.message);
     }
   };
+
+  useEffect(() => {
+    if (!expenseId) return;
+    const fetch = async () => {
+      const response = await getExpenseById(expenseId);
+      if (response.data) {
+        const selectedCategory = expensesCategory.find(
+          (expense) => expense.value === response.data?.category
+        );
+        if (selectedCategory) {
+          methods.setValue("category", selectedCategory.value ?? "");
+        }
+        methods.setValue("amount", response.data.amount);
+        methods.setValue("supplier", response.data.supplier);
+        methods.setValue("invoice", response.data.invoice);
+        methods.setValue("remarks", response.data.remarks);
+        setSelectedDate(
+          formattedTimeStamp(response.data.date as string, "YYYY-MM-DD")
+        );
+      } else {
+        console.log("error retrieving role.");
+      }
+    };
+    fetch();
+  }, [expenseId]);
+
   const handleDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = event.target.value;
     setSelectedDate(newDate || null);
@@ -102,7 +148,7 @@ const Page = () => {
               type="text"
               label="Remarks"
             />
-            <CustomButton text="Create" type="submit" />
+            <CustomButton roleCodes={["1005"]} text="Create" type="submit" />
           </Form>
         </div>
       </div>

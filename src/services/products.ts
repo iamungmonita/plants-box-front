@@ -31,6 +31,7 @@ export function AddNewProduct(
 }
 
 //PUT
+
 export function updateProductStockById(
   id: string,
   params: any

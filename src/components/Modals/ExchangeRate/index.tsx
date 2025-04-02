@@ -42,6 +42,7 @@ export const ExchangeRate = ({ onClose }: { onClose?: () => void }) => {
         <CustomButton
           type="submit"
           text="Change"
+          roleCodes={["1016"]}
           disabled={rate === ""}
           theme={`${rate === "" && "dark"}`}
         />

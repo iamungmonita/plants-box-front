@@ -70,7 +70,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsAuthenticated(false);
         setMessage(response.message);
       } else {
-        console.log(response.message);
+        setProfile(null);
+        setIsAuthenticated(false);
+        setMessage(response.message ?? "Error fetching profile");
       }
     } catch (error: unknown) {
       if (error instanceof Error) {

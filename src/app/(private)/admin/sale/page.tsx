@@ -53,14 +53,13 @@ const Page = () => {
   const handleStartDateChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const newDate = event.target.value || "1970-01-01"; // The value will be in YYYY-MM-DD format
-    setSelectedStartDate(newDate); // This triggers the second useEffect hook
+    const newDate = event.target.value || "1970-01-01";
+    setSelectedStartDate(newDate);
   };
-  console.log(new Date(0));
   const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newDate =
-      event.target.value || new Date().toISOString().split("T")[0]; // The value will be in YYYY-MM-DD format
-    setSelectedEndDate(newDate); // This triggers the second useEffect hook
+      event.target.value || new Date().toISOString().split("T")[0];
+    setSelectedEndDate(newDate);
   };
 
   const clearAll = () => {
@@ -101,7 +100,7 @@ const Page = () => {
               <InputField
                 name="purchasedId"
                 type="text"
-                label="Search Purchased ID"
+                label="Search by purchased ID"
                 placeholder="PO-00001"
               />
             </div>
@@ -148,6 +147,7 @@ const Page = () => {
             <CustomButton
               onHandleButton={handleDownloadExcel}
               text="Excel"
+              roleCodes={["1003"]}
               icon={ArrowDownward}
             />
           </div>

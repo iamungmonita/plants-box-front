@@ -147,7 +147,11 @@ const ReceiptPage = () => {
                   </tr>
                   <tr class="flex items-center justify-between w-full">
                     <td class="font-semibold">Seller:</td>
-                    <td>${order?.createdBy.firstName}</td>
+                    <td>${
+                      typeof order?.createdBy === "object"
+                        ? order?.createdBy?.firstName
+                        : "N/A"
+                    }</td>
                   </tr>
                   <tr class="flex items-center justify-between w-full">
                     <td class="font-semibold">Date:</td>
