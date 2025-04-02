@@ -39,6 +39,7 @@ import { updateVoucherByBarcode } from "@/services/system";
 import { useVoucher } from "@/hooks/useVoucher";
 import { MembershipType } from "@/constants/membership";
 import AlertPopUp from "@/components/AlertPopUp";
+import Link from "next/link";
 
 const Page = () => {
   const [orderId, setOrderId] = useState<string>("PO-00001");
@@ -337,10 +338,13 @@ const Page = () => {
             <CiReceipt className="text-2xl" />
             {orderId}
           </span>
-          <span className="rounded-full flex gap-4 pl-6 border items-center">
+          <Link
+            href={`/admin/settings/users/${profile?._id}`}
+            className="rounded-full flex gap-4 pl-6 border items-center"
+          >
             <span>{profile?.firstName}</span>
             <ProfileComponent profile={profile} />
-          </span>
+          </Link>
         </p>
         {paymentMethod !== "cash" && (
           <table className="w-full text-left text-sm text-gray-700">
@@ -363,7 +367,6 @@ const Page = () => {
             totalAmount={totalAmount}
           />
         </div>
-
         <BasicModal
           ContentComponent={PaymentQRCode}
           onClose={() => setToggleQRCode(false)}
@@ -382,12 +385,6 @@ const Page = () => {
           onClose={() => setToggleMembership(false)}
           open={toggleMembership}
         />
-
-        {/* <BasicModal
-          ContentComponent={PaymentQRCode}
-          onClose={() => setToggleQRCode(false)}
-          open={toggleQRCode}
-        /> */}
         <BasicModal
           ContentComponent={ConfirmOrder}
           onAction={() => handleOrder(orderId)}

@@ -38,8 +38,7 @@ export const columns: Column<ExpenseResponse>[] = [
     id: "date",
     label: "Expense Date",
     minWidth: 170,
-    formatString: (value: string) =>
-      formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
+    formatString: (value: string) => formattedTimeStamp(value, "YYYY MMM DD"),
   },
   {
     id: "updatedAt",

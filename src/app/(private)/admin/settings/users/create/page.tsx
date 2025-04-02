@@ -16,6 +16,7 @@ import AlertPopUp from "@/components/AlertPopUp";
 import Checkbox from "@/components/Checkbox";
 import { IAuthRegister } from "@/models/Auth";
 import { useParams } from "next/navigation";
+import { useAuthContext } from "@/context/AuthContext";
 
 const Page = () => {
   const params = useParams();
@@ -44,8 +45,9 @@ const Page = () => {
   const [error, setError] = useState(false);
   const [toggleAlert, setToggleAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-
+  const { profile } = useAuthContext();
   const onSubmitForm = async (data: IAuthRegister) => {
+    console.log(data);
     try {
       const roleCodes =
         roles.find((role) => role._id === data.role)?.codes ?? [];
@@ -153,7 +155,7 @@ const Page = () => {
           </div>
           <InputField name="email" type="email" label="Email" />
           <InputField name="phoneNumber" type="text" label="Phone Number" />
-          {!userId && (
+          {(!userId || userId === profile?._id) && (
             <InputField name="password" type="password" label="Password" />
           )}
           <AutocompleteForm

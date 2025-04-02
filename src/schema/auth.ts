@@ -7,7 +7,10 @@ export const RegisterSchema = yup.object().shape({
     .string() // Ensures all elements are strings
     .required("Role is required"),
 
-  phoneNumber: yup.string().required("Phone Number is required"),
+  phoneNumber: yup
+    .string()
+    .required("Phone Number is required")
+    .min(9, "Phone number must be more than 9 digits"),
   email: yup.string().required("Email is required").email("invalid email"),
   isActive: yup.boolean().required(),
   pictures: yup.string().optional(), // Validate as string (base64)
