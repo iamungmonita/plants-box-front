@@ -13,7 +13,6 @@ const POSCard = ({ product }: { product: ProductResponse }) => {
     <Card
       key={product._id}
       sx={{
-        backgroundColor: product.stock === 0 ? "#f5f5f5" : "",
         borderColor: product.stock === 0 ? "red" : "",
       }}
       className={`shadow-lg border cursor-pointer relative min-w-[180px] h-[320px]

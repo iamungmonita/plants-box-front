@@ -1,8 +1,4 @@
-import {
-  getProductById,
-  updateProductStockById,
-  getAllProducts,
-} from "@/services/products";
+import { getProductById, updateProductStockById } from "@/services/products";
 import { ShoppingCartProduct } from "@/models/Cart";
 import { CreateOrder } from "@/services/order";
 import { ICheckout } from "@/models/Order";
@@ -38,6 +34,7 @@ export const addToCart = async (id: string, productType: string = "plants") => {
           name,
           isDiscountable,
           convertedPoints: 0,
+          pictures,
         });
       }
       localStorage.setItem(productType, JSON.stringify(storedItems));
@@ -58,10 +55,6 @@ export const updateCartItems = () => {
       (acc, item) => acc + item.price * item.quantity,
       0
     );
-    //     localStorage.setItem("plants", JSON.stringify(storedItems));
-    //
-    //     // ✅ Dispatch event so components can react
-    //     window.dispatchEvent(new Event("cartUpdated"));
     return { items: storedItems, total: amount };
   }
   return { items: [], total: 0 };
