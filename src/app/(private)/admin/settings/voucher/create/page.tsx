@@ -146,7 +146,7 @@ const Page = () => {
 
             <CustomButton
               text={voucherId ? "Update" : "Create"}
-              roleCodes={["1009, 1014"]}
+              roleCodes={["1009", "1014"]}
               type="submit"
             />
           </Form>

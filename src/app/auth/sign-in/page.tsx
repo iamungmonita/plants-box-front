@@ -16,11 +16,11 @@ import { IAuthLogIn } from "@/models/Auth";
 import AlertPopUp from "@/components/AlertPopUp";
 
 const Page = () => {
+  const router = useRouter();
   const { signIn, onRefresh } = useAuthContext();
   const [error, setError] = useState(false);
   const [toggleAlert, setToggleAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const router = useRouter();
   const [toggle, setToggle] = useState<boolean>(false);
 
   const methods = useForm<IAuthLogIn>({

@@ -5,6 +5,10 @@ import { addToCart } from "@/helpers/addToCart";
 import { ProductResponse } from "@/models/Product";
 
 const POSCard = ({ product }: { product: ProductResponse }) => {
+  const onClickedAddToItem = () => {
+    addToCart(product._id, "plants");
+  };
+
   return (
     <Card
       key={product._id}
@@ -42,7 +46,7 @@ const POSCard = ({ product }: { product: ProductResponse }) => {
           </div>
           <button
             disabled={product.stock <= 0}
-            onClick={() => addToCart(product._id, "plants")}
+            onClick={onClickedAddToItem}
             className="text-xl px-4 py-2 shadow-lg border rounded"
           >
             +

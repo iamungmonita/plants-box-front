@@ -1,20 +1,39 @@
 "use client";
-import { ScreenProvider, useScreenContext } from "@/context/ScreenContext";
 import { ShoppingCartProduct } from "@/models/Cart";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 const Page = () => {
+  const [cart, setCart] = useState<ShoppingCartProduct[]>([]);
+
+  // Helper function to retrieve cart from localStorage
+  const getCartFromStorage = useCallback(() => {
+    const storedCart = localStorage.getItem("plants");
+    return storedCart ? JSON.parse(storedCart) : [];
+  }, []);
+
+  useEffect(() => {
+    // Initial cart load
+    setCart(getCartFromStorage());
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === "plants") {
+        setCart(getCartFromStorage());
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [getCartFromStorage]);
+
   return (
-    <ScreenProvider>
-      <div>
-        <ScreenContent />
-      </div>
-    </ScreenProvider>
+    <div>
+      {cart.map((row, idx) => (
+        <div key={idx}>
+          {row.name} x {row.quantity}
+        </div>
+      ))}
+    </div>
   );
-};
-const ScreenContent = () => {
-  const { cart } = useScreenContext();
-  return <div>{cart.map((row) => row.name)}</div>;
 };
 
 export default Page;

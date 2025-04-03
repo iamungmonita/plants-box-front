@@ -74,16 +74,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsAuthenticated(false);
         setMessage(response.message ?? "Error fetching profile");
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        if (error.name !== "AbortError") {
-          console.error("Error fetching profile:", error.message);
-        } else {
-          console.log("Request was aborted.");
-        }
-      } else {
-        console.error("Unknown error:", error);
-      }
+    } catch (error) {
+      signOut();
     } finally {
       setIsLoading(false);
     }
@@ -102,6 +94,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = () => {
     setIsAuthenticated(true);
   };
+
   const signUp = () => {
     setIsAuthenticated(true);
   };
