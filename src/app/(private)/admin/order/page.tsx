@@ -57,6 +57,10 @@ const Page = () => {
     useState<number>(0);
   const [paidAmount, setPaidAmount] = useState<number>(0);
   const [changeAmount, setChangeAmount] = useState<number>(0);
+  const [paymentSummary, setPaymentSummary] = useState(() => {
+    if (typeof window === "undefined") return {};
+    return JSON.parse(localStorage.getItem("paymentSummary") || "{}") || {};
+  });
   const [error, setError] = useState(false);
   const [toggleAlert, setToggleAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -71,7 +75,7 @@ const Page = () => {
 
   const { barcode, category } = methods1.watch();
   const { heldCart } = methods2.watch();
-  const { discount, points, voucher } = methods3.watch();
+  const { discount, points } = methods3.watch();
   const { profile } = useAuthContext();
 
   useEffect(() => {
@@ -112,7 +116,16 @@ const Page = () => {
     const point = pointToAmount(member?.point ? member.point : 0);
     setTotalPoints(point);
     setTotalAmount(amount - (point !== 0 ? point : value));
-  }, [items, points]);
+    setPaymentSummary({
+      amount: amount,
+      total: amount - (point !== 0 ? point : value),
+      point: totalDiscountPercentage > 0 ? 0 : point,
+      discount: totalDiscountPercentage,
+      voucher: point > 0 ? "N/A" : storedVoucher?.barcode,
+      changeAmount: changeAmount || 0,
+      paidAmount: paidAmount || 0,
+    });
+  }, [items, points, totalDiscountPercentage, changeAmount, paidAmount]);
 
   useEffect(() => {
     if (!items || items.length === 0) return;
@@ -155,6 +168,10 @@ const Page = () => {
     }
     setOrderId(generateNextOrderId());
   };
+
+  useEffect(() => {
+    localStorage.setItem("paymentSummary", JSON.stringify(paymentSummary));
+  }, [paymentSummary]);
 
   const handleOrder = async (orderId: string) => {
     const data = {
@@ -332,8 +349,8 @@ const Page = () => {
         </div>
         <Pagination items={products} />
       </div>
-      <div className="flex flex-col border items-start justify-between bg-white shadow-lg min-h-screen min-w-[540px] max-w-[540px] p-4 gap-4">
-        <p className="text-base  flex justify-between items-center w-full">
+      <div className="flex flex-col border items-start justify-between bg-white shadow-lg min-h-screen max-h-screen min-w-[540px] max-w-[540px] p-4 gap-4">
+        <p className="text-base flex justify-between items-center w-full">
           <span className="border flex items-center gap-2 rounded p-2">
             <CiReceipt className="text-2xl" />
             {orderId}
@@ -359,7 +376,7 @@ const Page = () => {
             </thead>
           </table>
         )}
-        <div className="flex flex-col w-full flex-grow overflow-y-auto items-start">
+        <div className="flex flex-col border-b w-full pb-2 flex-grow scroll-container items-start">
           <HorizontalLinearStepper
             onRemoveAll={paymentMethod === ""}
             onPaymentChange={handlePaymentChange}
@@ -367,44 +384,41 @@ const Page = () => {
             totalAmount={totalAmount}
           />
         </div>
-        <BasicModal
-          ContentComponent={PaymentQRCode}
-          onClose={() => setToggleQRCode(false)}
-          open={toggleQRCode}
-          text={String(totalAmount)}
-        />
-        <BasicModal
-          ContentComponent={ConfirmOrder}
-          onAction={() => handleOrder(orderId)}
-          onClose={() => setToggleConfirmOrder(false)}
-          open={toggleConfirmOrder}
-          text="Are you sure you want to place the order?"
-        />
-        <BasicModal
-          ContentComponent={Membership}
-          onClose={() => setToggleMembership(false)}
-          open={toggleMembership}
-        />
-        <BasicModal
-          ContentComponent={ConfirmOrder}
-          onAction={() => handleOrder(orderId)}
-          onClose={() => setToggleConfirmOrder(false)}
-          open={toggleConfirmOrder}
-          text="Are you sure you want to place the order?"
-        />
-        <BasicModal
-          ContentComponent={Membership}
-          onClose={() => setToggleMembership(false)}
-          open={toggleMembership}
-        />
-        <BasicModal
-          ContentComponent={Voucher}
-          onClose={() => setToggleVoucher(false)}
-          open={toggleVoucher}
-        />
+
+        {toggleQRCode && (
+          <BasicModal
+            ContentComponent={PaymentQRCode}
+            onClose={() => setToggleQRCode(false)}
+            open={toggleQRCode}
+            text={String(totalAmount)}
+          />
+        )}
+        {toggleConfirmOrder && (
+          <BasicModal
+            ContentComponent={ConfirmOrder}
+            onAction={() => handleOrder(orderId)}
+            onClose={() => setToggleConfirmOrder(false)}
+            open={toggleConfirmOrder}
+            text="Are you sure you want to place the order?"
+          />
+        )}
+        {toggleMembership && (
+          <BasicModal
+            ContentComponent={Membership}
+            onClose={() => setToggleMembership(false)}
+            open={toggleMembership}
+          />
+        )}
+        {toggleVoucher && (
+          <BasicModal
+            ContentComponent={Voucher}
+            onClose={() => setToggleVoucher(false)}
+            open={toggleVoucher}
+          />
+        )}
         <Form
           methods={methods3}
-          className={`${"grid-cols-10"} w-full grid items-center gap-2 justify-between`}
+          className={`grid-cols-10 w-full grid items-center gap-2 justify-between`}
         >
           <div className="col-span-4 gap-2 flex w-full items-center justify-between">
             <div className="col-span-2 w-full">

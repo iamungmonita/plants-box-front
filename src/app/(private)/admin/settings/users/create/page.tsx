@@ -17,10 +17,13 @@ import Checkbox from "@/components/Checkbox";
 import { IAuthRegister } from "@/models/Auth";
 import { useParams } from "next/navigation";
 import { useAuthContext } from "@/context/AuthContext";
+import BasicModal from "@/components/Modal";
+import Password from "@/components/Modals/Password";
 
 const Page = () => {
   const params = useParams();
   const [userId, setUserId] = useState<string>("");
+  const [toggleModal, setToggleModal] = useState<boolean>(false);
 
   useEffect(() => {
     if (!params?.id) return;
@@ -134,6 +137,13 @@ const Page = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen w-full">
+      <BasicModal
+        ContentComponent={Password}
+        onClose={() => setToggleModal(false)}
+        open={toggleModal}
+        text={"Change Password"}
+      />
+
       <AlertPopUp
         open={toggleAlert}
         error={error}
@@ -155,7 +165,7 @@ const Page = () => {
           </div>
           <InputField name="email" type="email" label="Email" />
           <InputField name="phoneNumber" type="text" label="Phone Number" />
-          {(!userId || userId === profile?._id) && (
+          {!userId && (
             <InputField name="password" type="password" label="Password" />
           )}
           <AutocompleteForm
@@ -172,11 +182,25 @@ const Page = () => {
             setPreviewUrl={setPreviewUrl}
             handleRemoveImage={handleRemoveImage}
           />
-          <CustomButton
-            roleCodes={["1011", "1006"]}
-            text={`${userId ? "Update" : "Create"}`}
-            type="submit"
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <div
+              className={`${
+                userId === profile?._id ? "col-span-1" : "col-span-2"
+              }`}
+            >
+              <CustomButton
+                roleCodes={["1011", "1006"]}
+                text={`${userId ? "Update" : "Create"}`}
+                type="submit"
+              />
+            </div>
+            {userId === profile?._id && (
+              <CustomButton
+                text="Change Password"
+                onHandleButton={() => setToggleModal(true)}
+              />
+            )}
+          </div>
         </Form>
       </div>
     </div>

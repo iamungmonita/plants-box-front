@@ -103,6 +103,13 @@ export function updateUserById(
   const url = `${API_URL}/auth/users/update/` + id;
   return PUTWithToken<ILayout<Profile>, IAuthRegister>(url, params);
 }
+export function updateUserPasswordById(
+  id: string,
+  params: { password: string }
+): Promise<ILayout<Profile>> {
+  const url = `${API_URL}/auth/users/update-password/` + id;
+  return PUTWithToken<ILayout<Profile>, { password: string }>(url, params);
+}
 
 export function updateVoucherByBarcode(
   barcode: string

@@ -24,6 +24,11 @@ const CartCard = <T extends ShoppingCartProduct>({
     localStorage.setItem("plants", JSON.stringify(items));
     window.dispatchEvent(new Event("cartUpdated"));
   };
+  const onHandleRemove = (id: string) => {
+    if (onRemove) {
+      onRemove(id);
+    }
+  };
   return (
     <>
       <td className="pt-2 pb-3 flex items-center justify-between">
@@ -69,7 +74,7 @@ const CartCard = <T extends ShoppingCartProduct>({
       <td className="pt-2 pb-3 grid grid-cols-2 w-full min-w-[120px] items-center">
         <span>${(item.price * item.quantity).toFixed(2)}</span>
         <span className="text-end cursor-pointer">
-          <MdClose onClick={() => onRemove(item._id)} />
+          <MdClose onClick={() => onHandleRemove(item._id)} />
         </span>
       </td>
     </>
