@@ -17,7 +17,15 @@ export const columns: Column<IRoleResponse>[] = [
     id: "createdBy",
     label: "Created By",
     minWidth: 170,
-    formatString: (value: any) => [value?.firstName].join(" "),
+    formatString: (value: any) =>
+      value ? [value?.firstName].join(" ") : "N/A",
+  },
+  {
+    id: "updatedBy",
+    label: "Updated By",
+    minWidth: 170,
+    formatString: (value: any) =>
+      value ? [value?.firstName].join(" ") : "N/A",
   },
 
   {

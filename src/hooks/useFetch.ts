@@ -19,9 +19,8 @@ const useFetch = <T>(
         if (response?.data) {
           setData(response.data);
         }
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Failed to fetch data");
+      } catch (err: any) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }

@@ -3,6 +3,7 @@
 import { Profile } from "@/models/Auth";
 import { getAdminProfile } from "@/services/authentication";
 import { getAccessToken } from "@/utils/localStroage";
+import { usePathname, useRouter } from "next/navigation";
 import React, {
   createContext,
   useCallback,
@@ -15,7 +16,11 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   signIn: () => void;
   signUp: () => void;
-  isAuthorized: (profileRoles?: string[], roleCodes?: string[]) => boolean; // Check if user has the required role
+  isAuthorized: (roleCodes?: string[], profileRoles?: string[]) => boolean; // Check if user has the required role
+  getRouteAuthorization: (
+    roleCodes?: string[],
+    profileRoles?: string[]
+  ) => boolean; // Check if user has the required role
 
   signOut: () => void;
   onRefresh: () => void;
@@ -39,17 +44,17 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [message, setMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefresh, setIsRefresh] = useState<boolean>(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   const isAuthorized = (
-    profileRoles?: string[],
-    roleCodes?: string[]
+    roleCodes?: string[],
+    profileRoles?: string[]
   ): boolean => {
     if (!profileRoles && !roleCodes) {
       return true;
     }
-    if (profileRoles && !roleCodes) {
-      return false;
-    }
+
     if (roleCodes && roleCodes.length > 0 && profileRoles) {
       return profileRoles.some((roleCode) => roleCodes.includes(roleCode));
     }
@@ -76,6 +81,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } catch (error) {
       signOut();
+      console.log("hi this is error: ", error);
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +95,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return () => abortController.abort();
     }
     setIsLoading(false);
-  }, [isRefresh]);
+    router.push("/auth/sign-in");
+  }, [isRefresh, pathname]);
 
   const signIn = () => {
     setIsAuthenticated(true);
@@ -106,14 +113,24 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsAuthenticated(false);
       setProfile(null);
       setMessage(null);
+      router.push("/auth/sign-in");
     } catch (err) {
       console.log("Error signing out", err);
     }
   };
 
+  const getRouteAuthorization = (
+    roleCodes?: string[],
+    profileRoles?: string[]
+  ): boolean => {
+    const tokenKey = process.env.NEXT_PUBLIC_AUTH_TOKEN || "auth_token";
+    const token = localStorage.getItem(tokenKey);
+    const allowed = isAuthorized(roleCodes, profileRoles);
+    return !!token && allowed;
+  };
   const onRefresh = useCallback(() => {
     setIsRefresh((prev) => !prev);
-  }, []);
+  }, [pathname]);
 
   if (isLoading) {
     return <></>;
@@ -124,6 +141,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         isAuthenticated,
         isAuthorized,
+        getRouteAuthorization,
         signIn,
         signUp,
         signOut,

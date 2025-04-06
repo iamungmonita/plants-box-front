@@ -43,8 +43,8 @@ const Page = () => {
           setAmount(response.data.amount);
           setTransactions(response.data.count);
         }
-      } catch (err) {
-        console.error("Failed to fetch product details:", err);
+      } catch (err: any) {
+        console.log("this is sale error", err.message);
       }
     };
     fetchProduct();

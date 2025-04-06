@@ -34,11 +34,8 @@ const Page = () => {
   const { data: allProducts } = useFetch(getAllProducts, {}, []);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/auth/sign-in");
-    }
     setSelectedDate(today);
-  }, [isAuthenticated, router]);
+  }, []);
 
   useEffect(() => {
     if (selectedDate) {
@@ -100,7 +97,7 @@ const Page = () => {
             });
           }
         } catch (error) {
-          console.error("Error fetching orders:", error);
+          console.log("Error fetching orders:", error);
         }
       };
       fetch();
@@ -163,7 +160,7 @@ const Page = () => {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-5">
-            <div className="col-span-1 shadow-lg bg-[#9eb79c] rounded-lg max-h-[45vh] min-h-[45vh] h-full">
+            <div className="col-span-1 shadow-lg bg-[#9eb79c] rounded-lg max-h-[47vh] min-h-[47vh] h-full">
               <div className="col-span-1 px-5 my-1 py-2 flex  flex-col justify-between">
                 <h2 className="flex text-xl text-black font-semibold gap-4  justify-start">
                   Today's Sale Overview
@@ -180,7 +177,7 @@ const Page = () => {
             </div>
 
             <div className="col-span-1 flex gap-5">
-              <div className="col-span-1 shadow-lg bg-[#eab308] rounded-lg min-h-[45vh] h-full max-h-[45vh] w-full">
+              <div className="col-span-1 shadow-lg bg-[#eab308] rounded-lg min-h-[47vh] h-full max-h-[47vh] w-full">
                 <div className="col-span-1 px-5 py-2 my-1 flex flex-col justify-between">
                   <h2 className="flex text-black text-xl font-semibold gap-4 justify-start">
                     Low on Stock
@@ -197,7 +194,7 @@ const Page = () => {
                   }
                 />
               </div>
-              <div className="col-span-1 w-full shadow-lg rounded-lg bg-[#D50000] max-h-[45vh] min-h-[45vh] h-full">
+              <div className="col-span-1 w-full shadow-lg rounded-lg bg-[#D50000] max-h-[47vh] min-h-[47vh] h-full">
                 <div className="col-span-1 my-1 px-5 py-2 flex flex-col justify-between">
                   <h2 className="flex text-xl text-black font-semibold gap-4 justify-start">
                     Out of Stock

@@ -14,8 +14,11 @@ import AlertPopUp from "@/components/AlertPopUp";
 import { VoucherForm } from "@/models/Voucher";
 import { useParams } from "next/navigation";
 import { formattedTimeStamp } from "@/helpers/format/time";
+import { useAuthContext } from "@/context/AuthContext";
+
 const Page = () => {
   const params = useParams();
+  const { profile } = useAuthContext();
   const [toggleAlert, setToggleAlert] = useState(false);
   const [error, setError] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -33,6 +36,7 @@ const Page = () => {
       validTo: "",
     },
   });
+
   useEffect(() => {
     if (!params?.voucherId) return;
     setVoucherId(params.voucherId as string);

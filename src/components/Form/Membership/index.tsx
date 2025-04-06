@@ -166,7 +166,7 @@ const CreateForm = ({
         >
           <CustomButton
             text={memberId ? "Update" : "Create"}
-            roleCodes={["1008", "1013"]}
+            roleCodes={memberId ? ["1013"] : ["1008"]}
             type="submit"
             onHandleButton={onAction}
           />

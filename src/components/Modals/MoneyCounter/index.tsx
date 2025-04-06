@@ -25,6 +25,7 @@ const MoneyCounter = () => {
   const { watch, trigger } = methods;
   const { profile } = useAuthContext();
   const [canProceed, setCanProceed] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const collectFields = (fields: readonly string[]) => {
@@ -65,11 +66,15 @@ const MoneyCounter = () => {
 
   const onSubmitForm = async (data: ILog) => {
     data = {
+      ...data,
       riels,
       dollars,
       rielTotal,
       dollarTotal,
     };
+
+    setLoading(true); // Start loading
+
     try {
       const response = await createLog(data);
       if (response.data) {
@@ -78,6 +83,8 @@ const MoneyCounter = () => {
     } catch (error) {
       console.error("Request failed:", error);
       setCanProceed(false);
+    } finally {
+      setLoading(false); // End loading no matter what
     }
   };
 
@@ -132,9 +139,9 @@ const MoneyCounter = () => {
       </div>
       <CustomButton
         type="submit"
-        theme={`${!canProceed && "dark"}`}
-        disabled={!canProceed}
-        text="Proceed"
+        theme={`${(!canProceed || loading) && "dark"}`}
+        disabled={!canProceed || loading}
+        text={loading ? "Loading" : "Proceed"}
       />
     </Form>
   );

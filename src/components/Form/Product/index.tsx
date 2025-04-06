@@ -52,7 +52,6 @@ export const CreateForm = ({ createId }: { createId: string }) => {
       const response = createId
         ? await updateProductDetailsById(createId, productData)
         : await AddNewProduct(productData);
-
       if (response.data) {
         setToggleAlert(true);
         setError(false);

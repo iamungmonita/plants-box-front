@@ -38,6 +38,7 @@ export interface ProductUpdateCount {
   oldStock: number;
   createdAt: string;
   updatedAt: string;
+  updatedBy: string;
 }
 
 export interface IRange {

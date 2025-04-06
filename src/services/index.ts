@@ -81,15 +81,7 @@ const sendRequest = async <T, Q = any>({
     .then(async (response) => {
       const data = await response.json();
       if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          if (typeof window !== "undefined") {
-            window.location.href = "/auth/sign-in";
-          }
-          throw new Error("Unauthorized. Redirecting to sign-in.");
-        }
-        throw new Error(
-          data.message || `HTTP error! Status: ${response.status}`
-        );
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
       return data;
     })
