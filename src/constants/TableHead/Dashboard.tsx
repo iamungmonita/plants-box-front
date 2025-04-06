@@ -54,6 +54,7 @@ export const columns: Column<PurchasedOrderList>[] = [
     id: "createdBy",
     label: "Seller",
     minWidth: 100,
-    formatString: (value: any) => [value?.firstName].join(" "),
+    formatString: (value: any) =>
+      value ? [value?.firstName].join(" ") : "N/A",
   },
 ];

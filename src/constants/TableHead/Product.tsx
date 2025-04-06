@@ -142,6 +142,7 @@ export const columns: Column<ProductResponse>[] = [
     formatString: (value: string) => formattedTimeStamp(value, "YYYY MMM DD"),
   },
 ];
+
 export const dashboard: Column<ProductResponse>[] = [
   { id: "name", label: "Name", minWidth: 170 },
   { id: "stock", label: "Stock", minWidth: 100 },

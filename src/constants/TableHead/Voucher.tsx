@@ -15,7 +15,13 @@ export interface Column<T> {
 export const columns: Column<VoucherResponse>[] = [
   { id: "name", label: "Name", minWidth: 100 },
   { id: "barcode", label: "Barcode", minWidth: 100 },
-  { id: "discount", label: "Discount", minWidth: 100 },
+  {
+    id: "discount",
+    label: "Discount",
+    minWidth: 100,
+    format: (value: number) =>
+      value !== undefined && value !== null ? `${value}%` : "0%",
+  },
 
   {
     id: "validFrom",
