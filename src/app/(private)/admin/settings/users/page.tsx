@@ -38,7 +38,7 @@ const Page = () => {
       <div>
         <ReusableTable
           columns={columns}
-          data={users}
+          data={users.filter((user) => user.isActive)}
           onRowClick={(row) => router.push(`/admin/settings/users/${row._id}`)}
         />
       </div>

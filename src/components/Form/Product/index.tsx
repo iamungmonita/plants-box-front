@@ -19,9 +19,9 @@ import CustomButton from "@/components/Button";
 import AlertPopUp from "@/components/AlertPopUp";
 import ImageUpload from "@/components/Upload";
 import { Product } from "@/models/Product";
+import useFetch from "@/hooks/useFetch";
 
 export const CreateForm = ({ createId }: { createId: string }) => {
-  const { profile } = useAuthContext();
   const methods = useForm<Product>({
     defaultValues: {
       name: "",
@@ -36,18 +36,51 @@ export const CreateForm = ({ createId }: { createId: string }) => {
     },
     resolver: yupResolver(ProductSchema),
   });
-  const { handleSubmit, setValue } = methods;
+  const { setValue } = methods;
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [, setLoading] = useState<boolean>(false);
   const [toggleAlert, setToggleAlert] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>("");
   const [error, setError] = useState<boolean>(false);
+  const { asObject: product, error: fetchError } = useFetch(
+    getProductById,
+    { params: { id: createId } },
+    [createId]
+  );
+  useEffect(() => {
+    if (!createId) return;
+    if (product) {
+      setValue("name", product.name);
+      const selectedCategory = categories.find(
+        (opt) => opt.value === product.category
+      );
+      if (selectedCategory) {
+        setValue("category", selectedCategory.value ?? "");
+      }
+      setValue("price", product.price);
+      setValue("stock", product.stock);
+      setValue("barcode", product.barcode);
+      setValue("isActive", product.isActive);
+      setValue("isDiscountable", product.isDiscountable);
+      setValue("importedPrice", product.importedPrice);
+      if (product.pictures) {
+        setValue("pictures", product.pictures as unknown as string);
+        setPreviewUrl(`${product.pictures as unknown as string}`);
+      } else {
+        setValue("pictures", "");
+      }
+    } else if (fetchError) {
+      setToggleAlert(true);
+      setError(true);
+      setAlertMessage(fetchError);
+    }
+  }, [createId, product, fetchError]);
 
   const onSubmit = async (data: Product) => {
     try {
       const productData = {
         ...data,
-        pictures: (previewUrl ?? null) as any, // Ensure the correct image is sent
+        pictures: (previewUrl ?? null) as any,
       };
       const response = createId
         ? await updateProductDetailsById(createId, productData)
@@ -56,10 +89,6 @@ export const CreateForm = ({ createId }: { createId: string }) => {
         setToggleAlert(true);
         setError(false);
         setAlertMessage("Success!");
-      } else {
-        setToggleAlert(true);
-        setError(true);
-        setAlertMessage(`Error: ${response.message}`);
       }
       if (!createId) {
         setValue("name", "");
@@ -72,8 +101,10 @@ export const CreateForm = ({ createId }: { createId: string }) => {
         setValue("isDiscountable", true);
         setValue("pictures", "");
       }
-    } catch (error) {
-      console.error("Error uploading:", error);
+    } catch (error: any) {
+      setToggleAlert(true);
+      setError(true);
+      setAlertMessage(error.message);
     }
   };
 
@@ -83,44 +114,6 @@ export const CreateForm = ({ createId }: { createId: string }) => {
     setPreviewUrl(null);
   };
 
-  useEffect(() => {
-    if (!createId) return;
-    const fetchProduct = async () => {
-      try {
-        setLoading(true);
-        const productData = await getProductById(createId);
-        if (productData.data) {
-          setValue("name", productData.data?.name);
-          const selectedCategory = categories.find(
-            (opt) => opt.value === productData.data?.category
-          );
-          if (selectedCategory) {
-            setValue("category", selectedCategory.value ?? "");
-          }
-          setValue("price", productData.data?.price);
-          setValue("stock", productData.data?.stock);
-          setValue("barcode", productData.data?.barcode);
-          setValue("isActive", productData.data?.isActive);
-          setValue("isDiscountable", productData.data?.isDiscountable);
-          setValue("importedPrice", productData.data?.importedPrice);
-          if (productData.data?.pictures) {
-            setValue(
-              "pictures",
-              productData.data?.pictures as unknown as string
-            );
-            setPreviewUrl(`${productData.data?.pictures as unknown as string}`);
-          } else {
-            setValue("pictures", "");
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching product:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProduct();
-  }, [createId]);
   return (
     <Form
       methods={methods}

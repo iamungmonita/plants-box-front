@@ -9,7 +9,7 @@ const AlertPopUp = ({
   onClose,
 }: {
   error?: boolean;
-  message: string;
+  message: string | null;
   open: boolean;
   onClose?: () => void;
 }) => {

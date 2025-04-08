@@ -48,8 +48,8 @@ export function retrieveOrderById(
 }
 
 export function getMonthlySale(): Promise<
-  ILayout<{ month: string; sale: number }[]>
+  ILayout<{ month: string; sale: number }>
 > {
   const url = `${API_URL}/order/sale/monthly`;
-  return GETWithToken<ILayout<{ month: string; sale: number }[]>>(url);
+  return GETWithToken<ILayout<{ month: string; sale: number }>>(url);
 }

@@ -14,9 +14,8 @@ import {
   getWeekRange,
   getYearRange,
 } from "@/helpers/calculation/getDate";
-import { IChart, IRange } from "@/models/Product";
+import { IChart, IRange, ProductResponse } from "@/models/Product";
 import { PurchasedOrderList } from "@/models/Order";
-
 import BarChartComponent from "@/components/BarChart";
 
 const Page = () => {
@@ -187,7 +186,12 @@ const Page = () => {
                   columns={dashboard}
                   rowsPerPageOptions={[5]}
                   data={allProducts
-                    .filter((product) => product.stock > 0 && product.stock < 3)
+                    .filter(
+                      (product): product is ProductResponse =>
+                        product !== null &&
+                        product.stock > 0 &&
+                        product.stock < 3
+                    )
                     .sort((a, b) => a.stock - b.stock)}
                   onRowClick={(row) =>
                     router.push(`/admin/products/${row._id}`)

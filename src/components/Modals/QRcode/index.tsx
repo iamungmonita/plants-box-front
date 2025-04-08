@@ -6,9 +6,11 @@ import { aba_acc, aba_baseUrl, aba_code, aba_id } from "@/utils/config";
 
 const PaymentQRCode = ({
   onClose,
+  onAction,
   text = "0.00",
 }: {
   onClose?: () => void;
+  onAction?: () => void;
   text?: string;
 }) => {
   const acc = aba_acc;
@@ -69,7 +71,7 @@ const PaymentQRCode = ({
             <p className="text-red-500">{countdown} seconds remaining</p>
           </div>
           <div className="grid grid-cols-2 gap-4 my-5">
-            <CustomButton text="Complete" onHandleButton={onClose} />
+            <CustomButton text="Complete" onHandleButton={onAction} />
             <CustomButton theme="alarm" text="Close" onHandleButton={onClose} />
           </div>
         </div>

@@ -81,7 +81,9 @@ const sendRequest = async <T, Q = any>({
     .then(async (response) => {
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const errorMessage =
+          data?.message || `HTTP error! Status: ${response.status}`;
+        throw new Error(errorMessage);
       }
       return data;
     })

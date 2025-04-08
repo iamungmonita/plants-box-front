@@ -1,6 +1,6 @@
 import { formattedTimeStamp } from "@/helpers/format/time";
 import { Profile } from "@/models/Auth";
-import { ExpenseResponse } from "@/models/Expensese";
+import { ExpenseResponse } from "@/models/Expense";
 
 export interface Column<T> {
   id: keyof T; // id should be a key of T, which is ProductReturnList in this case

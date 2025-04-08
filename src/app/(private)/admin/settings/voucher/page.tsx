@@ -61,7 +61,7 @@ const Page = () => {
       <div>
         <ReusableTable
           columns={columns}
-          data={vouchers}
+          data={vouchers.filter((voucher) => voucher.isActive)}
           onRowClick={(row) =>
             router.push(`/admin/settings/voucher/${row._id}`)
           }

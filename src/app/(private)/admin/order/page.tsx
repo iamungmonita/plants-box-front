@@ -25,7 +25,7 @@ import { useMembership } from "@/hooks/useMembership";
 import { amountToPoint, pointToAmount } from "@/helpers/calculation/getPoint";
 import { useHeldCarts } from "@/hooks/useHeldCart";
 import useFetch from "@/hooks/useFetch";
-import ConfirmOrder from "@/components/Modals/ConfirOrder";
+import ConfirmOrder from "@/components/Modals/ConfirmOrder";
 import { updateMembershipPointByPhoneNumber } from "@/services/membership";
 import PaymentQRCode from "@/components/Modals/QRcode";
 import { ProductResponse } from "@/models/Product";
@@ -95,9 +95,9 @@ const Page = () => {
     (cart: IHold) => cart.orderId !== orderId
   );
 
-  const { data: products = [] } = useFetch<ProductResponse[]>(
+  const { data: products = [] } = useFetch<ProductResponse>(
     getAllProducts,
-    { category, search: barcode },
+    { queryParam: { category, search: barcode } },
     [refresh, category, barcode]
   );
 
@@ -256,6 +256,12 @@ const Page = () => {
     }
     setRefresh(!refresh);
   };
+
+  const onComplete = () => {
+    setPaymentMethod("complete");
+    setToggleQRCode(false);
+  };
+
   const onRemoveAllItems = () => {
     clearLocalStorage();
     onRefresh();
@@ -389,6 +395,7 @@ const Page = () => {
           <BasicModal
             ContentComponent={PaymentQRCode}
             onClose={() => setToggleQRCode(false)}
+            onAction={onComplete}
             open={toggleQRCode}
             text={String(totalAmount)}
           />
@@ -515,9 +522,17 @@ const Page = () => {
             <CustomButton
               roleCodes={["1015"]}
               theme={`${
-                items.length <= 0 || paymentMethod === "" ? "dark" : ""
+                items.length <= 0 ||
+                paymentMethod === "" ||
+                paymentMethod === "khqr"
+                  ? "dark"
+                  : ""
               }`}
-              disabled={items.length <= 0 || paymentMethod === ""}
+              disabled={
+                items.length <= 0 ||
+                paymentMethod === "khqr" ||
+                paymentMethod === ""
+              }
               onHandleButton={() => setToggleConfirmOrder(true)}
               text="Place Order"
             />

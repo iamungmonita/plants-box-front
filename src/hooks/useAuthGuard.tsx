@@ -12,14 +12,12 @@ export const useAuthGuard = () => {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    if (!profile?.codes) return;
-
     setChecking(true); // Start checking
 
     const requiredCodes = routePermissions[pathname] || [];
     const isAllowed =
       requiredCodes.length === 0 ||
-      requiredCodes.some((code) => profile.codes.includes(code));
+      requiredCodes.some((code) => profile?.codes.includes(code));
 
     const timeout = setTimeout(() => {
       if (!isAllowed) {
@@ -30,7 +28,7 @@ export const useAuthGuard = () => {
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [profile?.codes, pathname, router]);
+  }, [profile, pathname]);
 
   return { checking };
 };

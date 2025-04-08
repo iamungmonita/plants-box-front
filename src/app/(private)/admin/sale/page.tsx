@@ -118,8 +118,8 @@ const Page = () => {
                 type="date"
                 id="startDateInput"
                 placeholder="Start Date"
-                value={selectedStartDate || ""} // Binding state to input
-                onChange={handleStartDateChange} // Handling date change
+                value={selectedStartDate || ""}
+                onChange={handleStartDateChange}
               />
             </div>
             <div className="flex items-center justify-start gap-4">
@@ -128,8 +128,8 @@ const Page = () => {
                 className="border rounded p-3.5 bg-gray-100"
                 type="date"
                 id="endDateInput"
-                value={selectedEndDate || ""} // Binding state to input
-                onChange={handleEndDateChange} // Handling date change
+                value={selectedEndDate || ""}
+                onChange={handleEndDateChange}
               />
             </div>
           </div>
@@ -146,7 +146,6 @@ const Page = () => {
           <div className="w-3/4">
             <CustomButton
               onHandleButton={handleDownloadExcel}
-              text="Excel"
               roleCodes={["1003"]}
               icon={ArrowDownward}
             />

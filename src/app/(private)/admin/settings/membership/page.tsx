@@ -1,7 +1,6 @@
 "use client";
 
 import ReusableTable from "@/components/Table";
-
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "@/constants/TableHead/Membership";
@@ -12,11 +11,13 @@ import InputField from "@/components/InputText";
 import AutocompleteForm from "@/components/Autocomplete";
 import { optionsMembership } from "@/constants/membership";
 import { useRouter } from "next/navigation";
+
 const Page = () => {
   const router = useRouter();
   const [membership, setMembership] = useState<IMemberResponse[]>([]);
   const methods = useForm({ defaultValues: { phoneNumber: "", type: "" } });
   const { phoneNumber, type } = methods.watch();
+
   useEffect(() => {
     const fetchMembership = async () => {
       try {
@@ -33,10 +34,12 @@ const Page = () => {
     };
     fetchMembership();
   }, [phoneNumber, type]);
+
   const onClear = () => {
     methods.setValue("phoneNumber", "");
     methods.setValue("type", "");
   };
+
   return (
     <div className="flex flex-col min-h-screen justify-start gap-4">
       <div className="flex items-center justify-between gap-4">
@@ -60,7 +63,7 @@ const Page = () => {
       <div>
         <ReusableTable
           columns={columns}
-          data={membership}
+          data={membership.filter((row) => row.isActive)}
           onRowClick={(row) =>
             router.push(`/admin/settings/membership/${row._id}`)
           }

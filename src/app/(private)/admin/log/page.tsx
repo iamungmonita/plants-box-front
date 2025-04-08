@@ -6,7 +6,7 @@ import useFetch from "@/hooks/useFetch";
 import { columns } from "@/constants/TableHead/Log";
 
 const Page = () => {
-  const { data: log } = useFetch<ILogResponse[]>(getLogs, {}, []);
+  const { data: log } = useFetch<ILogResponse>(getLogs, {}, []);
 
   return (
     <div>

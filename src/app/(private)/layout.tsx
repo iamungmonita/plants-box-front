@@ -5,7 +5,9 @@ import { Menu } from "@mui/icons-material";
 import React, { useEffect, useState } from "react";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { CircularProgress } from "@mui/material";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import AlertPopUp from "@/components/AlertPopUp";
+
 export interface RootLayoutProps {
   children: React.ReactNode;
 }
@@ -13,7 +15,10 @@ export interface RootLayoutProps {
 const PrivateLayout = ({ children }: Readonly<RootLayoutProps>) => {
   const { isAuthenticated, message } = useAuthContext();
   const [toggle, setToggle] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
+  const [toggleAlert, setToggleAlert] = useState<boolean>(false);
   const { checking } = useAuthGuard();
+  const router = useRouter();
 
   useEffect(() => {
     document.body.classList.add("bg-gray");
@@ -29,10 +34,26 @@ const PrivateLayout = ({ children }: Readonly<RootLayoutProps>) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isAuthenticated && message) {
+      setToggleAlert(true);
+      setError(true);
+      setTimeout(() => {
+        router.push("/auth/sign-in");
+      }, 3000);
+    }
+  }, [message, isAuthenticated]);
+
   if (checking) return <CircularProgress />;
 
   return (
     <>
+      <AlertPopUp
+        open={toggleAlert}
+        error={error}
+        onClose={() => setToggleAlert(false)}
+        message={message}
+      />
       {isAuthenticated && (
         <div className="min-h-screen w-full flex max-md:flex-col gap-y-4 relative bg-background dark:bg-darkBackground">
           <div className="max-md:hidden">
