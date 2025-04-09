@@ -50,7 +50,6 @@ const Page = () => {
   const [alertMessage, setAlertMessage] = useState("");
   const { profile } = useAuthContext();
   const onSubmitForm = async (data: IAuthRegister) => {
-    console.log(data);
     try {
       const roleCodes =
         roles.find((role) => role._id === data.role)?.codes ?? [];
@@ -65,9 +64,11 @@ const Page = () => {
         ? await updateUserById(userId, userData)
         : await SignUp(userData);
 
-      setToggleAlert(true);
-      setAlertMessage("Success!");
-      setError(false);
+      if (response.data) {
+        setToggleAlert(true);
+        setAlertMessage("Success!");
+        setError(false);
+      }
 
       if (!userId) {
         methods.setValue("firstName", "");
@@ -189,7 +190,7 @@ const Page = () => {
               }`}
             >
               <CustomButton
-                roleCodes={["1011", "1006"]}
+                roleCodes={userId ? ["1011"] : ["1006"]}
                 text={`${userId ? "Update" : "Create"}`}
                 type="submit"
               />

@@ -132,8 +132,8 @@ const Page = () => {
                   className="border w-full col-span-2 rounded p-3.5 bg-gray-100"
                   type="date"
                   id="startDateInput"
-                  value={selectedStartDate || ""} // Ensure controlled component
-                  onChange={handleStartDateChange} // Handling date change
+                  value={selectedStartDate || ""}
+                  onChange={handleStartDateChange}
                 />
               </div>
               <div className="grid grid-cols-3 items-center justify-between col-span-1 gap-4">
@@ -142,15 +142,15 @@ const Page = () => {
                   className="border w-full col-span-2 rounded p-3.5 bg-gray-100"
                   type="date"
                   id="endDateInput"
-                  value={selectedEndDate || ""} // Ensure controlled component
-                  onChange={handleEndDateChange} // Handling date change
+                  value={selectedEndDate || ""}
+                  onChange={handleEndDateChange}
                 />
               </div>
             </div>
 
             <CustomButton
               text={voucherId ? "Update" : "Create"}
-              roleCodes={["1009", "1014"]}
+              roleCodes={voucherId ? ["1014"] : ["1009"]}
               type="submit"
             />
           </Form>

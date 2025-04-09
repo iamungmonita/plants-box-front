@@ -1,5 +1,5 @@
 import { formattedTimeStamp } from "@/helpers/format/time";
-import { ProductResponse } from "@/models/Product";
+import { ProductResponse, ProductUpdateCount } from "@/models/Product";
 import Image from "next/image";
 
 export interface Column<T> {
@@ -53,38 +53,6 @@ export const columns: Column<ProductResponse>[] = [
     format: (value: number) => `$${value.toFixed(2)}`,
   },
   { id: "stock", label: "Stock", minWidth: 100 },
-  {
-    id: "isActive",
-    label: "Active",
-    minWidth: 100,
-    formatBoolean: (value: boolean) => {
-      return value ? (
-        <div className="flex gap-2 justify-start items-center">
-          <div
-            style={{
-              width: "8px",
-              height: "8px",
-              backgroundColor: "green",
-              borderRadius: "100%",
-            }}
-          ></div>
-          <p>Active</p>
-        </div>
-      ) : (
-        <div className="flex gap-2 justify-start items-center">
-          <div
-            style={{
-              width: "8px",
-              height: "8px",
-              backgroundColor: "red",
-              borderRadius: "100%",
-            }}
-          ></div>
-          <p>Inactive</p>
-        </div>
-      );
-    },
-  },
   {
     id: "isDiscountable",
     label: "Discountable",
@@ -146,4 +114,30 @@ export const columns: Column<ProductResponse>[] = [
 export const dashboard: Column<ProductResponse>[] = [
   { id: "name", label: "Name", minWidth: 170 },
   { id: "stock", label: "Stock", minWidth: 100 },
+];
+
+export const singleProductColumn: Column<ProductUpdateCount>[] = [
+  {
+    id: "updateNumber",
+    label: "Update No.",
+    minWidth: 100,
+  },
+  {
+    id: "oldStock",
+    label: "Old Stock",
+    minWidth: 100,
+  },
+  {
+    id: "addedStock",
+    label: "Added Stock",
+    minWidth: 100,
+  },
+
+  {
+    id: "updatedAt",
+    label: "Updated At",
+    minWidth: 170,
+    formatString: (value: string) =>
+      formattedTimeStamp(value, "YYYY MMM DD HH:mm:ss a"),
+  },
 ];

@@ -11,10 +11,9 @@ export const totalPage = <T,>(items: T[]): number => {
 const Pagination = <T extends ProductResponse>({ items }: { items: T[] }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
-  const currentItems = items.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const currentItems = items
+    .filter((item) => item.isActive)
+    .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
     <div>

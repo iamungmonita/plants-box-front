@@ -3,30 +3,30 @@
 import CustomButton from "@/components/Button";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
-import { useAuthContext } from "@/context/AuthContext";
-import {
-  CreateExpense,
-  getAllExpenses,
-  getExpenseById,
-  updateExpenseById,
-} from "@/services/system";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import AlertPopUp from "@/components/AlertPopUp";
-import { ExpenseForm } from "@/models/Expensese";
+import { ExpenseForm } from "@/models/Expense";
 import AutocompleteForm from "@/components/Autocomplete";
 import { expensesCategory } from "@/constants/Expense";
 import { useParams } from "next/navigation";
 import { formattedTimeStamp } from "@/helpers/format/time";
 import useFetch from "@/hooks/useFetch";
+import { useRouter } from "next/navigation";
+import {
+  CreateExpense,
+  getExpenseById,
+  updateExpenseById,
+} from "@/services/system";
+
 const Page = () => {
   const params = useParams();
   const [toggleAlert, setToggleAlert] = useState(false);
   const [error, setError] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [expenseId, setExpenseId] = useState("");
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const { data: expenses } = useFetch(getAllExpenses, {}, []);
+  const router = useRouter();
+
   const methods = useForm<ExpenseForm>({
     defaultValues: {
       category: "",
@@ -38,10 +38,36 @@ const Page = () => {
     },
   });
 
+  const expenseId = params?.expenseId as string;
+  const { asObject: expense, error: fetchError } = useFetch(
+    getExpenseById,
+    { params: { id: expenseId } },
+    [expenseId]
+  );
+
   useEffect(() => {
-    if (!params?.expenseId) return;
-    setExpenseId(params.expenseId as string);
-  }, [params]);
+    if (!expenseId) return;
+    if (expense) {
+      const selectedCategory = expensesCategory.find(
+        (category) => category.value === expense.category
+      );
+      if (selectedCategory) {
+        methods.setValue("category", selectedCategory.value ?? "");
+      }
+      methods.setValue("amount", expense.amount);
+      methods.setValue("supplier", expense.supplier);
+      methods.setValue("invoice", expense.invoice);
+      methods.setValue("remarks", expense.remarks);
+      setSelectedDate(formattedTimeStamp(expense.date as string, "YYYY-MM-DD"));
+    } else if (fetchError) {
+      setAlertMessage(fetchError);
+      setError(true);
+      setToggleAlert(true);
+      setTimeout(() => {
+        router.back();
+      }, 3000);
+    }
+  }, [params, expense, fetchError]);
 
   const onSubmitForm = async (form: ExpenseForm) => {
     try {
@@ -53,10 +79,7 @@ const Page = () => {
         ? await updateExpenseById(expenseId, newForm)
         : await CreateExpense(newForm);
 
-      if (response.data) {
-        setToggleAlert(true);
-        setError(false);
-        setAlertMessage("Success!");
+      if (response.data && !expenseId) {
         methods.setValue("category", "");
         methods.setValue("amount", 0);
         methods.setValue("supplier", "");
@@ -64,37 +87,15 @@ const Page = () => {
         methods.setValue("invoice", "");
         setSelectedDate(null);
       }
+      setToggleAlert(true);
+      setError(false);
+      setAlertMessage("Success!");
     } catch (error: any) {
       setToggleAlert(true);
       setError(true);
       setAlertMessage(error.message);
     }
   };
-
-  useEffect(() => {
-    if (!expenseId) return;
-    const fetch = async () => {
-      const response = await getExpenseById(expenseId);
-      if (response.data) {
-        const selectedCategory = expensesCategory.find(
-          (expense) => expense.value === response.data?.category
-        );
-        if (selectedCategory) {
-          methods.setValue("category", selectedCategory.value ?? "");
-        }
-        methods.setValue("amount", response.data.amount);
-        methods.setValue("supplier", response.data.supplier);
-        methods.setValue("invoice", response.data.invoice);
-        methods.setValue("remarks", response.data.remarks);
-        setSelectedDate(
-          formattedTimeStamp(response.data.date as string, "YYYY-MM-DD")
-        );
-      } else {
-        console.log("error retrieving role.");
-      }
-    };
-    fetch();
-  }, [expenseId]);
 
   const handleDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = event.target.value;
@@ -112,7 +113,7 @@ const Page = () => {
       <div className="flex justify-center items-center min-h-screen w-full">
         <div className="max-w-[500px] w-full">
           <h2 className="text-center font-semibold text-lg uppercase mb-5">
-            Create Expense
+            {expenseId ? "Update" : "Create"} Expense
           </h2>
           <Form
             methods={methods}
@@ -148,7 +149,11 @@ const Page = () => {
               type="text"
               label="Remarks"
             />
-            <CustomButton roleCodes={["1005"]} text="Create" type="submit" />
+            <CustomButton
+              roleCodes={expenseId ? ["1010"] : ["1005"]}
+              text={expenseId ? "Update" : "Creates"}
+              type="submit"
+            />
           </Form>
         </div>
       </div>

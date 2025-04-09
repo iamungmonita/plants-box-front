@@ -8,7 +8,7 @@ import { ILayout } from "@/models/Layout";
 import { IAuthRegister, Profile } from "@/models/Auth";
 import { queryParam } from "@/models/Layout";
 import { VoucherForm, VoucherResponse } from "@/models/Voucher";
-import { ExpenseForm, ExpenseResponse } from "@/models/Expensese";
+import { ExpenseForm, ExpenseResponse } from "@/models/Expense";
 
 export function CreateRole(form: IRole): Promise<ILayout<IRoleResponse>> {
   const url = `${API_URL}/system/create`;
@@ -36,8 +36,17 @@ export function CreateExpense(
   return POSTWithToken<ILayout<ExpenseResponse>, ExpenseForm>(url, form);
 }
 
-export function getExpenseById(id: string): Promise<ILayout<ExpenseResponse>> {
-  const url = `${API_URL}/system/retrieve-expenses/` + id;
+export interface ApiOptions {
+  params?: { id?: string; purchasedId?: string };
+  queryParam?: queryParam;
+}
+export function getExpenseById({
+  params,
+}: ApiOptions): Promise<ILayout<ExpenseResponse>> {
+  if (!params?.id) {
+    throw new Error("Expense ID is required"); // Ensure an ID is provided
+  }
+  const url = `${API_URL}/system/retrieve-expenses/${params.id}`; // Dynamically use `id`
   return GETWithToken<ILayout<ExpenseResponse>>(url);
 }
 
@@ -67,17 +76,17 @@ export function getVoucherById(id: string): Promise<ILayout<VoucherResponse>> {
   return GETWithToken<ILayout<VoucherResponse>>(url);
 }
 
-export function getRoles(): Promise<ILayout<IRoleResponse[]>> {
+export function getRoles(): Promise<ILayout<IRoleResponse>> {
   const url = `${API_URL}/system/retrieve`;
-  return GETWithToken<ILayout<IRoleResponse[]>>(url);
+  return GETWithToken<ILayout<IRoleResponse>>(url);
 }
-export function getAllExpenses(): Promise<ILayout<ExpenseResponse[]>> {
+export function getAllExpenses(): Promise<ILayout<ExpenseResponse>> {
   const url = `${API_URL}/system/retrieve-expenses`;
-  return GETWithToken<ILayout<ExpenseResponse[]>>(url);
+  return GETWithToken<ILayout<ExpenseResponse>>(url);
 }
-export function getMonthlyExpense(): Promise<ILayout<ExpenseResponse[]>> {
+export function getMonthlyExpense(): Promise<ILayout<ExpenseResponse>> {
   const url = `${API_URL}/system/expenses/monthly`;
-  return GETWithToken<ILayout<ExpenseResponse[]>>(url);
+  return GETWithToken<ILayout<ExpenseResponse>>(url);
 }
 
 export function getAllVouchers(

@@ -29,7 +29,10 @@ const POSCard = ({ product }: { product: ProductResponse }) => {
         />
       </div>
       <div className="p-4 flex flex-col justify-between h-[40%]">
-        <h2 className="text-xl max-md:text-lg font-semibold">{product.name}</h2>
+        {!product.isDiscountable && (
+          <p className="text-sm text-red-500">Non-Discountable</p>
+        )}
+        <h2 className="text-lg font-semibold">{product.name}</h2>
         <div className="flex items-center justify-between">
           <div>
             <p className="md:text-lg">

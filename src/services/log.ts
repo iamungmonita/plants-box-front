@@ -26,7 +26,7 @@ export function createLog(form: ILog): Promise<ILayout<ILogResponse>> {
   const url = `${API_URL}/log`;
   return POSTWithToken<ILayout<ILogResponse>, ILog>(url, form);
 }
-export function getLogs(): Promise<ILayout<ILogResponse[]>> {
+export function getLogs(): Promise<ILayout<ILogResponse>> {
   const url = `${API_URL}/log/retrieve`;
-  return GETWithToken<ILayout<ILogResponse[]>>(url);
+  return GETWithToken<ILayout<ILogResponse>>(url);
 }

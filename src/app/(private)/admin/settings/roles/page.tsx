@@ -1,30 +1,17 @@
 "use client";
 
 import ReusableTable from "@/components/Table";
-
 import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { columns } from "@/constants/TableHead/Role";
 import { getRoles } from "@/services/system";
 import CustomButton from "@/components/Button";
 import { IRoleResponse } from "@/models/Roles";
 import { useRouter } from "next/navigation";
-const Page = () => {
-  const [roles, setRoles] = useState<IRoleResponse[]>([]);
-  const methods = useForm();
-  const router = useRouter();
-  useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        const response = await getRoles();
-        setRoles(response.data ?? []);
-      } catch (error) {
-        console.error("Error uploading:", error);
-      }
-    };
-    fetchRoles();
-  }, []);
+import useFetch from "@/hooks/useFetch";
 
+const Page = () => {
+  const { data: roles } = useFetch(getRoles, {}, []);
+  const router = useRouter();
   return (
     <div className="flex flex-col min-h-screen justify-start gap-4">
       <div className="flex items-center justify-between gap-4">
@@ -40,7 +27,7 @@ const Page = () => {
       <div>
         <ReusableTable
           columns={columns}
-          data={roles}
+          data={roles.filter((role) => role.isActive)}
           onRowClick={(row) => router.push(`/admin/settings/roles/${row._id}`)}
         />
       </div>

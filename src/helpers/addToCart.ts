@@ -5,7 +5,7 @@ import { ICheckout } from "@/models/Order";
 
 export const addToCart = async (id: string, productType: string = "plants") => {
   try {
-    const productData = await getProductById(id);
+    const productData = await getProductById({ params: { id: id } });
     if (productData.data) {
       const { _id, price, stock, name, isDiscountable, pictures } =
         productData.data;
@@ -142,7 +142,7 @@ export const handleOrder = async (data: ICheckout) => {
 
 export const placeOrder = async (data: ICheckout) => {
   for (const item of data.items) {
-    const product = await getProductById(item._id);
+    const product = await getProductById({ params: { id: item._id } });
     if (product.data) {
       if (product.data.stock < item.quantity) {
         return false;

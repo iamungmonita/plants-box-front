@@ -5,7 +5,6 @@ import Checkbox from "@/components/Checkbox";
 import CheckboxGroup from "@/components/CheckboxGroup";
 import Form from "@/components/Form";
 import InputField from "@/components/InputText";
-import { useAuthContext } from "@/context/AuthContext";
 import { CreateRole, getRoleById, updateRoleById } from "@/services/system";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -33,7 +32,6 @@ const Page = () => {
     setRoleId(params.roleId as string);
   }, [params]);
 
-  // const { profile } = useAuthContext();
   const onSubmitForm = async (form: IRole) => {
     const response = roleId
       ? await updateRoleById(roleId, form)
@@ -49,7 +47,7 @@ const Page = () => {
       if (!roleId) {
         methods.setValue("name", "");
         methods.setValue("remark", "");
-        methods.setValue("codes", []); // Reset the permissions (CheckboxGroup)
+        methods.setValue("codes", []);
         methods.setValue("isActive", true);
       }
     }
@@ -100,7 +98,7 @@ const Page = () => {
             <CheckboxGroup />
             <div className="w-2/5 mx-auto">
               <CustomButton
-                roleCodes={["1007", "1012"]}
+                roleCodes={roleId ? ["1012"] : ["1007"]}
                 text={roleId ? "Update" : "Create"}
                 type="submit"
               />

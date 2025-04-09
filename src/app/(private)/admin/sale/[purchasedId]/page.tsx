@@ -18,7 +18,7 @@ import {
 } from "@/constants/Status";
 import { TfiPrinter } from "react-icons/tfi";
 import BasicModal from "@/components/Modal";
-import ConfirmOrder from "@/components/Modals/ConfirOrder";
+import ConfirmOrder from "@/components/Modals/ConfirmOrder";
 import {
   getAllProducts,
   UpdateCancelledProductById,
@@ -34,6 +34,19 @@ const Page = () => {
   const [refresh, setRefresh] = useState<boolean>(false);
   const [toggleModal, setToggleModal] = useState<boolean>(false);
   const { data: products } = useFetch(getAllProducts, {}, []);
+
+  const getStatusClass = (statusOrder: number) => {
+    switch (statusOrder) {
+      case OrderStatus.PENDING:
+        return "text-yellow-600 bg-yellow-100 px-3 rounded-lg";
+      case OrderStatus.COMPLETE:
+        return "text-green-600 bg-green-100 px-3 rounded-lg";
+      case OrderStatus.CANCELLED:
+        return "text-red-600 bg-red-100 px-3 rounded-lg";
+      default:
+        return "text-gray-600 bg-gray-100 px-3 rounded-lg";
+    }
+  };
 
   useEffect(() => {
     if (!params?.purchasedId) return;
@@ -61,18 +74,6 @@ const Page = () => {
     fetchProduct();
   }, [purchasedId, refresh]);
 
-  const getStatusClass = (statusOrder: number) => {
-    switch (statusOrder) {
-      case OrderStatus.PENDING:
-        return "text-yellow-600 bg-yellow-100 px-3 rounded-lg";
-      case OrderStatus.COMPLETE:
-        return "text-green-600 bg-green-100 px-3 rounded-lg";
-      case OrderStatus.CANCELLED:
-        return "text-red-600 bg-red-100 px-3 rounded-lg";
-      default:
-        return "text-gray-600 bg-gray-100 px-3 rounded-lg";
-    }
-  };
   const onHandleCancel = async (id: string) => {
     await cancelOrderById(id);
     if (order?.orders) {
@@ -99,9 +100,9 @@ const Page = () => {
   };
   const onHandleAction = async (id: string) => {
     if (order?.orderStatus === OrderStatus.CANCELLED) {
-      await onHandleRetrieve(id); // Ensure you await this async function call
+      await onHandleRetrieve(id);
     } else if (order?.orderStatus === OrderStatus.COMPLETE) {
-      await onHandleCancel(id); // Ensure you await this async function call
+      await onHandleCancel(id);
     }
     setToggleModal(false);
     setRefresh((prev) => !prev);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import useFetch from "@/hooks/useFetch";
 import {
   BarChart,
@@ -14,21 +14,6 @@ import { Card, CardContent, Typography } from "@mui/material";
 import { getMonthlyExpense } from "@/services/system";
 import moment from "moment";
 import { getMonthlySale } from "@/services/order";
-
-// const data = [
-//   { month: "Jan", expense: 1200 },
-//   { month: "Feb", expense: 950 },
-//   { month: "Mar", expense: 1600 },
-//   { month: "Apr", expense: 1100 },
-//   { month: "May", expense: 1400 },
-//   { month: "Jun", expense: 1250 },
-//   { month: "Jul", expense: 1700 },
-//   { month: "Aug", expense: 1300 },
-//   { month: "Sep", expense: 1500 },
-//   { month: "Oct", expense: 1450 },
-//   { month: "Nov", expense: 1350 },
-//   { month: "Dec", expense: 1550 },
-// ];
 
 const BarChartComponent = () => {
   const { data: expenses } = useFetch(getMonthlyExpense, {}, []);

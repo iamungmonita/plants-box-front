@@ -81,21 +81,19 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } catch (error) {
       signOut();
-      console.log("hi this is error: ", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    const accessToken = getAccessToken();
-    if (accessToken) {
+    try {
+      getAccessToken();
       const abortController = new AbortController();
       fetchProfile(abortController);
       return () => abortController.abort();
+    } catch (error: any) {
+      setIsAuthenticated(false);
+      setMessage(error.message);
     }
-    setIsLoading(false);
-    router.push("/auth/sign-in");
   }, [isRefresh, pathname]);
 
   const signIn = () => {
@@ -131,10 +129,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const onRefresh = useCallback(() => {
     setIsRefresh((prev) => !prev);
   }, [pathname]);
-
-  if (isLoading) {
-    return <></>;
-  }
 
   return (
     <AuthContext.Provider

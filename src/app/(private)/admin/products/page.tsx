@@ -2,7 +2,6 @@
 import AutocompleteForm from "@/components/Autocomplete";
 import Form from "@/components/Form";
 import ReusableTable from "@/components/Table";
-import { useAuthContext } from "@/context/AuthContext";
 import { getAllProducts } from "@/services/products";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
@@ -12,43 +11,51 @@ import { categories } from "@/constants/AutoComplete";
 import CustomButton from "@/components/Button";
 import InputField from "@/components/InputText";
 import { ProductResponse } from "@/models/Product";
+import useFetch from "@/hooks/useFetch";
+import AlertPopUp from "@/components/AlertPopUp";
 
 const Page = () => {
   const router = useRouter();
-  const [products, setProducts] = useState<ProductResponse[]>([]);
-
+  const [toggleAlert, setToggleAlert] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const methods = useForm({
     defaultValues: {
-      name: undefined,
-      category: undefined,
+      name: "",
+      category: "",
     },
   });
   const { watch, setValue } = methods;
   const name = watch("name");
   const category = watch("category");
 
+  const { data: products, error: fetchError } = useFetch(
+    getAllProducts,
+    { queryParam: { search: name, category } },
+    [name, category]
+  );
+
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await getAllProducts({
-          search: name,
-          category,
-        });
-        setProducts(response?.data ?? []);
-      } catch (error) {
-        console.error("Error uploading:", error);
-      }
-    };
-    fetchProduct();
-  }, [name, category]);
+    if (fetchError) {
+      setAlertMessage(fetchError);
+      setToggleAlert(true);
+      setError(true);
+    }
+  }, [fetchError]);
 
   const onClear = () => {
-    setValue("category", undefined);
-    setValue("name", undefined);
+    setValue("category", "");
+    setValue("name", "");
   };
 
   return (
     <div className="flex flex-col min-h-screen justify-start gap-4">
+      <AlertPopUp
+        open={toggleAlert}
+        onClose={() => setToggleAlert(false)}
+        message={alertMessage}
+        error={error}
+      />
       <div className="flex items-center justify-between gap-4">
         <h2 className="font-semibold text-xl">Products</h2>
         <div className="w-52">
@@ -76,7 +83,7 @@ const Page = () => {
       <div>
         <ReusableTable
           columns={columns}
-          data={products}
+          data={products.filter((product) => product.isActive)}
           onRowClick={(row) => router.push(`/admin/products/${row._id}`)}
         />
       </div>
