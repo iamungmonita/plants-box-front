@@ -103,7 +103,7 @@ const Membership = ({ onClose }: { onClose?: () => void }) => {
         <div className="col-span-4">
           <AutocompleteForm
             name="phoneNumber"
-            label="Phone Number"
+            label="Search by phone number"
             options={membership.map((member) => ({
               label: `${member.phoneNumber} (${member.type})`,
               value: member.phoneNumber,

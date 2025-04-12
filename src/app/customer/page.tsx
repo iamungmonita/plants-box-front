@@ -4,6 +4,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import LocalTime from "@/components/RealTime";
 import CustomerCard from "@/components/CustomerCard";
+import BasicModal from "@/components/Modal";
+import PaymentQRCode from "@/components/Modals/QRcode";
 
 export interface PaymentSummary {
   total: number;
@@ -13,6 +15,7 @@ export interface PaymentSummary {
   paidAmount: number;
   amount: number;
   changeAmount: number;
+  toggle: boolean;
 }
 
 const Page = () => {
@@ -50,8 +53,16 @@ const Page = () => {
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, [getPaymentSummary]);
+
   return (
     <div className="max-w-7xl gap-4 w-full mx-auto">
+      {paymentSummary?.toggle && (
+        <BasicModal
+          ContentComponent={PaymentQRCode}
+          open={paymentSummary.toggle}
+          text={String(paymentSummary?.total)}
+        />
+      )}
       <div className="w-full flex justify-between items-center">
         <div className="relative w-[150px] flex justify-center h-[100px]">
           <Image

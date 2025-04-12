@@ -1,9 +1,10 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import Image from "next/image";
 import CustomButton from "../../Button";
 import { aba_acc, aba_baseUrl, aba_code, aba_id } from "@/utils/config";
-
+import { usePathname } from "next/navigation";
 const PaymentQRCode = ({
   onClose,
   onAction,
@@ -22,7 +23,7 @@ const PaymentQRCode = ({
 
   const [countdown, setCountdown] = useState(30);
   const [toggle, setToggle] = useState(true);
-
+  const pathname = usePathname();
   useEffect(() => {
     setCountdown(30);
     setToggle(true);
@@ -70,10 +71,16 @@ const PaymentQRCode = ({
             </p>
             <p className="text-red-500">{countdown} seconds remaining</p>
           </div>
-          <div className="grid grid-cols-2 gap-4 my-5">
-            <CustomButton text="Complete" onHandleButton={onAction} />
-            <CustomButton theme="alarm" text="Close" onHandleButton={onClose} />
-          </div>
+          {pathname !== "/customer" && (
+            <div className="grid grid-cols-2 gap-4 my-5">
+              <CustomButton text="Complete" onHandleButton={onAction} />
+              <CustomButton
+                theme="alarm"
+                text="Close"
+                onHandleButton={onClose}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

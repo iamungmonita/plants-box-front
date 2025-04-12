@@ -118,6 +118,7 @@ const Page = () => {
     setTotalAmount(amount - (point !== 0 ? point : value));
     setPaymentSummary({
       amount: amount,
+      toggle: toggleQRCode,
       total: amount - (point !== 0 ? point : value),
       point: totalDiscountPercentage > 0 ? 0 : point,
       discount: totalDiscountPercentage,
@@ -125,7 +126,14 @@ const Page = () => {
       changeAmount: changeAmount || 0,
       paidAmount: paidAmount || 0,
     });
-  }, [items, points, totalDiscountPercentage, changeAmount, paidAmount]);
+  }, [
+    items,
+    points,
+    totalDiscountPercentage,
+    changeAmount,
+    paidAmount,
+    toggleQRCode,
+  ]);
 
   useEffect(() => {
     if (!items || items.length === 0) return;
@@ -524,14 +532,18 @@ const Page = () => {
               theme={`${
                 items.length <= 0 ||
                 paymentMethod === "" ||
-                paymentMethod === "khqr"
+                paymentMethod === "khqr" ||
+                (paymentMethod === "cash" && paidAmount === 0) ||
+                (paymentMethod === "cash" && paidAmount < totalAmount)
                   ? "dark"
                   : ""
               }`}
               disabled={
                 items.length <= 0 ||
                 paymentMethod === "khqr" ||
-                paymentMethod === ""
+                paymentMethod === "" ||
+                (paymentMethod === "cash" && paidAmount === 0) ||
+                (paymentMethod === "cash" && paidAmount < totalAmount)
               }
               onHandleButton={() => setToggleConfirmOrder(true)}
               text="Place Order"

@@ -139,8 +139,8 @@ const MoneyCounter = () => {
       </div>
       <CustomButton
         type="submit"
-        theme={`${(!canProceed || loading) && "dark"}`}
-        disabled={!canProceed || loading}
+        theme={loading ? "dark" : "default"}
+        disabled={loading}
         text={loading ? "Loading" : "Proceed"}
       />
     </Form>
