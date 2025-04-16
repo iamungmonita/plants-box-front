@@ -16,7 +16,7 @@ import { PaymentOptions } from "@/constants/Options";
 import { useAuthContext } from "@/context/AuthContext";
 import { getAllProducts } from "@/services/products";
 import { useCartItems } from "@/hooks/useCartItems";
-import { clearLocalStorage, placeOrder } from "@/helpers/addToCart";
+import { addToCart, clearLocalStorage, placeOrder } from "@/helpers/addToCart";
 import generateNextOrderId from "@/helpers/generateOrderId";
 import HorizontalLinearStepper from "@/components/Step";
 import BasicModal from "@/components/Modal";
@@ -40,14 +40,18 @@ import { useVoucher } from "@/hooks/useVoucher";
 import { MembershipType } from "@/constants/membership";
 import AlertPopUp from "@/components/AlertPopUp";
 import Link from "next/link";
+import DiscountPermission from "@/components/Modals/DiscountPermission";
+import BarcodeScannerComponent from "react-qr-barcode-scanner";
 
 const Page = () => {
+  const { profile, isValidated, invalidation } = useAuthContext();
   const [orderId, setOrderId] = useState<string>("PO-00001");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [totalDiscountValue, setTotalDiscountValue] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [payment, setPayment] = useState("");
   const [toggleConfirmOrder, setToggleConfirmOrder] = useState(false);
+  const [togglePermission, setTogglePermission] = useState(false);
   const [toggleMembership, setToggleMembership] = useState(false);
   const [toggleQRCode, setToggleQRCode] = useState(false);
   const [toggleVoucher, setToggleVoucher] = useState(false);
@@ -57,12 +61,14 @@ const Page = () => {
     useState<number>(0);
   const [paidAmount, setPaidAmount] = useState<number>(0);
   const [changeAmount, setChangeAmount] = useState<number>(0);
+  const [scannedBarcode, setScannedBarcode] = useState<string | null>(null);
   const [paymentSummary, setPaymentSummary] = useState(() => {
     if (typeof window === "undefined") return {};
     return JSON.parse(localStorage.getItem("paymentSummary") || "{}") || {};
   });
   const [error, setError] = useState(false);
   const [toggleAlert, setToggleAlert] = useState(false);
+  const [hasPermission, setHasPermission] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const { value, percentage } = useDiscount();
   const methods1 = useForm({ defaultValues: { barcode: "", category: "" } });
@@ -76,12 +82,16 @@ const Page = () => {
   const { barcode, category } = methods1.watch();
   const { heldCart } = methods2.watch();
   const { discount, points } = methods3.watch();
-  const { profile } = useAuthContext();
 
   useEffect(() => {
     const orderId = localStorage.getItem("lastOrderId") ?? "PO-00001";
     setOrderId(orderId);
   }, []);
+  useEffect(() => {
+    if (scannedBarcode !== null) {
+      addToCart(scannedBarcode);
+    }
+  }, [scannedBarcode]);
 
   useEffect(() => {
     restoreHeldCart(heldCart);
@@ -94,7 +104,6 @@ const Page = () => {
   const updatedHeldOrders = carts.filter(
     (cart: IHold) => cart.orderId !== orderId
   );
-
   const { data: products = [] } = useFetch<ProductResponse>(
     getAllProducts,
     { queryParam: { category, search: barcode } },
@@ -153,6 +162,7 @@ const Page = () => {
     setTotalDiscountValue(0);
     setTotalPoints(0);
     setPayment("");
+    invalidation();
     localStorage.removeItem("voucher");
     window.dispatchEvent(new Event("voucherUpdated"));
     localStorage.removeItem("membership");
@@ -206,11 +216,7 @@ const Page = () => {
       onRemoveHoldOrder();
       return;
     }
-    setToggleConfirmOrder(false);
-    window.open(`/print/${orderId}`, "_blank", "width=800,height=600");
-    window.addEventListener("windowClosed", () => {
-      window.close();
-    });
+
     if (member && payment === MembershipType.POINT) {
       await updateMembershipPointByPhoneNumber(member.phone, {
         points: amountToPoint(totalAmount),
@@ -221,6 +227,8 @@ const Page = () => {
       await updateVoucherByBarcode(storedVoucher?.barcode as string);
     }
     await localStorage.setItem("heldOrders", JSON.stringify(updatedHeldOrders));
+    setToggleConfirmOrder(false);
+    window.open(`/print/${orderId}`, "_blank", "width=800,height=600");
     setOrderId(generateNextOrderId());
     onRefresh();
   };
@@ -279,7 +287,15 @@ const Page = () => {
     methods1.setValue("barcode", "");
     methods1.setValue("category", "");
   };
-
+  const closePermissionModal = () => {
+    setTogglePermission(false);
+  };
+  useEffect(() => {
+    if (hasPermission !== isValidated) {
+      setHasPermission(isValidated);
+      console.log("permission", isValidated);
+    }
+  }, [isValidated]);
   const clearMembership = () => {
     localStorage.removeItem("membership");
 
@@ -408,6 +424,14 @@ const Page = () => {
             text={String(totalAmount)}
           />
         )}
+        {togglePermission && (
+          <BasicModal
+            ContentComponent={DiscountPermission}
+            onClose={closePermissionModal}
+            open={togglePermission}
+            text={"Validation"}
+          />
+        )}
         {toggleConfirmOrder && (
           <BasicModal
             ContentComponent={ConfirmOrder}
@@ -459,12 +483,21 @@ const Page = () => {
                 member && member.point ? "col-span-3" : "col-span-5"
               } w-full`}
             >
-              <InputField
-                name="discount"
-                label="Discount"
-                disabled={items.length === 0}
-                type="number"
-              />
+              {hasPermission ? (
+                <InputField
+                  name="discount"
+                  label="Apply Discount"
+                  disabled={items.length === 0}
+                  type="number"
+                  isPercentage={true}
+                />
+              ) : (
+                <CustomButton
+                  text="Apply Discount"
+                  onHandleButton={() => setTogglePermission(true)}
+                  theme="general"
+                />
+              )}
             </div>
 
             {member && member.point && (

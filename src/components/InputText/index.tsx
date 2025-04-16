@@ -13,6 +13,7 @@ interface InputFieldProps {
   allowDecimals?: boolean; // New prop to control decimals
   onBlur?: () => void;
   disabled?: boolean;
+  isPercentage?: boolean;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -24,6 +25,8 @@ const InputField: React.FC<InputFieldProps> = ({
   minRows = 1,
   placeholder,
   allowDecimals = true, // Default to whole numbers
+  isPercentage = false, // default is false
+
   onBlur,
 }) => {
   const { control } = useFormContext();
@@ -51,6 +54,7 @@ const InputField: React.FC<InputFieldProps> = ({
           helperText={fieldState.error?.message}
           InputLabelProps={{ shrink: true }}
           inputProps={{
+            max: type === "number" && isPercentage ? 100 : undefined,
             min: type === "number" ? 0 : undefined,
             step: allowDecimals ? "0.01" : "1", // Dynamic step
           }}
@@ -61,17 +65,24 @@ const InputField: React.FC<InputFieldProps> = ({
             if (type === "number") {
               const regex = allowDecimals ? /^\d*\.?\d*$/ : /^\d*$/; // Allow decimals if enabled
               if (!regex.test(value)) return;
+              if (isPercentage && parseFloat(value) > 100) return;
             }
 
             field.onChange(value);
           }}
           onBlur={(e) => {
             if (type === "number") {
-              const numericValue = allowDecimals
+              let numericValue = allowDecimals
                 ? parseFloat(e.target.value) || 0
-                : parseInt(e.target.value, 10) || 0; // Convert to int or float
+                : parseInt(e.target.value, 10) || 0;
+
+              if (isPercentage && numericValue > 100) {
+                numericValue = 100;
+              }
+
               field.onChange(numericValue);
             }
+
             field.onBlur();
             if (onBlur) onBlur();
           }}

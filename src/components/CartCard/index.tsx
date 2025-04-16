@@ -29,6 +29,8 @@ const CartCard = <T extends ShoppingCartProduct>({
       onRemove(id);
     }
   };
+  const discountedValue =
+    (item.price * item.quantity * Number(item.discount)) / 100;
   return (
     <>
       <td className="pt-2 pb-3 flex items-center justify-between">
@@ -49,7 +51,7 @@ const CartCard = <T extends ShoppingCartProduct>({
         </span>
         <button
           disabled={item.stock <= 0}
-          onClick={() => addToCart(item._id, "plants")}
+          onClick={() => addToCart(item.barcode, "plants")}
           className="text-xl px-2 shadow-md border rounded"
         >
           +
@@ -72,7 +74,9 @@ const CartCard = <T extends ShoppingCartProduct>({
         />
       </td>
       <td className="pt-2 pb-3 grid grid-cols-2 w-full min-w-[120px] items-center">
-        <span>${(item.price * item.quantity).toFixed(2)}</span>
+        <span>
+          ${(item.price * item.quantity - discountedValue).toFixed(2)}
+        </span>
         <span className="text-end cursor-pointer">
           <MdClose onClick={() => onHandleRemove(item._id)} />
         </span>

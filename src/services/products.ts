@@ -24,6 +24,12 @@ export function getProductById({
   const url = `${API_URL}/product/${params?.id}`;
   return GETWithToken<ILayout<ProductResponse>>(url);
 }
+export function getProductByBarcode({
+  params,
+}: ApiOptions): Promise<ILayout<ProductResponse>> {
+  const url = `${API_URL}/product/product-barcode/${params?.barcode}`;
+  return GETWithToken<ILayout<ProductResponse>>(url);
+}
 
 //POST
 export function AddNewProduct(

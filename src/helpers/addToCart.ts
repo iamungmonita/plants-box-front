@@ -1,13 +1,22 @@
-import { getProductById, updateProductStockById } from "@/services/products";
+import {
+  getProductByBarcode,
+  getProductById,
+  updateProductStockById,
+} from "@/services/products";
 import { ShoppingCartProduct } from "@/models/Cart";
 import { CreateOrder } from "@/services/order";
 import { ICheckout } from "@/models/Order";
 
-export const addToCart = async (id: string, productType: string = "plants") => {
+export const addToCart = async (
+  barcode: string,
+  productType: string = "plants"
+) => {
   try {
-    const productData = await getProductById({ params: { id: id } });
+    const productData = await getProductByBarcode({
+      params: { barcode: barcode },
+    });
     if (productData.data) {
-      const { _id, price, stock, name, isDiscountable, pictures } =
+      const { _id, price, stock, name, barcode, isDiscountable, pictures } =
         productData.data;
       const storedItems: ShoppingCartProduct[] = JSON.parse(
         localStorage.getItem(productType) || "[]"
@@ -15,7 +24,7 @@ export const addToCart = async (id: string, productType: string = "plants") => {
 
       // Find if the item is already in the cart
       const existingItemIndex = storedItems.findIndex(
-        (item) => item._id === id
+        (item) => item.barcode === barcode
       );
       if (existingItemIndex !== -1) {
         if (storedItems[existingItemIndex].quantity >= stock) {
@@ -35,6 +44,7 @@ export const addToCart = async (id: string, productType: string = "plants") => {
           isDiscountable,
           convertedPoints: 0,
           pictures,
+          barcode,
         });
       }
       localStorage.setItem(productType, JSON.stringify(storedItems));
@@ -142,7 +152,9 @@ export const handleOrder = async (data: ICheckout) => {
 
 export const placeOrder = async (data: ICheckout) => {
   for (const item of data.items) {
-    const product = await getProductById({ params: { id: item._id } });
+    const product = await getProductByBarcode({
+      params: { barcode: item.barcode },
+    });
     if (product.data) {
       if (product.data.stock < item.quantity) {
         return false;

@@ -8,5 +8,5 @@ export const routePermissions: Record<string, string[]> = {
   "/admin/expense/create": ["1005"],
   "/admin/expense/:expenseId": ["1010"],
   "/admin/products/create": ["1000", "1001"],
-  // Add more as needed
+  "/admin/products": ["1017"],
 };

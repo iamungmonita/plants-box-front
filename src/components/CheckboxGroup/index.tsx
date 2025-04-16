@@ -11,6 +11,7 @@ type FormValues = {
 
 // Updated options with labels & values
 const options: Option[] = [
+  { label: "Can View Products", value: "1017" },
   { label: "Can Create Product", value: "1000" },
   { label: "Can Edit Product", value: "1001" },
   { label: "Can Cancel & Retrieve Order", value: "1002" },

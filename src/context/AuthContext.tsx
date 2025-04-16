@@ -14,8 +14,11 @@ import React, {
 
 export interface AuthContextType {
   isAuthenticated: boolean;
+  isValidated: boolean;
   signIn: () => void;
   signUp: () => void;
+  validation: () => void;
+  invalidation: () => void;
   isAuthorized: (roleCodes?: string[], profileRoles?: string[]) => boolean; // Check if user has the required role
   getRouteAuthorization: (
     roleCodes?: string[],
@@ -40,6 +43,7 @@ export const useAuthContext = () => {
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isValidated, setIsValidated] = useState<boolean>(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -103,6 +107,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signUp = () => {
     setIsAuthenticated(true);
   };
+  const validation = () => {
+    setIsValidated(true);
+  };
+  const invalidation = () => {
+    setIsValidated(false);
+  };
 
   const signOut = async () => {
     try {
@@ -133,6 +143,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <AuthContext.Provider
       value={{
+        isValidated,
         isAuthenticated,
         isAuthorized,
         getRouteAuthorization,
@@ -140,6 +151,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         signUp,
         signOut,
         onRefresh,
+        validation,
+        invalidation,
         profile,
         message,
       }}

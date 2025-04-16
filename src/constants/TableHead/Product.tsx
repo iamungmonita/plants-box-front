@@ -103,11 +103,11 @@ export const columns: Column<ProductResponse>[] = [
     minWidth: 100,
     formatString: (value: any) => [value?.firstName].join(" "),
   },
+
   {
-    id: "updatedAt",
-    label: "Updated At",
+    id: "remark",
+    label: "Remark",
     minWidth: 100,
-    formatString: (value: string) => formattedTimeStamp(value, "YYYY MMM DD"),
   },
 ];
 

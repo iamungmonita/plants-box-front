@@ -169,16 +169,16 @@ const Page = () => {
           {!userId && (
             <InputField name="password" type="password" label="Password" />
           )}
-          {profile?.codes.includes("1006") && (
-            <AutocompleteForm
-              options={roles.map((option) => ({
-                label: `${option.name}`,
-                value: `${option._id}`,
-              }))}
-              name="role"
-              label="Role"
-            />
-          )}
+          {/* {profile?.codes.includes("1006") && ( */}
+          <AutocompleteForm
+            options={roles.map((option) => ({
+              label: `${option.name}`,
+              value: `${option._id}`,
+            }))}
+            name="role"
+            label="Role"
+          />
+          {/* )} */}
 
           <Checkbox name="isActive" label="Active" />
           <ImageUpload

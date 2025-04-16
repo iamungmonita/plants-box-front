@@ -34,16 +34,12 @@ const Page = () => {
   const onSubmitForm = async (data: IAuthLogIn) => {
     try {
       const response = await SignIn(data);
-
       if (response.data) {
         if (response.data.token) {
           const authTokenKey =
             process.env.NEXT_PUBLIC_AUTH_TOKEN || "auth_token";
           localStorage.setItem(authTokenKey, response.data.token);
-        } else {
-          console.error("Token is missing in response data.");
         }
-
         signIn();
         onRefresh();
         if (response.data.initialLog) {
@@ -54,16 +50,9 @@ const Page = () => {
         }
       }
     } catch (error: any) {
-      if (error) {
-        setToggleAlert(true);
-        setAlertMessage(error.message);
-        setError(true);
-        return;
-      }
       setToggleAlert(true);
-      setAlertMessage("Network error, please try again");
+      setAlertMessage(error.message);
       setError(true);
-      return;
     }
   };
 
