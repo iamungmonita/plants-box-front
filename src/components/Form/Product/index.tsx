@@ -33,6 +33,7 @@ export const CreateForm = ({ createId }: { createId: string }) => {
       stock: 0,
       importedPrice: 0,
       barcode: "",
+      remark: "",
     },
     resolver: yupResolver(ProductSchema),
   });
@@ -62,6 +63,7 @@ export const CreateForm = ({ createId }: { createId: string }) => {
       setValue("barcode", product.barcode);
       setValue("isActive", product.isActive);
       setValue("isDiscountable", product.isDiscountable);
+      setValue("remark", product.remark);
       setValue("importedPrice", product.importedPrice);
       if (product.pictures) {
         setValue("pictures", product.pictures as unknown as string);
@@ -100,6 +102,7 @@ export const CreateForm = ({ createId }: { createId: string }) => {
         setValue("isActive", true);
         setValue("isDiscountable", true);
         setValue("pictures", "");
+        setValue("remark", "");
       }
     } catch (error: any) {
       setToggleAlert(true);
@@ -128,6 +131,16 @@ export const CreateForm = ({ createId }: { createId: string }) => {
       <InputField name="price" type="number" label="Price" />
       <Checkbox name="isActive" label="Active" />
       <Checkbox name="isDiscountable" label="Discountable" />
+      <div className="col-span-2">
+        <InputField
+          name="remark"
+          type="text"
+          label="Remark"
+          multiline
+          minRows={3}
+        />
+      </div>
+
       <ImageUpload
         previewUrl={previewUrl}
         setPreviewUrl={setPreviewUrl}

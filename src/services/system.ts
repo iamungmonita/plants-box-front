@@ -37,7 +37,7 @@ export function CreateExpense(
 }
 
 export interface ApiOptions {
-  params?: { id?: string; purchasedId?: string };
+  params?: { id?: string; purchasedId?: string; barcode?: string };
   queryParam?: queryParam;
 }
 export function getExpenseById({

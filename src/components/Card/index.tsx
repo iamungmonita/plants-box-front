@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Card } from "@mui/material";
 import { addToCart } from "@/helpers/addToCart";
@@ -6,7 +6,7 @@ import { ProductResponse } from "@/models/Product";
 
 const POSCard = ({ product }: { product: ProductResponse }) => {
   const onClickedAddToItem = () => {
-    addToCart(product._id, "plants");
+    addToCart(product.barcode, "plants");
   };
 
   return (

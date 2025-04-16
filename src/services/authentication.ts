@@ -22,6 +22,12 @@ export function SignIn(form: IAuthLogIn): Promise<ILayout<ProfileWithCount>> {
   const url = `${API_URL}/auth/sign-in`;
   return POST<ILayout<ProfileWithCount>, IAuthLogIn>(url, form);
 }
+export function getDiscountPermission(
+  form: IAuthLogIn
+): Promise<ILayout<boolean>> {
+  const url = `${API_URL}/auth/discount-permission`;
+  return POST<ILayout<boolean>, IAuthLogIn>(url, form);
+}
 export function SignUp(form: IAuthRegister): Promise<ILayout<Profile>> {
   const url = `${API_URL}/auth/sign-up`;
   return POSTWithToken<ILayout<Profile>, IAuthRegister>(url, form);

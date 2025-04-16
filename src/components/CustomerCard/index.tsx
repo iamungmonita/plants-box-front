@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { addToCart, handleDecrement } from "@/helpers/addToCart";
+import React from "react";
 import { useCartItems } from "@/hooks/useCartItems";
 import { ShoppingCartProduct, CartCardProps } from "@/models/Cart";
 
@@ -7,8 +6,8 @@ const CustomerCard = <T extends ShoppingCartProduct>({
   item,
   idx,
 }: CartCardProps<T>) => {
-  const { items } = useCartItems();
-
+  const discountedValue =
+    (item.price * item.quantity * Number(item.discount)) / 100;
   return (
     <>
       <td className="pt-2 pb-3">{idx ? idx + 1 : 1}</td>
@@ -34,7 +33,7 @@ const CustomerCard = <T extends ShoppingCartProduct>({
         />
       </td>
       <td className="pt-2 pb-3 grid grid-cols-2 w-full min-w-[120px] items-center">
-        <span>${(item.price * item.quantity).toFixed(2)}</span>
+        ${(item.price * item.quantity - discountedValue).toFixed(2)}
       </td>
     </>
   );

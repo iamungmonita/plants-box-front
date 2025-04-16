@@ -72,8 +72,7 @@ const MoneyCounter = () => {
       rielTotal,
       dollarTotal,
     };
-
-    setLoading(true); // Start loading
+    setLoading(true);
 
     try {
       const response = await createLog(data);
@@ -84,7 +83,7 @@ const MoneyCounter = () => {
       console.error("Request failed:", error);
       setCanProceed(false);
     } finally {
-      setLoading(false); // End loading no matter what
+      setLoading(false);
     }
   };
 
@@ -139,9 +138,9 @@ const MoneyCounter = () => {
       </div>
       <CustomButton
         type="submit"
-        theme={loading ? "dark" : "default"}
-        disabled={loading}
-        text={loading ? "Loading" : "Proceed"}
+        theme={!canProceed || loading ? "dark" : "default"}
+        disabled={!canProceed || loading}
+        text={loading ? "Loading..." : "Proceed"}
       />
     </Form>
   );

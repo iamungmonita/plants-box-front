@@ -47,7 +47,7 @@ const Page = () => {
     setPaymentSummary(getPaymentSummary());
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === "paymentSummary") {
-        setPaymentSummary(getPaymentSummary());
+        setPaymentSummary(getPaymentSummary()) ?? [];
       }
     };
     window.addEventListener("storage", handleStorageChange);

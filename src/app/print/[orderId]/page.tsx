@@ -255,8 +255,11 @@ const ReceiptPage = () => {
       printWindow?.addEventListener("load", () => {
         try {
           printWindow?.print();
-          printWindow?.close();
-          window.close();
+
+          printWindow?.addEventListener("afterprint", () => {
+            printWindow?.close();
+            window.close();
+          });
         } catch (error) {
           console.error("Error during printing:", error);
         }

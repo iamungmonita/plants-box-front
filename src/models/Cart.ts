@@ -8,6 +8,7 @@ export interface ShoppingCartProduct {
   isDiscountable: boolean;
   convertedPoints: number;
   pictures?: string;
+  barcode: string;
 }
 
 export interface CartCardProps<ShoppingCartProduct> {

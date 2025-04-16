@@ -110,9 +110,6 @@ const Page = () => {
 
   const onHandlePrint = () => {
     window.open(`/print/${purchasedId}`, "_blank", "width=800,height=600");
-    window.addEventListener("windowClosed", () => {
-      window.close();
-    });
   };
   return (
     <div>

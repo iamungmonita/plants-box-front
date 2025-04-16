@@ -7,6 +7,8 @@ import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { CircularProgress } from "@mui/material";
 import { useRouter } from "next/navigation";
 import AlertPopUp from "@/components/AlertPopUp";
+import dynamic from "next/dynamic";
+const Scanner = dynamic(() => import("../scanner/page"));
 
 export interface RootLayoutProps {
   children: React.ReactNode;
@@ -70,6 +72,7 @@ const PrivateLayout = ({ children }: Readonly<RootLayoutProps>) => {
               {children}
             </div>
           </main>
+          <Scanner />
         </div>
       )}
     </>

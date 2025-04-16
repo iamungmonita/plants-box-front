@@ -216,7 +216,7 @@ const Page = () => {
             <div className="col-span-1 row-span-1 mt-14">
               <div className="p-4 shadow-lg max-h-[35vh] min-h-[35vh] flex flex-col h-full rounded-lg border w-full">
                 <h2 className="text-2xl font-bold">Top 10 Best Sellers</h2>
-                <div className="p-4 w-full flex flex-col h-full justify-center">
+                <div className="px-4 pb-8 w-full flex flex-col h-full justify-center">
                   <BasicPie data={products} />
                 </div>
               </div>

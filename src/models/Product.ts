@@ -12,18 +12,10 @@ export interface Product extends FieldValues {
   isActive: boolean;
   isDiscountable: boolean;
   importedPrice: number;
+  remark?: string;
 }
 
-export interface ProductResponse extends Response {
-  name: string;
-  pictures?: string; // Array of image URLs
-  price: number; // Assuming price is a string; you can change it to a number if needed
-  importedPrice: number; // Assuming price is a string; you can change it to a number if needed
-  category: string;
-  isActive: boolean;
-  isDiscountable: boolean;
-  stock: number; // Number of plants available in stock
-  barcode: string;
+export interface ProductResponse extends Product, Response {
   discount?: number;
   convertedPoints?: number;
   stockUpdateCount?: number;
@@ -32,6 +24,7 @@ export interface ProductResponse extends Response {
   updatedBy?: string;
   soldQty: number;
 }
+
 export interface ProductUpdateCount {
   updateNumber: number;
   addedStock: number;

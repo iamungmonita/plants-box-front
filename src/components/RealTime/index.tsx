@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const formatDate = (date: Date) => {
   const day = date.getDate();
@@ -7,9 +7,8 @@ const formatDate = (date: Date) => {
   const year = date.getFullYear();
   const weekday = date.toLocaleString("en-US", { weekday: "long" });
 
-  // Function to get the correct ordinal suffix (st, nd, rd, th)
   const getOrdinalSuffix = (day: number) => {
-    if (day > 3 && day < 21) return "th"; // 4th to 20th
+    if (day > 3 && day < 21) return "th";
     switch (day % 10) {
       case 1:
         return "st";
@@ -26,19 +25,24 @@ const formatDate = (date: Date) => {
 };
 
 const LocalTime = () => {
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
   useEffect(() => {
+    const now = new Date();
+    setCurrentTime(now); // Mounting trigger to enable rendering
+
     const interval = setInterval(() => {
-      setCurrentTime(new Date()); // Update the time every second
+      setCurrentTime(new Date());
     }, 1000);
 
-    return () => clearInterval(interval); // Cleanup on unmount
+    return () => clearInterval(interval);
   }, []);
+
+  if (!currentTime) return null; // Prevent mismatch on initial SSR
 
   return (
     <div className="flex flex-col justify-end items-end">
-      <span> {formatDate(currentTime)}, </span>
+      <span>{formatDate(currentTime)},</span>
       <span>{currentTime.toLocaleTimeString()}</span>
     </div>
   );

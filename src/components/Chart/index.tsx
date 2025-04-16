@@ -4,7 +4,7 @@ import { PieChart } from "@mui/x-charts/PieChart";
 export default function BasicPie({ data }: { data: any[] }) {
   return (
     <PieChart
-      width={600}
+      width={650}
       height={300} // increase height to give space
       series={[{ data }]}
       margin={{ top: 20, right: 300, bottom: 20, left: 20 }} // adjust as needed
