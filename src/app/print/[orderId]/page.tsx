@@ -223,9 +223,7 @@ const ReceiptPage = () => {
                 </tr>
                 <tr class="flex items-center justify-between w-full">
                   <td class="font-semibold">Discount:</td>
-                  <td>${order.totalDiscountPercentage ?? 0}% $${
-        order?.totalDiscountValue ?? 0
-      }</td>
+                  <td>${order.totalDiscountPercentage ?? 0}%</td>
                 </tr>
 
                 <tr class="flex text-xl font-bold items-center justify-between w-full">

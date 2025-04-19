@@ -29,6 +29,7 @@ const options: Option[] = [
   { label: "Can Edit Voucher", value: "1014" },
   { label: "Can Sell", value: "1015" },
   { label: "Can Update Exchange Rate", value: "1016" },
+  { label: "Is Owner", value: "9999" },
 ];
 
 export default function CheckboxGroup() {

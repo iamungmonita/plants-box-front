@@ -45,11 +45,7 @@ const DiscountPermission = ({
       setToggleAlert(true);
     }
   };
-  console.log(isValidated);
 
-  useEffect(() => {
-    console.log(isValidated);
-  }, [isValidated]);
   return (
     <div className="flex flex-col min-h-full w-3/4 gap-4">
       <AlertPopUp
