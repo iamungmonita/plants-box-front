@@ -41,7 +41,6 @@ import { MembershipType } from "@/constants/membership";
 import AlertPopUp from "@/components/AlertPopUp";
 import Link from "next/link";
 import DiscountPermission from "@/components/Modals/DiscountPermission";
-import BarcodeScannerComponent from "react-qr-barcode-scanner";
 
 const Page = () => {
   const { profile, isValidated, invalidation } = useAuthContext();
@@ -213,7 +212,6 @@ const Page = () => {
       setError(true);
       setToggleAlert(true);
       setAlertMessage("Cannot place order, please check product's stock.");
-      onRemoveHoldOrder();
       return;
     }
 
